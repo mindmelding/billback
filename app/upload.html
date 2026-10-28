@@ -3,272 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Upload Your SDG&E Bills - Billback</title>
+<title>Send your bill — Billback</title>
+<meta name="description" content="Get your power bill back. Upload an SDG&amp;E bill; we work out the savings on your device.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Billback">
+<meta property="og:description" content="Get your power bill back.">
+<meta property="og:image" content="../brand/png/billback-social-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Billback">
+<meta name="twitter:description" content="Get your power bill back.">
+<meta name="twitter:image" content="../brand/png/billback-social-card.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../brand/png/billback-mark-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../brand/png/billback-mark-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="../brand/png/billback-mark-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../brand/png/billback-mark-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../brand/png/billback-mark-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="../brand/png/billback-mark-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
-<style>
-:root {
-  --bg: #ffffff;
-  --panel: #fbfbfc;
-  --line: #e9e9ee;
-  --line-strong: #dcdce3;
-  --fg: #1b1b22;
-  --fg-2: #5d5d6c;
-  --fg-3: #8b8b99;
-  --accent: #5e6ad2;
-  --accent-soft: #eef0fb;
-  --ok: #2f8a4f;
-  --ok-soft: #e9f6ee;
-  --warn: #b26a00;
-  --warn-soft: #fdf3e2;
-  --bad: #c2413a;
-  --bad-soft: #fcecea;
-  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --r: 6px;
-}
-* { box-sizing: border-box; }
-body { 
-  background: var(--bg); 
-  color: var(--fg); 
-  font-family: var(--font); 
-  font-size: 13px; 
-  line-height: 1.5; 
-  -webkit-font-smoothing: antialiased; 
-  margin: 0;
-  padding: 20px;
-}
-.container {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 40px 20px;
-}
-.logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background: var(--accent);
-  display: grid;
-  place-items: center;
-  color: var(--bg);
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 20px;
-}
-h1 {
-  margin: 0 0 10px;
-  font-size: 28px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-.subtitle {
-  color: var(--fg-2);
-  font-size: 15px;
-  margin: 0 0 30px;
-  max-width: 60ch;
-}
-.privacy-banner {
-  background: var(--ok-soft);
-  border: 1px solid var(--ok);
-  border-radius: var(--r);
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  font-size: 13px;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-.privacy-icon {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-.privacy-text {
-  color: var(--ok);
-  font-weight: 500;
-}
-.card {
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  background: var(--panel);
-  padding: 20px;
-  margin-bottom: 20px;
-}
-.card h2 {
-  margin: 0 0 12px;
-  font-size: 15px;
-  font-weight: 600;
-}
-.card p {
-  margin: 0 0 16px;
-  color: var(--fg-2);
-  font-size: 13px;
-}
-.upload-area {
-  border: 2px dashed var(--line-strong);
-  border-radius: var(--r);
-  padding: 32px;
-  text-align: center;
-  background: var(--bg);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.upload-area:hover {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-}
-.upload-area.dragging {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-}
-.upload-icon {
-  font-size: 32px;
-  margin-bottom: 12px;
-}
-.upload-text {
-  font-size: 14px;
-  color: var(--fg);
-  margin-bottom: 6px;
-}
-.upload-hint {
-  font-size: 12px;
-  color: var(--fg-3);
-}
-.file-input {
-  display: none;
-}
-.files-list {
-  margin-top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.file-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  font-size: 12px;
-}
-.file-name {
-  color: var(--fg);
-  font-weight: 500;
-}
-.file-size {
-  color: var(--fg-3);
-  margin-left: 8px;
-}
-.file-remove {
-  background: none;
-  border: none;
-  color: var(--fg-3);
-  cursor: pointer;
-  padding: 4px;
-  font-size: 14px;
-}
-.file-remove:hover {
-  color: var(--bad);
-}
-.btn {
-  font: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  border-radius: 6px;
-  padding: 8px 16px;
-  cursor: pointer;
-  border: 1px solid var(--line-strong);
-  background: var(--bg);
-  color: var(--fg);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.15s;
-}
-.btn:hover {
-  filter: brightness(0.97);
-}
-.btn.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--bg);
-}
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.household-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.form-field label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--fg-2);
-}
-.form-field input,
-.form-field select {
-  font: inherit;
-  font-size: 13px;
-  padding: 6px 10px;
-  border: 1px solid var(--line-strong);
-  border-radius: 5px;
-  background: var(--bg);
-  color: var(--fg);
-}
-.checkbox-field {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.checkbox-field input {
-  width: auto;
-}
-.status {
-  padding: 10px 14px;
-  border-radius: var(--r);
-  font-size: 13px;
-  margin-bottom: 20px;
-  white-space: pre-line;
-}
-.status.info {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-.status.success {
-  background: var(--ok-soft);
-  color: var(--ok);
-}
-.status.error {
-  background: var(--bad-soft);
-  color: var(--bad);
-}
-.progress {
-  margin-top: 12px;
-  padding: 12px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  font-size: 12px;
-  color: var(--fg-2);
-}
-.footer {
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 1px solid var(--line);
-  font-size: 11px;
-  color: var(--fg-3);
-}
-</style>
+<link rel="stylesheet" href="../brand/style-kit/tokens.css">
+<link rel="stylesheet" href="../brand/style-kit/components.css">
+<link rel="stylesheet" href="app.css">
 </head>
-<body>
+<body class="bb">
 
 <script>
 // Define trackEvent once on window before any page script uses it.
@@ -303,88 +60,96 @@ h1 {
 })();
 </script>
 
-<div class="container">
-  <div class="logo">B</div>
-  
-  <h1>Upload Your SDG&E Bills</h1>
-  <p class="subtitle">Upload 1-3 <strong>complete monthly bills</strong> to see your personalized savings. We need regular billing cycles (about 28-31 days) for accurate results. For solar homes, one recent bill with the Net Metering table gives us nearly a full year of usage data.</p>
+<div class="bb-shell">
+  <header class="bb-top">
+    <img class="bb-lockup" src="../brand/billback-lockup.svg" alt="Billback. Get your power bill back.">
+    <span class="bb-chip bb-chip--round">San Diego</span>
+  </header>
 
-  <!-- Privacy Banner -->
-  <div class="privacy-banner">
-    <div class="privacy-icon">🔒</div>
-    <div class="privacy-text">
+  <div class="bb-page-h">
+    <h1 class="bb-h1" style="font-size:var(--bb-text-2xl);letter-spacing:var(--bb-tracking-display)">Send your bill.<br>Get it back.</h1>
+    <p class="bb-body">Upload 1–3 complete monthly SDG&amp;E bills. For solar homes, one recent bill with the Net Metering table gives us nearly a full year of usage. We need regular billing cycles (about 28–31 days).</p>
+  </div>
+
+  <div class="privacy-banner bb-callout bb-callout--save">
+    <div>
       <strong>Your bill never leaves your device.</strong> All processing happens in your browser. No uploads, no servers, no storage. You can delete everything with one click on the results page.
     </div>
   </div>
 
   <div id="status" style="display: none;"></div>
 
-  <div class="card">
-    <h2>Step 1: Upload Bills</h2>
-    <p>Upload your <strong>complete monthly SDG&E bill PDFs</strong>. We'll extract and analyze the data right here in your browser—nothing is sent to any server.</p>
-    <p style="font-size: 12px; color: var(--fg-3); margin-top: -8px;">
-      ✓ Regular monthly bills (about 28-31 days)<br>
-      ✗ Move-in, move-out, or partial bills<br>
-      ✗ True-up-only statements
-    </p>
-    
-    <div class="upload-area" id="uploadArea">
-      <div class="upload-icon">📄</div>
-      <div class="upload-text">Drop PDFs here or click to browse</div>
-      <div class="upload-hint">Accepts complete monthly SDG&E bill PDFs (1-3 bills, any months)</div>
+  <label class="bb-drop" id="uploadArea">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"/></svg>
+    <b>Upload your SDG&amp;E bill</b>
+    <span class="bb-meta">PDF · complete monthly bills, 1–3 files</span>
+    <input type="file" id="fileInput" accept="application/pdf" multiple>
+  </label>
+  <div class="bb-files" id="filesList"></div>
+
+  <ul class="bb-how">
+    <li>
+      <span class="bb-how__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/></svg></span>
+      <div><b>We read the bill</b><span>Plan, provider, usage and every fee.</span></div>
+    </li>
+    <li>
+      <span class="bb-how__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
+      <div><b>We fill in every form</b><span>Each fix becomes one tap, call or signature.</span></div>
+    </li>
+    <li>
+      <span class="bb-how__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>
+      <div><b>You keep the savings</b><span>You give the final click. Always.</span></div>
+    </li>
+  </ul>
+
+  <div class="bb-card">
+    <div class="bb-card__h">
+      <h2 class="bb-h3">About your household</h2>
+      <span class="bb-meta">Optional</span>
     </div>
-    <input type="file" id="fileInput" class="file-input" accept="application/pdf" multiple>
-    
-    <div class="files-list" id="filesList"></div>
+    <div class="bb-card__b">
+      <div class="bb-filled" id="householdForm">
+        <div class="bb-field">
+          <label class="bb-field__k" for="householdSize">People in household</label>
+          <span class="bb-field__v">
+            <select class="bb-input" id="householdSize">
+              <option value="">Not sure</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5+</option>
+            </select>
+          </span>
+        </div>
+        <div class="bb-field">
+          <label class="bb-field__k" for="annualIncome">Annual income (before tax)</label>
+          <span class="bb-field__v">
+            <select class="bb-input" id="annualIncome">
+              <option value="">Prefer not to say</option>
+              <option value="30000">Under $30,000</option>
+              <option value="40000">$30,000 – $45,000</option>
+              <option value="55000">$45,000 – $65,000</option>
+              <option value="75000">$65,000 – $85,000</option>
+              <option value="95000">$85,000+</option>
+            </select>
+          </span>
+        </div>
+        <div class="bb-check">
+          <input type="checkbox" id="isRenter">
+          <label for="isRenter">I rent (don't own this home)</label>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>Step 2: About Your Household (Optional)</h2>
-    <p>Help us personalize your savings. All fields optional.</p>
-    
-    <form class="household-form" id="householdForm">
-      <div class="form-field">
-        <label for="householdSize">People in household</label>
-        <select id="householdSize">
-          <option value="">Not sure</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5+</option>
-        </select>
-      </div>
-      
-      <div class="form-field">
-        <label for="annualIncome">Approximate annual household income (before tax)</label>
-        <select id="annualIncome">
-          <option value="">Prefer not to say</option>
-          <option value="30000">Under $30,000</option>
-          <option value="40000">$30,000 - $45,000</option>
-          <option value="55000">$45,000 - $65,000</option>
-          <option value="75000">$65,000 - $85,000</option>
-          <option value="95000">$85,000+</option>
-        </select>
-      </div>
-      
-      <div class="checkbox-field">
-        <input type="checkbox" id="isRenter">
-        <label for="isRenter">I rent (don't own this home)</label>
-      </div>
-    </form>
-  </div>
-
-  <button type="button" class="btn primary" id="analyzeBtn" disabled>
+  <button type="button" class="bb-btn bb-btn--primary bb-btn--lg bb-btn--block" id="analyzeBtn" disabled>
     Analyze My Bills
   </button>
 
-  <div class="progress" id="progress" style="display: none;"></div>
+  <div class="bb-callout" id="progress" style="display: none;"></div>
 
-  <div class="footer">
-    <p><strong>Why complete monthly bills?</strong> Move-in, move-out, and partial bills don't show your typical usage, so savings estimates would be unreliable. We need regular billing cycles to give you accurate results.</p>
-    <p><strong>100% client-side processing:</strong> Your bill PDF is read by your browser using PDF.js. All parsing, calculations, and analysis happen on your device. Nothing is uploaded to any server. No data is stored anywhere except temporarily in your browser's memory.</p>
-    <p>SDG&E rate tables last updated 2026-10-28. Savings are estimates; rates change several times a year.</p>
-  </div>
+  <p class="bb-trust">Free check. We never store your account number. Move-in, move-out and true-up-only statements don't show typical usage, so we set those aside. SDG&amp;E rate tables last updated 2026-10-28. Savings are estimates; rates change several times a year.</p>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -406,21 +171,18 @@ const progressDiv = document.getElementById('progress');
 
 const files = [];
 
-// Upload area interactions
-uploadArea.addEventListener('click', () => fileInput.click());
-
 uploadArea.addEventListener('dragover', (e) => {
   e.preventDefault();
-  uploadArea.classList.add('dragging');
+  uploadArea.classList.add('is-over');
 });
 
 uploadArea.addEventListener('dragleave', () => {
-  uploadArea.classList.remove('dragging');
+  uploadArea.classList.remove('is-over');
 });
 
 uploadArea.addEventListener('drop', (e) => {
   e.preventDefault();
-  uploadArea.classList.remove('dragging');
+  uploadArea.classList.remove('is-over');
   handleFiles(e.dataTransfer.files);
 });
 
@@ -445,18 +207,19 @@ function renderFilesList() {
   }
 
   filesList.innerHTML = files.map((file, index) => `
-    <div class="file-item">
+    <div class="bb-file">
       <div>
-        <span class="file-name">${file.name}</span>
-        <span class="file-size">${(file.size / 1024).toFixed(1)} KB</span>
+        <span class="bb-file__name">${file.name}</span>
+        <span class="bb-file__size">${(file.size / 1024).toFixed(1)} KB</span>
       </div>
-      <button type="button" class="file-remove" data-index="${index}">×</button>
+      <button type="button" class="bb-file__rm file-remove" data-index="${index}" aria-label="Remove">×</button>
     </div>
   `).join('');
 
-  // Attach remove handlers
   document.querySelectorAll('.file-remove').forEach(btn => {
     btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       const index = parseInt(e.target.dataset.index);
       files.splice(index, 1);
       renderFilesList();
@@ -520,7 +283,8 @@ async function extractTextFromPDF(file) {
 }
 
 function showStatus(type, message) {
-  statusDiv.className = `status ${type}`;
+  const extra = type === 'error' ? 'bb-callout--you' : type === 'success' ? 'bb-callout--save' : '';
+  statusDiv.className = `status bb-callout ${extra}`.trim();
   statusDiv.textContent = message;
   statusDiv.style.display = 'block';
 }

@@ -4,7 +4,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { readFileSync, statSync } from 'fs';
+import { mkdirSync, readFileSync, statSync } from 'fs';
 import { dirname, extname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { createServer } from 'http';
@@ -43,6 +43,7 @@ test.describe('Billback E2E Flow', () => {
           '.css': 'text/css',
           '.json': 'application/json',
           '.png': 'image/png',
+          '.svg': 'image/svg+xml',
           '.jpg': 'image/jpeg',
           '.pdf': 'application/pdf',
         };
@@ -79,9 +80,18 @@ test.describe('Billback E2E Flow', () => {
       }
     });
 
+    const shotDir = '/opt/cursor/artifacts/screenshots';
+    mkdirSync(shotDir, { recursive: true });
+
     await page.goto(serverUrl);
     await page.waitForLoadState('domcontentloaded');
     await expect(page.locator('.privacy-banner')).toBeVisible();
+
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.screenshot({ path: join(shotDir, 'upload_desktop_1280.png'), fullPage: true });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.screenshot({ path: join(shotDir, 'upload_mobile_390.png'), fullPage: true });
+    await page.setViewportSize({ width: 1280, height: 800 });
 
     const fileInput = page.locator('input[type="file"]');
     await expect(fileInput).toBeAttached();
@@ -92,6 +102,13 @@ test.describe('Billback E2E Flow', () => {
     await analyzeButton.click();
 
     await page.waitForURL('**/results.html', { timeout: 60000 });
+    await page.waitForSelector('#results', { state: 'visible', timeout: 15000 });
+
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.screenshot({ path: join(shotDir, 'results_desktop_1280.png'), fullPage: true });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.screenshot({ path: join(shotDir, 'results_mobile_390.png'), fullPage: true });
+    await page.setViewportSize({ width: 1280, height: 800 });
 
     const pageContent = await page.textContent('body');
 

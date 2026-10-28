@@ -3,356 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Savings Results - Billback</title>
+<title>Your savings — Billback</title>
+<meta name="description" content="Get your power bill back. Action pack from your SDG&amp;E bill, computed on your device.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Billback">
+<meta property="og:description" content="Get your power bill back.">
+<meta property="og:image" content="../brand/png/billback-social-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Billback">
+<meta name="twitter:description" content="Get your power bill back.">
+<meta name="twitter:image" content="../brand/png/billback-social-card.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../brand/png/billback-mark-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../brand/png/billback-mark-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="../brand/png/billback-mark-64.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../brand/png/billback-mark-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../brand/png/billback-mark-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="../brand/png/billback-mark-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
-<style>
-:root {
-  --bg: #ffffff;
-  --panel: #fbfbfc;
-  --line: #e9e9ee;
-  --line-strong: #dcdce3;
-  --fg: #1b1b22;
-  --fg-2: #5d5d6c;
-  --fg-3: #8b8b99;
-  --accent: #5e6ad2;
-  --accent-soft: #eef0fb;
-  --ok: #2f8a4f;
-  --ok-soft: #e9f6ee;
-  --warn: #b26a00;
-  --warn-soft: #fdf3e2;
-  --bad: #c2413a;
-  --bad-soft: #fcecea;
-  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --r: 6px;
-}
-* { box-sizing: border-box; }
-body { 
-  background: var(--bg); 
-  color: var(--fg); 
-  font-family: var(--font); 
-  font-size: 13px; 
-  line-height: 1.5; 
-  -webkit-font-smoothing: antialiased;
-  margin: 0;
-  padding: 20px;
-}
-.container {
-  max-width: 1000px;
-  margin: 0 auto;
-}
-.logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background: var(--accent);
-  display: grid;
-  place-items: center;
-  color: var(--bg);
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 20px;
-}
-h1 {
-  margin: 0 0 10px;
-  font-size: 28px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-.subtitle {
-  color: var(--fg-2);
-  font-size: 15px;
-  margin: 0 0 30px;
-  max-width: 70ch;
-}
-.card {
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  background: var(--bg);
-  padding: 20px;
-  margin-bottom: 20px;
-}
-.card h2 {
-  margin: 0 0 12px;
-  font-size: 17px;
-  font-weight: 600;
-}
-.card p {
-  margin: 0 0 16px;
-  color: var(--fg-2);
-  font-size: 13px;
-}
-.alert {
-  padding: 12px 14px;
-  border-radius: var(--r);
-  margin-bottom: 20px;
-  font-size: 13px;
-}
-.alert.urgent {
-  background: var(--warn-soft);
-  border: 1px solid #f1d9ad;
-  color: #6d4300;
-}
-.alert strong {
-  font-weight: 600;
-}
-.metrics {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
-}
-.metric {
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  background: var(--panel);
-}
-.metric .label {
-  font-size: 12px;
-  color: var(--fg-3);
-  margin-bottom: 6px;
-}
-.metric .value {
-  font-size: 28px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--ok);
-  font-variant-numeric: tabular-nums;
-}
-.metric .detail {
-  font-size: 11px;
-  color: var(--fg-3);
-  margin-top: 4px;
-}
-.timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.timeline-item {
-  display: flex;
-  gap: 16px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  background: var(--bg);
-  transition: all 0.15s;
-  cursor: pointer;
-}
-.timeline-item:hover {
-  background: var(--panel);
-  border-color: var(--line-strong);
-}
-.timeline-item.urgent {
-  border-color: var(--bad);
-  background: var(--bad-soft);
-}
-.timeline-item.high {
-  border-color: var(--warn);
-  background: var(--warn-soft);
-}
-.timeline-date {
-  flex-shrink: 0;
-  width: 80px;
-  padding-top: 4px;
-}
-.timeline-date-day {
-  font-size: 11px;
-  color: var(--fg-3);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-.timeline-date-num {
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1;
-  margin-top: 4px;
-}
-.timeline-content {
-  flex: 1;
-}
-.timeline-title {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: var(--fg);
-}
-.timeline-desc {
-  font-size: 12px;
-  color: var(--fg-2);
-  margin-bottom: 8px;
-}
-.timeline-badges {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-.badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 500;
-}
-.badge.urgent {
-  background: var(--bad-soft);
-  color: var(--bad);
-}
-.badge.high {
-  background: var(--warn-soft);
-  color: var(--warn);
-}
-.badge.medium {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-.badge.verified {
-  background: var(--ok-soft);
-  color: var(--ok);
-}
-.badge.unverified {
-  background: var(--fg-3);
-  color: var(--bg);
-}
-.badge.savings {
-  background: var(--ok-soft);
-  color: var(--ok);
-  font-weight: 600;
-}
-.export-buttons {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 16px;
-}
-.btn {
-  font: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  border-radius: 6px;
-  padding: 8px 16px;
-  cursor: pointer;
-  border: 1px solid var(--line-strong);
-  background: var(--bg);
-  color: var(--fg);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.15s;
-}
-.btn:hover {
-  filter: brightness(0.97);
-}
-.btn.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--bg);
-}
-.btn.danger {
-  background: var(--bad);
-  border-color: var(--bad);
-  color: var(--bg);
-}
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.footer {
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 1px solid var(--line);
-  font-size: 11px;
-  color: var(--fg-3);
-}
-.delete-section {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  padding: 16px;
-  margin-top: 30px;
-}
-.delete-section h3 {
-  margin: 0 0 8px;
-  font-size: 14px;
-  font-weight: 600;
-}
-.delete-section p {
-  margin: 0 0 12px;
-  font-size: 12px;
-  color: var(--fg-2);
-}
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-.modal.show {
-  display: flex;
-}
-.modal-content {
-  background: var(--bg);
-  border-radius: var(--r);
-  padding: 24px;
-  max-width: 500px;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-.modal-content h3 {
-  margin: 0 0 12px;
-  font-size: 16px;
-  font-weight: 600;
-}
-.modal-content pre {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--r);
-  padding: 12px;
-  font-size: 11px;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-.modal-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 16px;
-}
-</style>
+<link rel="stylesheet" href="../brand/style-kit/tokens.css">
+<link rel="stylesheet" href="../brand/style-kit/components.css">
+<link rel="stylesheet" href="app.css">
 </head>
-<body>
-<div class="container">
-  <div class="logo">B</div>
-  
-  <div id="loading" style="text-align: center; padding: 60px 0;">
-    <p style="color: var(--fg-3);">Loading your savings report...</p>
+<body class="bb">
+<div class="bb-shell bb-shell--wide">
+  <header class="bb-top">
+    <img class="bb-lockup" src="../brand/billback-lockup.svg" alt="Billback. Get your power bill back.">
+    <span class="bb-chip bb-chip--round">San Diego</span>
+  </header>
+
+  <div id="loading">
+    <p class="bb-meta">Loading your savings report...</p>
   </div>
 
   <div id="results" style="display: none;"></div>
 
-  <div class="footer">
-    <p><strong>Privacy:</strong> Your bill data is stored only in your browser's session storage. It's never sent to any server. You can delete everything with the button above.</p>
-    <p>Savings are estimates from uploaded bills and published rates (last updated 2026-10-28). Rates change several times a year. Behavioral savings are estimates based on research.</p>
-    <p>Per CA PU Code 366.5 and CARE rules, you give the final click, call or signature for provider switches, discounts and plan changes. We never switch providers or sign forms for you.</p>
-  </div>
+  <p class="bb-trust">Your bill data is stored only in this browser. Nothing was sent to a server. Savings are estimates from uploaded bills and published rates (last updated 2026-10-28). Rates change several times a year. Per CA PU Code 366.5 and CARE rules, you give the final click, call or signature. We never switch providers or sign forms for you.</p>
 </div>
 
-<!-- Modal for step details -->
-<div id="stepModal" class="modal">
-  <div class="modal-content">
-    <h3 id="modalTitle"></h3>
-    <div id="modalBody"></div>
-    <div class="modal-buttons">
-      <button class="btn primary" onclick="closeModal()">Close</button>
+<div id="stepModal" class="bb-modal">
+  <div class="bb-modal__box">
+    <h3 class="bb-h2" id="modalTitle"></h3>
+    <div class="bb-modal__body" id="modalBody"></div>
+    <div class="bb-row" style="margin-top:16px">
+      <button class="bb-btn bb-btn--primary" onclick="closeModal()">Close</button>
     </div>
   </div>
 </div>
@@ -407,7 +101,7 @@ const householdData = sessionStorage.getItem('household');
 const parsedBillsData = sessionStorage.getItem('parsedBills');
 
 if (!reportData) {
-  document.getElementById('loading').innerHTML = '<p style="color: var(--bad);">No savings report found. Please <a href="upload.html">upload your bills</a> first.</p>';
+  document.getElementById('loading').innerHTML = '<p class="bb-callout bb-callout--you">No savings report found. Please <a class="bb-link" href="upload.html">upload your bills</a> first.</p>';
 } else {
   const report = JSON.parse(reportData);
   const household = householdData ? JSON.parse(householdData) : {};
@@ -424,119 +118,194 @@ if (!reportData) {
     provider: bills[0]?.provider || 'unknown'
   });
 
-  renderResults(report, household, actionPlan);
+  renderResults(report, household, actionPlan, bills);
 }
 
-function renderResults(report, household, actionPlan) {
+function money(n) {
+  return Math.round(n).toLocaleString('en-US');
+}
+
+function splitCountdown(title) {
+  const raw = String(title || '');
+  const match = raw.match(/^(.*?)\s*\((in \d+ days|NOW)\)\s*$/i);
+  if (!match) return { title: raw, countdown: null };
+  const inner = match[2];
+  return {
+    title: match[1],
+    countdown: /^NOW$/i.test(inner) ? 'Act now' : inner
+  };
+}
+
+function urgencyChip(urgency) {
+  if (urgency === 'urgent') return '<span class="bb-chip bb-chip--over">Urgent</span>';
+  if (urgency === 'high') return '<span class="bb-chip bb-chip--you">Needs you</span>';
+  return '';
+}
+
+function renderResults(report, household, actionPlan, bills) {
   const resultsDiv = document.getElementById('results');
   let html = '';
 
-  // Header
-  const savingsRange = `$${Math.round(report.totalSavingsRange[0])}–${Math.round(report.totalSavingsRange[1])}`;
+  const saveMin = Math.round(report.totalSavingsRange[0]);
+  const saveMax = Math.round(report.totalSavingsRange[1]);
+  const savingsRange = `$${saveMin}–${saveMax}`;
+  const annualNow = Math.round(report.currentPlan.annualCost || 0);
+  const afterMin = Math.max(0, annualNow - saveMax);
+  const afterMax = Math.max(0, annualNow - saveMin);
+  const billAmount = bills[0] && bills[0].totalAmount != null ? bills[0].totalAmount : null;
+  const planLabel = `${report.currentPlan.provider || ''} ${report.currentPlan.plan || ''}`.trim();
+  const usage = bills[0] && bills[0].usage ? bills[0].usage : null;
+
   html += `
-    <h1>You could save ${savingsRange} per year</h1>
-    <p class="subtitle">
-      Based on ${report.billsAnalyzed} bill(s)${report.nemMonthsAnalyzed ? ` with ${report.nemMonthsAnalyzed} months of solar history` : ''}.
-      ${report.currentPlan.provider} ${report.currentPlan.plan} → alternatives and actions below.
-    </p>
-    <p><a href="upload.html">Upload another bill</a></p>
+    <div class="bb-page-h">
+      <p class="bb-eyebrow">You get back</p>
+      <h1 class="bb-display num">${savingsRange} a year</h1>
+      <p class="bb-body">
+        Based on ${report.billsAnalyzed} bill(s)${report.nemMonthsAnalyzed ? ` with ${report.nemMonthsAnalyzed} months of solar history` : ''}.
+        ${planLabel} → alternatives and actions below.
+      </p>
+      <div class="bb-row">
+        ${planLabel ? `<span class="bb-chip bb-chip--round">${planLabel}</span>` : ''}
+        ${billAmount != null ? `<span class="bb-chip bb-chip--over">This bill $${Number(billAmount).toFixed(2)}</span>` : ''}
+        <a class="bb-link" href="upload.html">Upload another bill</a>
+      </div>
+    </div>
   `;
 
-  // True-up projection (engine emits nemTrueUpProjection, not nemTrueUpAlert)
   if (report.nemTrueUpProjection && !report.nemTrueUpProjection.isPast) {
     const projection = report.nemTrueUpProjection;
     html += `
-      <div class="alert ${projection.isUrgent ? 'urgent' : ''}">
-        <strong>${projection.isUrgent ? '⚠️ ' : ''}Solar true-up projection:</strong> ${projection.message}
+      <div class="bb-callout ${projection.isUrgent ? 'bb-callout--you' : ''}">
+        <strong>Solar true-up projection:</strong> ${projection.message}
       </div>
     `;
   }
 
-  // Savings metrics
-  html += '<div class="metrics">';
   html += `
-    <div class="metric">
-      <div class="label">Total Potential Savings</div>
-      <div class="value">${savingsRange}/yr</div>
-      <div class="detail">${report.currentPlan.basis}</div>
+    <div class="bb-receipt">
+      <div class="bb-receipt__row">
+        <span class="bb-receipt__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span>
+        <div class="bb-receipt__l"><b>Paying today</b><span>${planLabel || 'Current plan'}${billAmount != null ? ` · this bill $${Number(billAmount).toFixed(2)}` : ''}</span></div>
+        <span class="bb-receipt__v num">$${money(annualNow)}/yr</span>
+      </div>
+      <div class="bb-receipt__row">
+        <span class="bb-receipt__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12l5 5L20 6"/></svg></span>
+        <div class="bb-receipt__l"><b>After the action pack</b><span>Same usage, cheaper power and better timing</span></div>
+        <span class="bb-receipt__v num">$${money(afterMin)}–${money(afterMax)}/yr</span>
+      </div>
+      <div class="bb-receipt__row bb-receipt__row--total">
+        <span class="bb-receipt__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 14l-4-4 4-4"/><path d="M5 10h9a5 5 0 010 10h-2"/></svg></span>
+        <div class="bb-receipt__l"><b>You get back</b><span>Estimated annual range</span></div>
+        <span class="bb-receipt__v num">${savingsRange}</span>
+      </div>
+      <p class="bb-receipt__foot">${report.currentPlan.basis || 'From the uploaded bill and published 2026 rates.'} Last checked Oct 28, 2026.</p>
     </div>
   `;
-  
+
+  html += '<div class="bb-metrics">';
+  html += `
+    <div class="bb-metric">
+      <span class="bb-metric__k">Total Potential Savings</span>
+      <span class="bb-metric__v bb-metric__v--save num">${savingsRange}/yr</span>
+      <span class="bb-metric__s">${report.currentPlan.basis || ''}</span>
+    </div>
+  `;
+
   if (report.savingsBreakdown) {
     html += `
-      <div class="metric">
-        <div class="label">Provider Switch</div>
-        <div class="value">$${Math.round(report.savingsBreakdown.provider)}</div>
-        <div class="detail">Switch to cheaper option</div>
+      <div class="bb-metric">
+        <span class="bb-metric__k">Provider Switch</span>
+        <span class="bb-metric__v num">$${money(report.savingsBreakdown.provider)}</span>
+        <span class="bb-metric__s">Switch to cheaper option</span>
       </div>
-      <div class="metric">
-        <div class="label">Electric Habits</div>
-        <div class="value">$${Math.round(report.savingsBreakdown.electric[0])}–${Math.round(report.savingsBreakdown.electric[1])}</div>
-        <div class="detail">Thermostat, appliances</div>
+      <div class="bb-metric">
+        <span class="bb-metric__k">Electric Habits</span>
+        <span class="bb-metric__v num">$${money(report.savingsBreakdown.electric[0])}–${money(report.savingsBreakdown.electric[1])}</span>
+        <span class="bb-metric__s">Thermostat, appliances</span>
       </div>
     `;
-    
     if (report.savingsBreakdown.gas[1] > 0) {
       html += `
-        <div class="metric">
-          <div class="label">Gas Savings</div>
-          <div class="value">$${Math.round(report.savingsBreakdown.gas[0])}–${Math.round(report.savingsBreakdown.gas[1])}</div>
-          <div class="detail">Heating, water heater</div>
+        <div class="bb-metric">
+          <span class="bb-metric__k">Gas Savings</span>
+          <span class="bb-metric__v num">$${money(report.savingsBreakdown.gas[0])}–${money(report.savingsBreakdown.gas[1])}</span>
+          <span class="bb-metric__s">Heating, water heater</span>
         </div>
       `;
     }
   }
   html += '</div>';
 
-  // Action Timeline
-  if (actionPlan && actionPlan.steps && actionPlan.steps.length > 0) {
-    html += '<div class="card">';
-    html += '<h2>📅 Your Action Timeline</h2>';
-    html += '<p>Specific steps with dates and deadlines. Click any step for full details.</p>';
-    
-    html += '<div class="timeline">';
-    actionPlan.steps.forEach((step, i) => {
-      const date = step.doByDate ? parseLocalDate(step.doByDate) : new Date();
-      const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      const urgencyClass = step.urgency === 'urgent' ? 'urgent' : step.urgency === 'high' ? 'high' : '';
-      
+  if (usage) {
+    const onP = Number(usage.onPeak) || 0;
+    const offP = Number(usage.offPeak) || 0;
+    const superP = Number(usage.superOffPeak) || 0;
+    const touTotal = onP + offP + superP;
+    if (touTotal > 0) {
+      const pct = (n) => Math.round((n / touTotal) * 100);
       html += `
-        <div class="timeline-item ${urgencyClass}" onclick="showStepDetails(${i})">
-          <div class="timeline-date">
-            <div class="timeline-date-day">${dateStr}</div>
-            <div class="timeline-date-num">${date.getDate()}</div>
+        <div class="bb-tou">
+          <div class="bb-tou__bar" aria-label="Off-peak ${pct(superP + offP)}%, on-peak ${pct(onP)}%">
+            <i class="off" style="flex:${superP + offP}"></i>
+            <i class="on" style="flex:${onP}"></i>
           </div>
-          <div class="timeline-content">
-            <div class="timeline-title">${step.title}</div>
-            <div class="timeline-desc">${truncate(stripHTML(step.description || ''), 120)}</div>
-            <div class="timeline-badges">
-              ${step.urgency ? `<span class="badge ${step.urgency}">${step.urgency.toUpperCase()}</span>` : ''}
-              ${step.verified === false ? '<span class="badge unverified">UNVERIFIED</span>' : ''}
-              ${step.verified === true ? '<span class="badge verified">VERIFIED</span>' : ''}
-              ${step.estimatedSavings ? `<span class="badge savings">${step.estimatedSavings}</span>` : ''}
-            </div>
+          <div class="bb-tou__legend">
+            <span style="color:var(--bb-tou-off)"><b style="color:var(--bb-fg-2);font-weight:400">Off / super off-peak ${pct(superP + offP)}%</b></span>
+            <span style="color:var(--bb-tou-on)"><b style="color:var(--bb-fg-2);font-weight:400">On-peak 4–9pm ${pct(onP)}%</b></span>
           </div>
         </div>
       `;
-    });
-    html += '</div>';
+    }
+  }
 
-    // Export buttons
-    html += '<div class="export-buttons">';
-    html += '<button class="btn primary" onclick="exportToCalendar()">📅 Download Calendar (.ics)</button>';
-    html += '<button class="btn" onclick="exportToMarkdown()">📋 Copy Checklist</button>';
+  if (actionPlan && actionPlan.steps && actionPlan.steps.length > 0) {
+    html += '<div class="bb-stack">';
+    html += '<div class="bb-page-h"><h2 class="bb-h2">Your action timeline</h2><p class="bb-body">Specific steps with dates and deadlines. Click any step for full details.</p></div>';
+
+    html += '<ol class="bb-steps">';
+    actionPlan.steps.forEach((step, i) => {
+      const date = step.doByDate ? parseLocalDate(step.doByDate) : new Date();
+      const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const split = splitCountdown(step.title);
+      const countdownChip = split.countdown
+        ? `<span class="bb-chip">${split.countdown}</span>`
+        : '';
+      html += `
+        <li class="bb-step" onclick="showStepDetails(${i})">
+          <span class="bb-step__n">${i + 1}</span>
+          <span class="bb-step__t">
+            <b>${split.title}</b>
+            <span>${dateStr} · ${truncate(plainPreview(step.description || ''), 120)}</span>
+          </span>
+          <span class="bb-step__chips">
+            ${countdownChip}
+            ${urgencyChip(step.urgency)}
+            ${step.verified === false ? '<span class="bb-chip">Unverified</span>' : ''}
+            ${step.verified === true ? '<span class="bb-chip bb-chip--save">Verified</span>' : ''}
+            ${step.estimatedSavings ? `<span class="bb-chip bb-chip--save">${step.estimatedSavings}</span>` : ''}
+          </span>
+        </li>
+      `;
+    });
+    html += '</ol>';
+
+    html += '<div class="bb-row">';
+    html += '<button class="bb-btn bb-btn--primary" onclick="exportToCalendar()">Download Calendar (.ics)</button>';
+    html += '<button class="bb-btn" onclick="exportToMarkdown()">Copy checklist</button>';
     html += '</div>';
-    
     html += '</div>';
   }
 
-  // Delete data section
   html += `
-    <div class="delete-section">
-      <h3>🔒 Your Data</h3>
-      <p>Your bill data and results are stored only in your browser. Nothing was sent to any server. You can delete everything right now:</p>
-      <p><a href="upload.html">Upload another bill</a></p>
-      <button class="btn danger" onclick="deleteAllData()">Delete My Data</button>
+    <div class="bb-card bb-card--soft">
+      <div class="bb-card__b bb-stack">
+        <h3 class="bb-h3">Your data</h3>
+        <p class="bb-body">Your bill data and results are stored only in your browser. Nothing was sent to any server. You can delete everything right now.</p>
+        <div class="bb-row">
+          <a class="bb-link" href="upload.html">Upload another bill</a>
+          <button class="bb-btn bb-btn--danger" onclick="deleteAllData()">Delete My Data</button>
+        </div>
+      </div>
     </div>
   `;
 
@@ -556,7 +325,13 @@ function stripHTML(html) {
   return tmp.textContent || tmp.innerText || '';
 }
 
-// Global functions for UI interactions
+function plainPreview(html) {
+  return stripHTML(html)
+    .replace(/\*\*/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 window.showStepDetails = function(index) {
   const reportData = sessionStorage.getItem('savingsReport');
   const householdData = sessionStorage.getItem('household');
@@ -568,10 +343,11 @@ window.showStepDetails = function(index) {
   
   const actionPlan = generateDatedActionPlan(report, bills, household);
   const step = actionPlan.steps[index];
+  const split = splitCountdown(step.title);
   
-  document.getElementById('modalTitle').textContent = step.title;
+  document.getElementById('modalTitle').textContent = split.title;
   
-  let bodyHTML = `<div style="font-size: 13px; line-height: 1.6;">`;
+  let bodyHTML = `<div>`;
   bodyHTML += step.description ? `<div style="margin-bottom: 12px;">${formatMarkdown(step.description)}</div>` : '';
   
   if (step.howTo && step.howTo.instructions) {
@@ -586,7 +362,6 @@ window.showStepDetails = function(index) {
   document.getElementById('modalBody').innerHTML = bodyHTML;
   document.getElementById('stepModal').classList.add('show');
   
-  // Track step viewed (anonymous)
   window.trackEvent('step_viewed', {
     step_category: step.category,
     step_urgency: step.urgency
@@ -608,7 +383,6 @@ window.exportToCalendar = async function() {
   
   const actionPlan = generateDatedActionPlan(report, bills, household);
   
-  // Convert steps to calendar format
   const calendarSteps = actionPlan.steps.map(step => ({
     what: step.title,
     how: step.description,
@@ -623,7 +397,6 @@ window.exportToCalendar = async function() {
   const icsContent = generateICSContent(calendarSteps, 'Billback Savings Action Plan');
   downloadICS(icsContent, 'billback-action-plan.ics');
   
-  // Track export (anonymous)
   window.trackEvent('calendar_exported', {
     step_count: calendarSteps.length
   });
@@ -640,9 +413,8 @@ window.exportToMarkdown = async function() {
   
   const actionPlan = generateDatedActionPlan(report, bills, household);
   
-  // Convert steps to markdown format
   const mdSteps = actionPlan.steps.map(step => ({
-    what: step.title,
+    what: splitCountdown(step.title).title,
     how: stripHTML(step.description),
     date: step.doByDate || new Date(),
     estimatedSavings: step.estimatedSavings,
@@ -654,14 +426,12 @@ window.exportToMarkdown = async function() {
   
   const success = await copyToClipboard(markdown);
   if (success) {
-    alert('✓ Checklist copied to clipboard! Paste it into your notes app.');
+    alert('Checklist copied to clipboard. Paste it into your notes app.');
   } else {
-    // Fallback: download as file
     downloadTextFile(markdown, 'billback-action-checklist.md', 'text/markdown');
-    alert('✓ Checklist downloaded as billback-action-checklist.md');
+    alert('Checklist downloaded as billback-action-checklist.md');
   }
   
-  // Track export (anonymous)
   window.trackEvent('checklist_exported', {
     step_count: mdSteps.length
   });
@@ -673,23 +443,20 @@ window.deleteAllData = function() {
     sessionStorage.removeItem('household');
     sessionStorage.removeItem('parsedBills');
     
-    // Track deletion (anonymous)
     window.trackEvent('data_deleted', {});
     
-    alert('✓ All your data has been deleted from this browser.');
+    alert('All your data has been deleted from this browser.');
     window.location.href = 'upload.html';
   }
 };
 
 function formatMarkdown(text) {
-  // Simple markdown-to-HTML conversion for modal display
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\n\n/g, '</p><p>')
     .replace(/\n/g, '<br>');
 }
 
-// Close modal on background click
 document.getElementById('stepModal').addEventListener('click', function(e) {
   if (e.target === this) {
     closeModal();

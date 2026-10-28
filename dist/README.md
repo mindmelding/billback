@@ -9,6 +9,8 @@ python3 -m http.server 8000
 
 - `index.html` — upload page
 - `results.html` — action timeline and calendar export
+- `app.css` — page shell
+- `brand/` — style-kit CSS, lockup, favicons, social card (relative paths)
 - `src/` — parser, engine, rates, timing, calendar
 
 Your bill never leaves the device. No dummy PostHog key is loaded.
