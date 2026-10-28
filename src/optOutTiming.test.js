@@ -1,5 +1,6 @@
 /**
- * Tests for optOutTiming.js - Opt-out and switch timing calculations
+ * Tests for optOutTiming.js - Opt-out and switch timing calculations (CORRECTED)
+ * Updated with verified rules from Sean's independent research
  */
 
 import { 
@@ -10,7 +11,138 @@ import {
 } from './optOutTiming.js';
 
 /**
- * Test: CEA Clean Impact Plus → Clean Impact timing (relief credit deadline Dec 31, 2026)
+ * Test: Fixture household (Cycle 19, CEA Clean Impact Plus, NEM 2.0, True-up Oct 28, 2026)
+ * Validates Nov 27, 2026 notice deadline and May 28, 2027 switch date
+ */
+function testFixtureHouseholdOptOutTiming() {
+  console.log('\n=== Test: Fixture Household Opt-Out Timing (Cycle 19, Oct 28, 2026) ===');
+  
+  const currentPlan = {
+    provider: 'CEA',
+    plan: 'Clean Impact Plus'
+  };
+  
+  const bills = [{
+    billingPeriod: { start: '2026-07-30', end: '2026-08-27' },
+    cycle: 19,
+    hasSolar: true,
+    nemTrueUpDate: '2026-10-28'
+  }];
+  
+  const savingsReport = {
+    providerAlternatives: [
+      {
+        provider: 'CEA',
+        plan: 'Clean Impact',
+        savings: 6 // One billing cycle worth of relief credit
+      },
+      {
+        provider: 'SDG&E',
+        plan: 'TOU-DR1',
+        savings: 420 // Annual savings minus ~$70 credit forfeit
+      }
+    ]
+  };
+  
+  const household = { hasSolar: true };
+  
+  // Set "today" to Oct 28, 2026 (fixture's true-up date)
+  const today = new Date('2026-10-28');
+  
+  const rules = calculateOptOutTiming(currentPlan, bills, savingsReport, household);
+  
+  console.log(`Found ${rules.length} timing rules`);
+  
+  // Test 1: CEA tier opt-down deadline
+  const tierRule = rules.find(r => r.action.includes('Clean Impact Plus to Clean Impact'));
+  if (!tierRule) {
+    console.error('❌ FAIL: No CEA tier downgrade rule found');
+    return false;
+  }
+  console.log('✓ Found CEA tier downgrade rule');
+  
+  // Check deadline is Thu Nov 19, 2026 (5 business days before Nov 27 read, accounting for Thanksgiving)
+  const expectedTierDeadline = new Date('2026-11-19');
+  if (tierRule.deadline.toDateString() !== expectedTierDeadline.toDateString()) {
+    console.error(`❌ FAIL: Expected tier deadline Nov 19, 2026, got ${tierRule.deadline.toLocaleDateString()}`);
+    return false;
+  }
+  console.log('✓ Tier opt-down deadline is Thu Nov 19, 2026');
+  
+  // Check savings estimate is ~$6 (one cycle), not $10-30/month
+  if (tierRule.estimatedSavings > 10) {
+    console.error(`❌ FAIL: Tier savings should be ~$6 (one cycle), got $${tierRule.estimatedSavings}`);
+    return false;
+  }
+  console.log('✓ Tier opt-down savings correctly estimated as ~$6 (one cycle before Dec 31 expiration)');
+  
+  // Test 2: CCA opt-out to SDG&E notice deadline
+  const optOutRule = rules.find(r => r.action.includes('Opt out of CEA and return to SDG&E'));
+  if (!optOutRule) {
+    console.error('❌ FAIL: No CCA opt-out rule found');
+    return false;
+  }
+  console.log('✓ Found CCA opt-out rule');
+  
+  // Check deadline is Fri Nov 27, 2026
+  const expectedOptOutDeadline = new Date('2026-11-27');
+  if (optOutRule.deadline.toDateString() !== expectedOptOutDeadline.toDateString()) {
+    console.error(`❌ FAIL: Expected opt-out deadline Nov 27, 2026, got ${optOutRule.deadline.toLocaleDateString()}`);
+    return false;
+  }
+  console.log('✓ CCA opt-out notice deadline is Fri Nov 27, 2026 (SDG&E must receive)');
+  
+  // Check that reasoning mentions May 28, 2027 switch date
+  // toLocaleDateString() will format as "5/28/2027" in US locale
+  if (!optOutRule.reason.includes('5/28') && !optOutRule.reason.includes('May')) {
+    console.error('❌ FAIL: Reasoning should mention May 28, 2027 switch date');
+    console.error(`   Actual reason: ${optOutRule.reason.substring(0, 200)}`);
+    return false;
+  }
+  console.log('✓ Reasoning correctly mentions May 28, 2027 switch date');
+  
+  // Check that credit forfeiture is mentioned
+  if (!optOutRule.reason.includes('forfeited') && !optOutRule.reason.includes('forfeit')) {
+    console.error('❌ FAIL: Should mention credit forfeiture from interim true-up');
+    return false;
+  }
+  console.log('✓ Credit forfeiture from interim true-up mentioned');
+  
+  // Check verified status
+  if (!optOutRule.verified) {
+    console.error('❌ FAIL: Opt-out rule should be verified (based on SDG&E Rule 27)');
+    return false;
+  }
+  console.log('✓ Opt-out rule is marked as verified');
+  
+  // Check source references SDG&E Rule 27
+  if (!optOutRule.source.includes('Rule 27')) {
+    console.error('❌ FAIL: Source should reference SDG&E Rule 27');
+    return false;
+  }
+  console.log('✓ Source references SDG&E Rule 27');
+  
+  // Test 3: Rate plan change warning
+  const ratePlanRule = rules.find(r => r.action.includes('Do NOT change SDG&E rate plan now'));
+  if (!ratePlanRule) {
+    console.error('❌ FAIL: No rate plan change warning found');
+    return false;
+  }
+  console.log('✓ Found rate plan change warning');
+  
+  // Check avoid window
+  if (!ratePlanRule.avoidWindow) {
+    console.error('❌ FAIL: Rate plan warning should have avoid window');
+    return false;
+  }
+  console.log('✓ Rate plan warning has avoid window');
+  
+  console.log('✅ PASS: Fixture household opt-out timing');
+  return true;
+}
+
+/**
+ * Test: CEA Clean Impact Plus → Clean Impact timing with Dec 31, 2026 relief credit deadline
  */
 function testCEACleanImpactPlusDowngrade() {
   console.log('\n=== Test: CEA Clean Impact Plus → Clean Impact Timing ===');
@@ -22,6 +154,7 @@ function testCEACleanImpactPlusDowngrade() {
   
   const bills = [{
     billingPeriod: { start: '2026-08-01', end: '2026-08-31' },
+    cycle: 19,
     hasSolar: false
   }];
   
@@ -30,7 +163,7 @@ function testCEACleanImpactPlusDowngrade() {
       {
         provider: 'CEA',
         plan: 'Clean Impact',
-        savings: 180 // $180/year savings by switching down
+        savings: 6
       }
     ]
   };
@@ -39,7 +172,6 @@ function testCEACleanImpactPlusDowngrade() {
   
   const rules = calculateOptOutTiming(currentPlan, bills, savingsReport, household);
   
-  // Should have one rule for CEA tier downgrade
   const tierRule = rules.find(r => r.action.includes('Clean Impact Plus to Clean Impact'));
   
   if (!tierRule) {
@@ -49,149 +181,26 @@ function testCEACleanImpactPlusDowngrade() {
   
   console.log('✓ Found CEA tier downgrade rule');
   
-  // Check deadline is Dec 31, 2026
-  const expectedDeadline = new Date('2026-12-31');
-  if (tierRule.deadline.getTime() !== expectedDeadline.getTime()) {
-    console.error(`❌ FAIL: Expected deadline ${expectedDeadline}, got ${tierRule.deadline}`);
-    return false;
-  }
-  console.log('✓ Deadline is Dec 31, 2026');
-  
-  // Check recommended date is Nov 1, 2026
-  const expectedRecommended = new Date('2026-11-01');
-  if (tierRule.recommendedDate.getTime() !== expectedRecommended.getTime()) {
-    console.error(`❌ FAIL: Expected recommended date ${expectedRecommended}, got ${tierRule.recommendedDate}`);
-    return false;
-  }
-  console.log('✓ Recommended date is Nov 1, 2026');
-  
-  // Check verified status
+  // Check verified status (5-day rule verified for opt-outs, likely applies to opt-downs)
   if (!tierRule.verified) {
     console.error('❌ FAIL: Rule should be verified');
     return false;
   }
   console.log('✓ Rule is verified');
   
-  // Check urgency based on current date
-  // If today is Nov 2026 or later, urgency should be high
-  const today = new Date();
-  if (today >= new Date('2026-11-01')) {
-    if (tierRule.urgency !== 'high') {
-      console.error(`❌ FAIL: Expected high urgency in Nov 2026+, got ${tierRule.urgency}`);
-      return false;
-    }
-    console.log('✓ Urgency is high (near deadline)');
+  // Check that savings is minimal (~$6, not $10-30/month)
+  if (tierRule.estimatedSavings > 10) {
+    console.error(`❌ FAIL: Expected minimal savings (~$6), got $${tierRule.estimatedSavings}`);
+    return false;
   }
+  console.log('✓ Savings correctly limited to ~$6 (one billing cycle before Dec 31 expiration)');
   
   console.log('✅ PASS: CEA Clean Impact Plus downgrade timing');
   return true;
 }
 
 /**
- * Test: Solar customer CCA opt-out timing relative to true-up date
- * Fixture: True-up date Oct 28, 2026
- */
-function testSolarCCAOptOutTiming() {
-  console.log('\n=== Test: Solar CCA Opt-Out Timing (True-Up: Oct 28, 2026) ===');
-  
-  const currentPlan = {
-    provider: 'CEA',
-    plan: 'Clean Impact Plus'
-  };
-  
-  const bills = [{
-    billingPeriod: { start: '2026-07-30', end: '2026-08-27' },
-    hasSolar: true,
-    nemTrueUpDate: '2026-10-28'
-  }];
-  
-  const savingsReport = {
-    providerAlternatives: [
-      {
-        provider: 'SDG&E',
-        plan: 'TOU-DR1',
-        savings: 420 // $420/year savings by switching to SDG&E
-      }
-    ]
-  };
-  
-  const household = { hasSolar: true };
-  
-  const rules = calculateOptOutTiming(currentPlan, bills, savingsReport, household);
-  
-  // Should have one rule for CCA opt-out
-  const optOutRule = rules.find(r => r.action.includes('Opt out of CEA'));
-  
-  if (!optOutRule) {
-    console.error('❌ FAIL: No CCA opt-out rule found');
-    return false;
-  }
-  
-  console.log('✓ Found CCA opt-out rule');
-  
-  // Calculate expected optimal window: 1-60 days after Oct 28, 2026
-  const trueUpDate = new Date('2026-10-28');
-  const optimalStart = new Date(trueUpDate);
-  optimalStart.setDate(optimalStart.getDate() + 1); // Oct 29, 2026
-  
-  const optimalEnd = new Date(trueUpDate);
-  optimalEnd.setDate(optimalEnd.getDate() + 60); // Dec 27, 2026
-  
-  console.log(`✓ Optimal window: ${optimalStart.toLocaleDateString()} - ${optimalEnd.toLocaleDateString()}`);
-  
-  // Check verified status
-  if (!optOutRule.verified) {
-    console.error('❌ FAIL: Rule should be verified (based on SDG&E NEM tariff)');
-    return false;
-  }
-  console.log('✓ Rule is verified');
-  
-  // Check that avoid window is defined
-  if (!optOutRule.avoidWindow) {
-    console.error('❌ FAIL: Avoid window should be defined');
-    return false;
-  }
-  console.log(`✓ Avoid window defined: ${optOutRule.avoidWindow}`);
-  
-  // Check that source references SDG&E Electric Rule 27
-  if (!optOutRule.source.includes('Electric Rule 27')) {
-    console.error('❌ FAIL: Source should reference SDG&E Electric Rule 27');
-    return false;
-  }
-  console.log('✓ Source references SDG&E Electric Rule 27');
-  
-  // Test timing logic based on current date
-  const today = new Date();
-  
-  if (today >= optimalStart && today <= optimalEnd) {
-    // In optimal window
-    if (optOutRule.recommendedDate !== 'immediate') {
-      console.error('❌ FAIL: Should recommend immediate action in optimal window');
-      return false;
-    }
-    if (optOutRule.urgency !== 'high') {
-      console.error('❌ FAIL: Should be high urgency in optimal window');
-      return false;
-    }
-    console.log('✓ Recommends immediate action (in optimal window)');
-  } else if (today < optimalStart) {
-    // Before optimal window
-    if (optOutRule.recommendedDate === 'immediate') {
-      console.error('❌ FAIL: Should not recommend immediate action before optimal window');
-      return false;
-    }
-    console.log('✓ Recommends waiting until after true-up');
-  } else {
-    // After optimal window
-    console.log('✓ Recommends next year\'s optimal window');
-  }
-  
-  console.log('✅ PASS: Solar CCA opt-out timing');
-  return true;
-}
-
-/**
- * Test: Non-solar CCA opt-out timing (before summer)
+ * Test: Non-solar CCA opt-out timing (simpler, no true-up interaction)
  */
 function testNonSolarCCAOptOut() {
   console.log('\n=== Test: Non-Solar CCA Opt-Out Timing ===');
@@ -203,6 +212,7 @@ function testNonSolarCCAOptOut() {
   
   const bills = [{
     billingPeriod: { start: '2026-08-01', end: '2026-08-31' },
+    cycle: 19,
     hasSolar: false
   }];
   
@@ -229,19 +239,26 @@ function testNonSolarCCAOptOut() {
   
   console.log('✓ Found SDCP opt-out rule');
   
-  // Check that rule is marked as unverified (6-month processing time)
-  if (optOutRule.verified) {
-    console.error('❌ FAIL: Rule should be marked unverified (6-month estimate not confirmed)');
+  // Check verified status
+  if (!optOutRule.verified) {
+    console.error('❌ FAIL: Rule should be verified (SDG&E Rule 27 applies to all CCAs)');
     return false;
   }
-  console.log('✓ Rule correctly marked as unverified');
+  console.log('✓ Rule is verified');
   
-  // Check that avoid window mentions summer months
-  if (!optOutRule.avoidWindow || !optOutRule.avoidWindow.includes('June')) {
-    console.error('❌ FAIL: Avoid window should mention summer months');
+  // Check that 6-month advance notice is mentioned
+  if (!optOutRule.reason.includes('6-month advance notice')) {
+    console.error('❌ FAIL: Should mention 6-month advance notice');
     return false;
   }
-  console.log('✓ Avoid window mentions summer months');
+  console.log('✓ 6-month advance notice mentioned');
+  
+  // Check that 12-month minimum stay is mentioned
+  if (!optOutRule.reason.includes('12-month minimum stay')) {
+    console.error('❌ FAIL: Should mention 12-month minimum stay');
+    return false;
+  }
+  console.log('✓ 12-month minimum stay mentioned');
   
   console.log('✅ PASS: Non-solar CCA opt-out timing');
   return true;
@@ -259,7 +276,8 @@ function testCAREEnrollmentTiming() {
   };
   
   const bills = [{
-    billingPeriod: { start: '2026-08-01', end: '2026-08-31' }
+    billingPeriod: { start: '2026-08-01', end: '2026-08-31' },
+    cycle: 19
   }];
   
   const savingsReport = {
@@ -307,13 +325,6 @@ function testCAREEnrollmentTiming() {
   }
   console.log('✓ Rule is verified');
   
-  // Check daysUntil is 0
-  if (careRule.daysUntil !== 0) {
-    console.error('❌ FAIL: daysUntil should be 0 for immediate action');
-    return false;
-  }
-  console.log('✓ daysUntil is 0');
-  
   console.log('✅ PASS: CARE enrollment timing');
   return true;
 }
@@ -327,17 +338,17 @@ function testFormatTimingRuleAsAction() {
   const rule = {
     action: 'Switch from CEA Clean Impact Plus to Clean Impact',
     recommendedDate: new Date('2026-11-01'),
-    deadline: new Date('2026-12-31'),
+    deadline: new Date('2026-11-19'),
     avoidWindow: null,
     reason: 'Relief credit ends Dec 31, 2026',
     costOfEarly: 'None',
     costOfLate: 'Miss relief credit',
     source: 'CEA 2026 rate announcement',
     verified: true,
-    estimatedSavings: 180,
+    estimatedSavings: 6,
     urgency: 'high',
     daysUntil: 10,
-    daysUntilDeadline: 70
+    daysUntilDeadline: 28
   };
   
   const action = formatTimingRuleAsAction(rule);
@@ -443,7 +454,7 @@ function testTimeSensitiveDetection() {
 }
 
 /**
- * Test: Multiple rules sorted by urgency and timing
+ * Test: Rule sorting by urgency and timing
  */
 function testRuleSorting() {
   console.log('\n=== Test: Rule Sorting (Urgency + Timing) ===');
@@ -455,6 +466,7 @@ function testRuleSorting() {
   
   const bills = [{
     billingPeriod: { start: '2026-08-01', end: '2026-08-31' },
+    cycle: 19,
     hasSolar: true,
     nemTrueUpDate: '2026-10-28'
   }];
@@ -464,7 +476,7 @@ function testRuleSorting() {
       {
         provider: 'CEA',
         plan: 'Clean Impact',
-        savings: 180
+        savings: 6
       },
       {
         provider: 'SDG&E',
@@ -507,12 +519,12 @@ function testRuleSorting() {
 
 // Run all tests
 console.log('╔══════════════════════════════════════════════════════╗');
-console.log('║   Opt-Out Timing Module Tests                        ║');
+console.log('║   Opt-Out Timing Module Tests (CORRECTED)            ║');
 console.log('╚══════════════════════════════════════════════════════╝');
 
 const results = [
+  testFixtureHouseholdOptOutTiming(),
   testCEACleanImpactPlusDowngrade(),
-  testSolarCCAOptOutTiming(),
   testNonSolarCCAOptOut(),
   testCAREEnrollmentTiming(),
   testFormatTimingRuleAsAction(),

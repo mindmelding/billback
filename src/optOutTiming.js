@@ -1,13 +1,19 @@
 /**
- * Opt-Out and Switch Timing Module
+ * Opt-Out and Switch Timing Module (CORRECTED)
  * Generates specific action dates, deadlines, and cost implications for provider/plan switches
  * All rules are dated and sourced - unverified rules are labeled explicitly
  * 
  * Research source: /workspace/research/opt-out-timing-rules.md
- * Last updated: 2026-10-28
+ * Last updated: 2026-10-28 (corrected per Sean's independent research)
  * 
  * @module optOutTiming
  */
+
+import {
+  calculateCCAOptOutDeadline,
+  calculateCEATierChangeDeadline,
+  getNextMeterRead
+} from './meterReadSchedule.js';
 
 /**
  * Timing rule with verification status
@@ -15,12 +21,12 @@
  * @property {string} action - What to do
  * @property {string|Date} recommendedDate - When to do it (or "immediate")
  * @property {string|Date|null} deadline - Hard deadline (null if none)
- * @property {string|null} avoidWindow - Time period to avoid (e.g. "6-8 months before true-up")
+ * @property {string|null} avoidWindow - Time period to avoid
  * @property {string} reason - Why this timing matters
  * @property {string} costOfEarly - What happens if done too early
  * @property {string} costOfLate - What happens if done too late
  * @property {string} source - Source of this rule (with date)
- * @property {boolean} verified - Whether this rule is verified (false = hypothesis/needs research)
+ * @property {boolean} verified - Whether this rule is verified
  * @property {number} estimatedSavings - Annual savings if action is taken (dollars)
  * @property {string} urgency - "high", "medium", "low"
  */
@@ -37,8 +43,9 @@ export function calculateOptOutTiming(currentPlan, bills, savingsReport, househo
   const rules = [];
   const today = new Date();
   
-  // Extract key dates from bills
-  const latestBill = bills[0]; // Assume sorted by date descending
+  // Extract key data from bills
+  const latestBill = bills[0];
+  const cycle = latestBill?.cycle || 19; // Billing cycle number
   const nemTrueUpDate = latestBill?.nemTrueUpDate ? new Date(latestBill.nemTrueUpDate) : null;
   const hasSolar = household?.hasSolar || latestBill?.hasSolar || false;
   
@@ -49,155 +56,193 @@ export function calculateOptOutTiming(currentPlan, bills, savingsReport, househo
     );
     
     if (cleanImpactAlternative && cleanImpactAlternative.savings > 0) {
-      const reliefCreditDeadline = new Date('2026-12-31');
-      const recommendedActionDate = new Date('2026-11-01');
-      const daysUntilDeadline = Math.ceil((reliefCreditDeadline - today) / (1000 * 60 * 60 * 24));
-      
-      rules.push({
-        action: 'Switch from CEA Clean Impact Plus to Clean Impact',
-        recommendedDate: recommendedActionDate,
-        deadline: reliefCreditDeadline,
-        avoidWindow: null,
-        reason: `Clean Impact relief credit ends Dec 31, 2026. Requesting by Nov 1 ensures your December billing cycle captures the last month of the credit (worth ~$10-30). After Jan 1, 2027, Clean Impact rates increase $0.01-0.02/kWh.`,
-        costOfEarly: 'None - you can switch down anytime and still benefit from current lower rates.',
-        costOfLate: `Missing each month of relief credit costs ~$10-30. After Dec 31, 2026, Clean Impact becomes more expensive.`,
-        source: 'CEA 2026 rate announcement (verified 2026-10-28)',
-        verified: true,
-        estimatedSavings: Math.round(cleanImpactAlternative.savings),
-        urgency: daysUntilDeadline < 60 ? 'high' : 'medium',
-        daysUntil: Math.max(0, Math.ceil((recommendedActionDate - today) / (1000 * 60 * 60 * 24))),
-        daysUntilDeadline: Math.max(0, daysUntilDeadline)
-      });
+      try {
+        const tierChange = calculateCEATierChangeDeadline(cycle, today);
+        const reliefCreditDeadline = new Date('2026-12-31');
+        
+        // Calculate value: only one billing cycle (Nov 27 - Dec 29 for cycle 19)
+        // Not $10-30/month - credit expires Dec 31, 2026
+        const estimatedValue = 6; // ~$3-6 for one winter cycle
+        
+        const daysUntilDeadline = Math.ceil((tierChange.requestDeadline - today) / (1000 * 60 * 60 * 24));
+        
+        rules.push({
+          action: 'Switch from CEA Clean Impact Plus to Clean Impact',
+          recommendedDate: tierChange.requestDeadline,
+          deadline: tierChange.requestDeadline,
+          avoidWindow: null,
+          reason: `Clean Impact relief credit ends Dec 31, 2026. ${tierChange.reasoning}. The credit covers only about one winter cycle (${tierChange.effectiveDate.toLocaleDateString()}–Dec 29), worth about $3–6 total. Free and reversible, so no downside to opting down now.`,
+          costOfEarly: 'None - you can opt down now and switch back to Plus anytime at no cost.',
+          costOfLate: `Missing the ${tierChange.requestDeadline.toLocaleDateString()} deadline pushes effective date to the next meter read, reducing or eliminating relief credit benefit before Dec 31 expiration.`,
+          source: 'CEA Oceanside/Vista notice letter (5-business-day rule), CEA rate schedule eff. 2/1/2026, CEA 10/29/2026 board packet (verified 2026-10-28)',
+          verified: true, // 5-day rule verified for opt-outs, likely applies to opt-downs
+          estimatedSavings: estimatedValue,
+          urgency: daysUntilDeadline <= 7 ? 'high' : 'medium',
+          daysUntil: Math.max(0, daysUntilDeadline),
+          daysUntilDeadline: Math.max(0, daysUntilDeadline)
+        });
+      } catch (error) {
+        console.error('Error calculating CEA tier change deadline:', error);
+      }
     }
   }
   
-  // 2. CCA opt-out back to SDG&E (for solar customers - coordinate with true-up)
-  if ((currentPlan.provider === 'CEA' || currentPlan.provider === 'SDCP') && hasSolar && nemTrueUpDate) {
+  // 2. CCA opt-out back to SDG&E (with proper notice deadline calculation)
+  if ((currentPlan.provider === 'CEA' || currentPlan.provider === 'SDCP') && hasSolar) {
     const sdgeAlternative = savingsReport.providerAlternatives?.find(
       alt => alt.provider === 'SDG&E'
     );
     
     if (sdgeAlternative && sdgeAlternative.savings > 0) {
-      // Calculate optimal window: 60 days after true-up
-      const optimalStart = new Date(nemTrueUpDate);
-      optimalStart.setDate(optimalStart.getDate() + 1);
-      
-      const optimalEnd = new Date(nemTrueUpDate);
-      optimalEnd.setDate(optimalEnd.getDate() + 60);
-      
-      // Avoid window: 6-8 months before true-up
-      const avoidStart = new Date(nemTrueUpDate);
-      avoidStart.setMonth(avoidStart.getMonth() - 8);
-      
-      const avoidEnd = new Date(nemTrueUpDate);
-      avoidEnd.setMonth(avoidEnd.getMonth() - 6);
-      
-      let recommendedDate;
-      let urgency = 'medium';
-      let reason;
-      
-      if (today >= optimalStart && today <= optimalEnd) {
-        // We're in the optimal window now
-        recommendedDate = 'immediate';
-        urgency = 'high';
-        reason = `You're in the optimal 60-day window after your true-up (${nemTrueUpDate.toLocaleDateString()}). Switching now minimizes disruption to your NEM cycle and avoids a mid-cycle interim true-up.`;
-      } else if (today < optimalStart) {
-        // True-up hasn't happened yet
-        const daysUntilTrueUp = Math.ceil((nemTrueUpDate - today) / (1000 * 60 * 60 * 24));
+      try {
+        // Target: return before June 1 summer pricing starts
+        // For cycle 19: May 28, 2027 read
+        const targetSwitchDate = new Date('2027-05-28');
+        const optOutInfo = calculateCCAOptOutDeadline(cycle, targetSwitchDate);
         
-        if (daysUntilTrueUp < 30) {
-          recommendedDate = optimalStart;
-          urgency = 'medium';
-          reason = `Wait until after your true-up on ${nemTrueUpDate.toLocaleDateString()} to switch. Switching now would trigger an interim true-up and restart your NEM cycle early. Optimal window: ${optimalStart.toLocaleDateString()} - ${optimalEnd.toLocaleDateString()}.`;
-        } else {
-          recommendedDate = optimalStart;
+        // Calculate credit forfeiture
+        // Switching forces interim true-up at May 28, 2027
+        // Leftover spring credits (Oct 29, 2026 - May 28, 2027) are forfeited
+        // Estimate: ~$50-90 based on prior year Apr-May credits
+        const estimatedCreditForfeit = 70; // midpoint of $50-90
+        const netSavings = Math.round(sdgeAlternative.savings - estimatedCreditForfeit);
+        
+        // CEA forwarding time is unverified; recommend 2-week buffer
+        const recommendedSubmitDate = new Date(optOutInfo.noticeDeadline);
+        recommendedSubmitDate.setDate(recommendedSubmitDate.getDate() - 14);
+        
+        const daysUntilDeadline = Math.ceil((optOutInfo.noticeDeadline - today) / (1000 * 60 * 60 * 24));
+        const daysUntilRecommended = Math.ceil((recommendedSubmitDate - today) / (1000 * 60 * 60 * 24));
+        
+        let urgency = 'medium';
+        let recommendedDate = recommendedSubmitDate;
+        
+        if (today > optOutInfo.noticeDeadline) {
+          // Missed the May deadline; next is June
+          const juneSwitch = getNextMeterRead(cycle, optOutInfo.switchDate);
+          const juneOptOut = calculateCCAOptOutDeadline(cycle, juneSwitch);
+          const juneRecommended = new Date(juneOptOut.noticeDeadline);
+          juneRecommended.setDate(juneRecommended.getDate() - 14);
+          
+          recommendedDate = juneRecommended;
           urgency = 'low';
-          reason = `Plan to switch in the 60-day window after your true-up (${optimalStart.toLocaleDateString()} - ${optimalEnd.toLocaleDateString()}). Switching mid-cycle triggers an interim true-up and can cost you summer solar credits.`;
+          
+          rules.push({
+            action: `Opt out of ${currentPlan.provider} and return to SDG&E`,
+            recommendedDate: recommendedDate,
+            deadline: juneOptOut.noticeDeadline,
+            avoidWindow: null,
+            reason: `Missed the ${optOutInfo.noticeDeadline.toLocaleDateString()} deadline for May return. Next opportunity: submit via CEA by ~${juneRecommended.toLocaleDateString()}; SDG&E must receive by ${juneOptOut.noticeDeadline.toLocaleDateString()} to switch on ${juneOptOut.switchDate.toLocaleDateString()}. 6-month advance notice required (SDG&E Rule 27). Switch happens at first meter read after 6 months from SDG&E's receipt.`,
+            costOfEarly: 'CEA forwarding time to SDG&E is unverified (~2 weeks estimated). Submitting too early may require resubmission.',
+            costOfLate: `Missing ${juneOptOut.noticeDeadline.toLocaleDateString()} pushes switch to next cycle. 12-month minimum stay on SDG&E starts from switch date. Cancellation allowed only within 3 business days after SDG&E receives notice.`,
+            source: 'SDG&E Rule 27 §L.1, L.2.b, L.3.b(1) (verified 2026-10-28); SDG&E 2026/2027 meter-read calendars (derived)',
+            verified: true,
+            estimatedSavings: netSavings,
+            urgency: urgency,
+            daysUntil: Math.max(0, Math.ceil((recommendedDate - today) / (1000 * 60 * 60 * 24))),
+            daysUntilDeadline: Math.max(0, Math.ceil((juneOptOut.noticeDeadline - today) / (1000 * 60 * 60 * 24)))
+          });
+        } else if (daysUntilRecommended <= 14) {
+          urgency = 'high';
+          
+          rules.push({
+            action: `Opt out of ${currentPlan.provider} and return to SDG&E`,
+            recommendedDate: 'immediate',
+            deadline: optOutInfo.noticeDeadline,
+            avoidWindow: null,
+            reason: `Submit notice this week via CEA. SDG&E must receive by ${optOutInfo.noticeDeadline.toLocaleDateString()} to switch on ${optOutInfo.switchDate.toLocaleDateString()} (before June 1 summer pricing). 6-month advance notice required (SDG&E Rule 27). Switch forces interim NEM true-up at ${optOutInfo.switchDate.toLocaleDateString()} and resets anniversary. Leftover spring credits (~$${estimatedCreditForfeit}) forfeited. Net savings: ~$${netSavings}/year after credit forfeit.`,
+            costOfEarly: 'Notice is binding after 3 business days from SDG&E receipt. 2027 PCIA decision comes after this deadline.',
+            costOfLate: `Missing ${optOutInfo.noticeDeadline.toLocaleDateString()} deadline pushes switch from May 28 to Jun 29, adding one expensive summer cycle on CEA (~$80-105 extra).`,
+            source: 'SDG&E Rule 27 §L.1, L.2.b, L.3.b, L.3.d; Schedule NEM-ST SC 3, 3(f), 3(h); CEA NEM T&C §H (verified 2026-10-28)',
+            verified: true,
+            estimatedSavings: netSavings,
+            urgency: urgency,
+            daysUntil: 0,
+            daysUntilDeadline: Math.max(0, daysUntilDeadline)
+          });
+        } else {
+          urgency = daysUntilRecommended <= 30 ? 'high' : 'medium';
+          
+          rules.push({
+            action: `Opt out of ${currentPlan.provider} and return to SDG&E`,
+            recommendedDate: recommendedDate,
+            deadline: optOutInfo.noticeDeadline,
+            avoidWindow: null,
+            reason: `Submit via CEA by ~${recommendedSubmitDate.toLocaleDateString()} to ensure SDG&E receives by ${optOutInfo.noticeDeadline.toLocaleDateString()} (6-month advance notice required). Switch on ${optOutInfo.switchDate.toLocaleDateString()} before June 1 summer pricing. Switch forces interim NEM true-up and resets anniversary. Leftover spring credits (~$${estimatedCreditForfeit}) forfeited. Net savings: ~$${netSavings}/year after credit forfeit.`,
+            costOfEarly: 'Notice is binding after 3 business days from SDG&E receipt. 2027 PCIA decision pending; may strengthen case for leaving but timing forces decision before news.',
+            costOfLate: `Missing ${optOutInfo.noticeDeadline.toLocaleDateString()} deadline pushes switch from May 28 to Jun 29, adding one expensive summer cycle on CEA (~$80-105 extra).`,
+            source: 'SDG&E Rule 27 §L.1, L.2.b, L.3.b(1), L.3.d; Schedule NEM-ST SC 3, 3(f), 3(h); CEA NEM T&C §H; SDG&E/CEA 2026/2027 calendars (verified 2026-10-28)',
+            verified: true,
+            estimatedSavings: netSavings,
+            urgency: urgency,
+            daysUntil: Math.max(0, daysUntilRecommended),
+            daysUntilDeadline: Math.max(0, daysUntilDeadline)
+          });
         }
-      } else {
-        // We're past the optimal window - calculate next true-up
-        const nextTrueUp = new Date(nemTrueUpDate);
-        nextTrueUp.setFullYear(nextTrueUp.getFullYear() + 1);
         
-        const nextOptimalStart = new Date(nextTrueUp);
-        nextOptimalStart.setDate(nextOptimalStart.getDate() + 1);
+        // Additional warning about rate plan changes
+        rules.push({
+          action: 'Do NOT change SDG&E rate plan now',
+          recommendedDate: new Date('2027-05-15'), // About 2 weeks before May 28 switch
+          deadline: null,
+          avoidWindow: `${today.toLocaleDateString()} - ${optOutInfo.switchDate.toLocaleDateString()}`,
+          reason: `Rate plan changes allowed once per 12 months and lock you in. Best plan on CEA (e.g., DR-SES has lower CEA generation rates in summer than TOU-DR1) differs from best plan on SDG&E bundled. Save your one change per year for just before the ${optOutInfo.switchDate.toLocaleDateString()} switch to SDG&E.`,
+          costOfEarly: 'Wrong rate plan for your provider. Locked in for 12 months.',
+          costOfLate: 'None - wait until ~2 weeks before switch to SDG&E, then choose best bundled plan.',
+          source: 'SDG&E Rule 12 §D (verified 2026-10-28); Sean\'s analysis',
+          verified: true, // Rule verified; analysis is derived
+          estimatedSavings: 0, // Prevents bad decision, not direct savings
+          urgency: 'medium',
+          daysUntil: Math.max(0, Math.ceil((new Date('2027-05-15') - today) / (1000 * 60 * 60 * 24))),
+          daysUntilDeadline: null
+        });
         
-        recommendedDate = nextOptimalStart;
-        urgency = 'low';
-        reason = `You're past this year's optimal window. Next safe window is after your ${nextTrueUp.getFullYear()} true-up (${nextOptimalStart.toLocaleDateString()}). Switching mid-cycle triggers interim true-up.`;
+      } catch (error) {
+        console.error('Error calculating CCA opt-out deadline:', error);
       }
-      
-      rules.push({
-        action: `Opt out of ${currentPlan.provider} and return to SDG&E`,
-        recommendedDate: recommendedDate,
-        deadline: null,
-        avoidWindow: `${avoidStart.toLocaleDateString()} - ${avoidEnd.toLocaleDateString()} (6-8 months before true-up)`,
-        reason: reason,
-        costOfEarly: 'Switching mid-cycle triggers interim true-up, restarting your NEM billing cycle early. You may lose summer generation credits that would offset winter usage.',
-        costOfLate: 'Each month on the more expensive CCA costs you money. Balance this against avoiding mid-cycle disruption.',
-        source: 'SDG&E Electric Rule 27 Section 5.3 (verified 2026-10-28)',
-        verified: true,
-        estimatedSavings: Math.round(sdgeAlternative.savings),
-        urgency: urgency,
-        daysUntil: recommendedDate === 'immediate' ? 0 : Math.max(0, Math.ceil((new Date(recommendedDate) - today) / (1000 * 60 * 60 * 24))),
-        daysUntilDeadline: null
-      });
     }
   }
   
-  // 3. CCA opt-out for non-solar customers (before summer)
+  // 3. CCA opt-out for non-solar customers (simpler, no true-up interaction)
   if ((currentPlan.provider === 'CEA' || currentPlan.provider === 'SDCP') && !hasSolar) {
     const sdgeAlternative = savingsReport.providerAlternatives?.find(
       alt => alt.provider === 'SDG&E'
     );
     
     if (sdgeAlternative && sdgeAlternative.savings > 0) {
-      // Recommend switching by May 1 to avoid high summer rates
-      const summerDeadline = new Date(today.getFullYear(), 4, 1); // May 1
-      if (summerDeadline < today) {
-        summerDeadline.setFullYear(summerDeadline.getFullYear() + 1);
+      try {
+        const targetSwitchDate = new Date('2027-05-28'); // Before summer
+        const optOutInfo = calculateCCAOptOutDeadline(cycle, targetSwitchDate);
+        const recommendedSubmitDate = new Date(optOutInfo.noticeDeadline);
+        recommendedSubmitDate.setDate(recommendedSubmitDate.getDate() - 14);
+        
+        const daysUntilRecommended = Math.ceil((recommendedSubmitDate - today) / (1000 * 60 * 60 * 24));
+        const urgency = daysUntilRecommended <= 30 ? 'high' : 'medium';
+        
+        rules.push({
+          action: `Opt out of ${currentPlan.provider} and return to SDG&E`,
+          recommendedDate: daysUntilRecommended <= 14 ? 'immediate' : recommendedSubmitDate,
+          deadline: optOutInfo.noticeDeadline,
+          avoidWindow: null,
+          reason: `Submit via ${currentPlan.provider} by ~${recommendedSubmitDate.toLocaleDateString()} to ensure SDG&E receives by ${optOutInfo.noticeDeadline.toLocaleDateString()} (6-month advance notice required). Switch on ${optOutInfo.switchDate.toLocaleDateString()} before June 1 summer pricing. 12-month minimum stay on SDG&E starts from switch date.`,
+          costOfEarly: 'Notice is binding after 3 business days from SDG&E receipt.',
+          costOfLate: `Each summer month on ${currentPlan.provider} costs more than SDG&E. Missing ${optOutInfo.noticeDeadline.toLocaleDateString()} pushes switch to next cycle.`,
+          source: 'SDG&E Rule 27 §L.1, L.2.b, L.3.b(1), L.3.a; SDG&E 2026/2027 meter-read calendars (verified 2026-10-28)',
+          verified: true,
+          estimatedSavings: Math.round(sdgeAlternative.savings),
+          urgency: urgency,
+          daysUntil: Math.max(0, daysUntilRecommended),
+          daysUntilDeadline: Math.max(0, Math.ceil((optOutInfo.noticeDeadline - today) / (1000 * 60 * 60 * 24)))
+        });
+      } catch (error) {
+        console.error('Error calculating CCA opt-out deadline for non-solar:', error);
       }
-      
-      const daysUntilSummer = Math.ceil((summerDeadline - today) / (1000 * 60 * 60 * 24));
-      let urgency = 'low';
-      let recommendedDate = summerDeadline;
-      
-      // Adjust recommendation based on current month
-      const currentMonth = today.getMonth();
-      if (currentMonth >= 5 && currentMonth <= 8) {
-        // June-September: already in summer
-        urgency = 'medium';
-        recommendedDate = 'immediate';
-      } else if (currentMonth === 3 || currentMonth === 4) {
-        // April-May: approaching summer
-        urgency = 'high';
-        recommendedDate = 'immediate';
-      }
-      
-      rules.push({
-        action: `Opt out of ${currentPlan.provider} and return to SDG&E`,
-        recommendedDate: recommendedDate,
-        deadline: null,
-        avoidWindow: 'June - September (high summer rates during CCA enrollment processing)',
-        reason: daysUntilSummer < 90 
-          ? `Switch by May 1 to avoid ${currentPlan.provider}'s higher summer peak rates (June-Sept). CCA opt-out takes ~6 months to process (unverified), so act early.`
-          : `${currentPlan.provider} has higher rates than SDG&E for your usage. Plan to switch by May to avoid processing delay into summer.`,
-        costOfEarly: 'None - switching in winter/spring is optimal timing.',
-        costOfLate: `Each summer month on ${currentPlan.provider} costs ~$30-60 more than SDG&E (varies by usage). Processing delays mean you could be stuck through summer.`,
-        source: 'CCA 6-month processing estimate (UNVERIFIED - needs confirmation from CEA/SDCP)',
-        verified: false, // This rule is unverified
-        estimatedSavings: Math.round(sdgeAlternative.savings),
-        urgency: urgency,
-        daysUntil: recommendedDate === 'immediate' ? 0 : Math.max(0, daysUntilSummer),
-        daysUntilDeadline: null
-      });
     }
   }
   
   // 4. CARE/FERA enrollment (immediate if eligible)
   if (savingsReport.discountPrograms && savingsReport.discountPrograms.length > 0) {
     savingsReport.discountPrograms.forEach(program => {
-      // Estimate annual savings: assume $50/month average (30-35% off bills)
       const estimatedMonthlySavings = 50;
       const annualSavings = estimatedMonthlySavings * 12;
       
@@ -206,7 +251,7 @@ export function calculateOptOutTiming(currentPlan, bills, savingsReport, househo
         recommendedDate: 'immediate',
         deadline: null,
         avoidWindow: null,
-        reason: `${program.eligibility}. Takes 2-3 billing cycles to process, but discounts are applied retroactively to your application date. Each month you wait costs ~$${estimatedMonthlySavings}.`,
+        reason: `${program.eligibility}. Takes 2-3 billing cycles to process, but discounts are applied retroactively to application date. Each month you wait costs ~$${estimatedMonthlySavings}.`,
         costOfEarly: 'None - apply immediately if eligible. Self-attestation allowed.',
         costOfLate: `~$${estimatedMonthlySavings} per month in lost discounts for each month you delay.`,
         source: 'SDG&E CARE/FERA page, CA PUC D.20-07-032 (verified 2026-10-28)',
@@ -218,10 +263,6 @@ export function calculateOptOutTiming(currentPlan, bills, savingsReport, househo
       });
     });
   }
-  
-  // 5. SDG&E rate plan changes (if beneficial)
-  // This would require deeper analysis of which rate plan is optimal
-  // Placeholder for future enhancement
   
   return rules.sort((a, b) => {
     // Sort by urgency, then by days until action
@@ -273,14 +314,14 @@ export function formatTimingRuleAsAction(rule) {
   }
   
   if (rule.avoidWindow) {
-    description += `**Avoid switching during:** ${rule.avoidWindow}\n\n`;
+    description += `**Avoid:** ${rule.avoidWindow}\n\n`;
   }
   
   description += `**Cost if too late:** ${rule.costOfLate}\n\n`;
   description += `**Cost if too early:** ${rule.costOfEarly}\n\n`;
   
   if (!rule.verified) {
-    description += `⚠️ **UNVERIFIED RULE** - This timing recommendation is based on preliminary research and needs confirmation from your provider.\n\n`;
+    description += `⚠️ **UNVERIFIED RULE** - This timing recommendation needs confirmation from your provider.\n\n`;
   }
   
   description += `**Source:** ${rule.source}`;

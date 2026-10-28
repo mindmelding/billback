@@ -13,6 +13,7 @@ export function parseSDGEBillText(text) {
   const result = {
     accountNumber: null,
     billingPeriod: { start: null, end: null },
+    cycle: null, // Billing cycle number (e.g., 19)
     provider: 'SDG&E', // default
     providerTier: null,
     ratePlan: null,
@@ -62,6 +63,12 @@ export function parseSDGEBillText(text) {
     // Determine season from start date
     const month = new Date(result.billingPeriod.start).getMonth();
     result.usage.season = (month >= 5 && month <= 9) ? 'summer' : 'winter';
+  }
+  
+  // Billing cycle
+  const cycleMatch = text.match(/Cycle:\s*(\d+)/i);
+  if (cycleMatch) {
+    result.cycle = parseInt(cycleMatch[1]);
   }
 
   // Provider detection (CCA section)
