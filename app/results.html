@@ -125,107 +125,107 @@ h1 {
   color: var(--fg-3);
   margin-top: 4px;
 }
-.comparison {
+.timeline {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
-.comparison-row {
-  display: grid;
-  grid-template-columns: minmax(0, 200px) minmax(0, 1fr) 120px;
-  gap: 12px;
-  align-items: center;
-  padding: 10px;
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  background: var(--panel);
-}
-.comparison-row.current {
-  background: var(--bad-soft);
-  border-color: var(--bad);
-}
-.comparison-row .provider {
-  font-weight: 500;
-  color: var(--fg);
-}
-.comparison-row .bar {
-  height: 8px;
-  background: var(--line);
-  border-radius: 4px;
-  position: relative;
-  overflow: hidden;
-}
-.comparison-row .bar-fill {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: var(--ok);
-  border-radius: 4px;
-}
-.comparison-row .savings {
-  text-align: right;
-  font-weight: 600;
-  color: var(--ok);
-  font-variant-numeric: tabular-nums;
-}
-.comparison-row .current-badge {
-  color: var(--bad);
-  font-size: 11px;
-}
-.actions {
+.timeline-item {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.action {
-  padding: 14px;
+  gap: 16px;
+  padding: 16px;
   border: 1px solid var(--line);
   border-radius: var(--r);
   background: var(--bg);
-  cursor: pointer;
   transition: all 0.15s;
+  cursor: pointer;
 }
-.action:hover {
+.timeline-item:hover {
   background: var(--panel);
   border-color: var(--line-strong);
 }
-.action-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 8px;
+.timeline-item.urgent {
+  border-color: var(--bad);
+  background: var(--bad-soft);
 }
-.action-title {
+.timeline-item.high {
+  border-color: var(--warn);
+  background: var(--warn-soft);
+}
+.timeline-date {
+  flex-shrink: 0;
+  width: 80px;
+  padding-top: 4px;
+}
+.timeline-date-day {
+  font-size: 11px;
+  color: var(--fg-3);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.timeline-date-num {
+  font-size: 20px;
   font-weight: 600;
+  line-height: 1;
+  margin-top: 4px;
+}
+.timeline-content {
+  flex: 1;
+}
+.timeline-title {
   font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
   color: var(--fg);
 }
-.action-savings {
-  font-weight: 600;
-  color: var(--ok);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.action-desc {
+.timeline-desc {
   font-size: 12px;
   color: var(--fg-2);
   margin-bottom: 8px;
 }
-.action-badge {
+.timeline-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.badge {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 999px;
   font-size: 10px;
   font-weight: 500;
+}
+.badge.urgent {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+.badge.high {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.badge.medium {
   background: var(--accent-soft);
   color: var(--accent);
-  margin-right: 6px;
 }
-.action-badge.gas {
-  background: #e8f5e9;
-  color: #2e7d32;
+.badge.verified {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.badge.unverified {
+  background: var(--fg-3);
+  color: var(--bg);
+}
+.badge.savings {
+  background: var(--ok-soft);
+  color: var(--ok);
+  font-weight: 600;
+}
+.export-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
 }
 .btn {
   font: inherit;
@@ -242,7 +242,6 @@ h1 {
   align-items: center;
   gap: 6px;
   transition: all 0.15s;
-  margin-top: 12px;
 }
 .btn:hover {
   filter: brightness(0.97);
@@ -252,6 +251,15 @@ h1 {
   border-color: var(--accent);
   color: var(--bg);
 }
+.btn.danger {
+  background: var(--bad);
+  border-color: var(--bad);
+  color: var(--bg);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .footer {
   margin-top: 40px;
   padding-top: 20px;
@@ -259,38 +267,65 @@ h1 {
   font-size: 11px;
   color: var(--fg-3);
 }
-.confidence-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 500;
-  margin-left: 8px;
+.delete-section {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-top: 30px;
 }
-.confidence-badge.high {
-  background: var(--ok-soft);
-  color: var(--ok);
+.delete-section h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
 }
-.confidence-badge.medium {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-.confidence-badge.low {
-  background: var(--warn-soft);
-  color: var(--warn);
-}
-.tags {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-.tag {
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  padding: 2px 10px;
-  font-size: 11px;
+.delete-section p {
+  margin: 0 0 12px;
+  font-size: 12px;
   color: var(--fg-2);
+}
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal.show {
+  display: flex;
+}
+.modal-content {
+  background: var(--bg);
+  border-radius: var(--r);
+  padding: 24px;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.modal-content h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.modal-content pre {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 12px;
+  font-size: 11px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
 }
 </style>
 </head>
@@ -305,23 +340,42 @@ h1 {
   <div id="results" style="display: none;"></div>
 
   <div class="footer">
+    <p><strong>Privacy:</strong> Your bill data is stored only in your browser's session storage. It's never sent to any server. You can delete everything with the button above.</p>
     <p>Savings are estimates from uploaded bills and published rates (last updated 2026-10-28). Rates change several times a year. Behavioral savings are estimates based on research.</p>
     <p>Per CA PU Code 366.5 and CARE rules, you give the final click, call or signature for provider switches, discounts and plan changes. We never switch providers or sign forms for you.</p>
   </div>
 </div>
 
-<script>
-// PostHog initialization (placeholder for actual key)
-const POSTHOG_KEY = 'YOUR_POSTHOG_KEY'; // Set from config
+<!-- Modal for step details -->
+<div id="stepModal" class="modal">
+  <div class="modal-content">
+    <h3 id="modalTitle"></h3>
+    <div id="modalBody"></div>
+    <div class="modal-buttons">
+      <button class="btn primary" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// PostHog initialization with privacy-first configuration
+const POSTHOG_KEY = 'YOUR_POSTHOG_KEY';
 const IS_PRODUCTION = window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1');
 
 if (POSTHOG_KEY && POSTHOG_KEY !== 'YOUR_POSTHOG_KEY') {
   !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-  posthog.init(POSTHOG_KEY, {api_host: 'https://app.posthog.com'});
+  posthog.init(POSTHOG_KEY, {
+    api_host: 'https://app.posthog.com',
+    autocapture: false,
+    disable_session_recording: true,
+    disable_persistence: false,
+    respect_dnt: true
+  });
 }
 
 function trackEvent(eventName, props = {}) {
   if (window.posthog) {
+    // Only anonymous, non-identifying properties
     posthog.capture(eventName, {
       ...props,
       site: 'billback',
@@ -331,31 +385,43 @@ function trackEvent(eventName, props = {}) {
   }
 }
 
+// Import client-side modules
+import { generateDatedActionPlan } from '../src/actionPlan.js';
+import { 
+  generateICSContent, 
+  downloadICS,
+  generateMarkdownTodoList,
+  copyToClipboard,
+  downloadTextFile
+} from '../src/calendar.js';
+
 // Load data from sessionStorage
 const reportData = sessionStorage.getItem('savingsReport');
 const householdData = sessionStorage.getItem('household');
+const parsedBillsData = sessionStorage.getItem('parsedBills');
 
 if (!reportData) {
   document.getElementById('loading').innerHTML = '<p style="color: var(--bad);">No savings report found. Please <a href="/app/upload.html">upload your bills</a> first.</p>';
 } else {
   const report = JSON.parse(reportData);
   const household = householdData ? JSON.parse(householdData) : {};
+  const bills = parsedBillsData ? JSON.parse(parsedBillsData) : [];
   
-  // Track results viewed
-  trackEvent('results_viewed', {
-    total_savings_min: report.totalSavingsRange[0],
-    total_savings_max: report.totalSavingsRange[1],
-    bills_analyzed: report.billsAnalyzed,
-    nem_months_analyzed: report.nemMonthsAnalyzed || 0,
-    confidence: report.currentPlan.confidence,
+  // Generate action plan with opt-out timing
+  const actionPlan = generateDatedActionPlan(report, bills, household);
+  
+  // Track results viewed (anonymous aggregates only)
+  trackEvent('plan_viewed', {
+    action_count: actionPlan.steps.length,
     has_solar: household.hasSolar || false,
-    is_renter: household.renter || false
+    is_renter: household.renter || false,
+    provider: bills[0]?.provider || 'unknown'
   });
 
-  renderResults(report, household);
+  renderResults(report, household, actionPlan);
 }
 
-function renderResults(report, household) {
+function renderResults(report, household, actionPlan) {
   const resultsDiv = document.getElementById('results');
   let html = '';
 
@@ -365,17 +431,9 @@ function renderResults(report, household) {
     <h1>You could save ${savingsRange} per year</h1>
     <p class="subtitle">
       Based on ${report.billsAnalyzed} bill(s)${report.nemMonthsAnalyzed ? ` with ${report.nemMonthsAnalyzed} months of solar history` : ''}.
-      ${report.currentPlan.provider} ${report.currentPlan.plan} → alternatives and behavior changes.
-      <span class="confidence-badge ${report.currentPlan.confidence}">${report.currentPlan.confidence} confidence</span>
+      ${report.currentPlan.provider} ${report.currentPlan.plan} → alternatives and actions below.
     </p>
   `;
-
-  // Tags
-  html += '<div class="tags">';
-  if (household.renter) html += '<span class="tag">Renter</span>';
-  if (household.hasSolar) html += '<span class="tag">Solar</span>';
-  html += `<span class="tag">${report.currentPlan.provider}</span>`;
-  html += '</div>';
 
   // True-up alert
   if (report.nemTrueUpAlert) {
@@ -423,126 +481,54 @@ function renderResults(report, household) {
   }
   html += '</div>';
 
-  // Provider comparisons
-  if (report.providerAlternatives.length > 0) {
-    html += '<div class="card"><h2>Provider Comparison</h2>';
-    html += '<p>How much the same usage would cost with different providers</p>';
-    html += '<div class="comparison">';
+  // Action Timeline
+  if (actionPlan && actionPlan.steps && actionPlan.steps.length > 0) {
+    html += '<div class="card">';
+    html += '<h2>📅 Your Action Timeline</h2>';
+    html += '<p>Specific steps with dates and deadlines. Click any step for full details.</p>';
     
-    // Current provider
-    const maxCost = Math.max(
-      report.currentPlan.annualCost,
-      ...report.providerAlternatives.map(p => p.annualCost)
-    );
-    
-    html += `
-      <div class="comparison-row current">
-        <div class="provider">
-          ${report.currentPlan.provider} ${report.currentPlan.plan}<br>
-          <span class="current-badge">Current</span>
-        </div>
-        <div class="bar"><div class="bar-fill" style="width: ${(report.currentPlan.annualCost / maxCost * 100).toFixed(1)}%; background: var(--bad);"></div></div>
-        <div class="savings" style="color: var(--bad);">$${Math.round(report.currentPlan.annualCost)}/yr</div>
-      </div>
-    `;
-    
-    // Alternatives
-    report.providerAlternatives.slice(0, 3).forEach(alt => {
-      if (alt.savings > 0) {
-        html += `
-          <div class="comparison-row">
-            <div class="provider">${alt.provider} ${alt.plan}</div>
-            <div class="bar"><div class="bar-fill" style="width: ${(alt.annualCost / maxCost * 100).toFixed(1)}%"></div></div>
-            <div class="savings">Save $${Math.round(alt.savings)}/yr</div>
-          </div>
-        `;
-      }
-    });
-    
-    html += '</div></div>';
-  }
-
-  // Actions - Electric
-  if (report.electricActions && report.electricActions.length > 0) {
-    html += '<div class="card"><h2>Electric Savings Actions</h2>';
-    html += '<p>Behavioral changes that reduce your bill with no lifestyle compromise</p>';
-    html += '<div class="actions">';
-    
-    report.electricActions.forEach((action, i) => {
-      const savingsText = action.annualSavingsRange 
-        ? `$${Math.round(action.annualSavingsRange[0])}–${Math.round(action.annualSavingsRange[1])}/yr`
-        : '';
+    html += '<div class="timeline">';
+    actionPlan.steps.forEach((step, i) => {
+      const date = step.doByDate ? new Date(step.doByDate) : new Date();
+      const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const urgencyClass = step.urgency === 'urgent' ? 'urgent' : step.urgency === 'high' ? 'high' : '';
       
       html += `
-        <div class="action" data-action-id="${action.id}" onclick="handleActionClick('${action.id}', '${action.action}')">
-          <div class="action-header">
-            <div class="action-title">
-              <span class="action-badge">Electric</span>
-              ${action.action}
-            </div>
-            <div class="action-savings">${savingsText}</div>
+        <div class="timeline-item ${urgencyClass}" onclick="showStepDetails(${i})">
+          <div class="timeline-date">
+            <div class="timeline-date-day">${dateStr}</div>
+            <div class="timeline-date-num">${date.getDate()}</div>
           </div>
-          <div class="action-desc">${action.basis}</div>
-        </div>
-      `;
-    });
-    
-    html += '</div></div>';
-  }
-
-  // Actions - Gas
-  if (report.gasActions && report.gasActions.length > 0) {
-    html += '<div class="card"><h2>Gas Savings Actions</h2>';
-    html += '<p>Ways to reduce your gas bill for heating and water</p>';
-    html += '<div class="actions">';
-    
-    report.gasActions.forEach(action => {
-      const savingsText = action.annualSavingsRange 
-        ? `$${Math.round(action.annualSavingsRange[0])}–${Math.round(action.annualSavingsRange[1])}/yr`
-        : '';
-      
-      html += `
-        <div class="action" data-action-id="${action.id}" onclick="handleActionClick('${action.id}', '${action.action}')">
-          <div class="action-header">
-            <div class="action-title">
-              <span class="action-badge gas">Gas</span>
-              ${action.action}
-            </div>
-            <div class="action-savings">${savingsText}</div>
-          </div>
-          <div class="action-desc">${action.basis}</div>
-        </div>
-      `;
-    });
-    
-    html += '</div></div>';
-  }
-
-  // Discount programs
-  if (report.discountPrograms && report.discountPrograms.length > 0) {
-    html += '<div class="card"><h2>Discount Programs</h2>';
-    report.discountPrograms.forEach(prog => {
-      html += `
-        <div class="action" onclick="handleActionClick('care_fera', '${prog.program}')">
-          <div class="action-header">
-            <div class="action-title">
-              <span class="action-badge">Discount</span>
-              ${prog.program}: ${(prog.electricDiscount * 100).toFixed(0)}% off electric
+          <div class="timeline-content">
+            <div class="timeline-title">${step.title}</div>
+            <div class="timeline-desc">${truncate(stripHTML(step.description || ''), 120)}</div>
+            <div class="timeline-badges">
+              ${step.urgency ? `<span class="badge ${step.urgency}">${step.urgency.toUpperCase()}</span>` : ''}
+              ${step.verified === false ? '<span class="badge unverified">UNVERIFIED</span>' : ''}
+              ${step.verified === true ? '<span class="badge verified">VERIFIED</span>' : ''}
+              ${step.estimatedSavings ? `<span class="badge savings">${step.estimatedSavings}</span>` : ''}
             </div>
           </div>
-          <div class="action-desc">${prog.eligibility}</div>
         </div>
       `;
     });
     html += '</div>';
+
+    // Export buttons
+    html += '<div class="export-buttons">';
+    html += '<button class="btn primary" onclick="exportToCalendar()">📅 Download Calendar (.ics)</button>';
+    html += '<button class="btn" onclick="exportToMarkdown()">📋 Copy Checklist</button>';
+    html += '</div>';
+    
+    html += '</div>';
   }
 
-  // Next steps
+  // Delete data section
   html += `
-    <div class="card">
-      <h2>Next Steps</h2>
-      <p>Want more detailed action plans with prefilled forms, call scripts, and thermostat schedules? The full action pack is coming soon.</p>
-      <a href="/app/upload.html" class="btn primary">Upload More Bills</a>
+    <div class="delete-section">
+      <h3>🔒 Your Data</h3>
+      <p>Your bill data and results are stored only in your browser. Nothing was sent to any server. You can delete everything right now:</p>
+      <button class="btn danger" onclick="deleteAllData()">Delete My Data</button>
     </div>
   `;
 
@@ -551,12 +537,156 @@ function renderResults(report, household) {
   document.getElementById('loading').style.display = 'none';
 }
 
-function handleActionClick(actionId, actionName) {
-  trackEvent('action_clicked', {
-    action_id: actionId,
-    action_name: actionName
-  });
+function truncate(text, length) {
+  if (text.length <= length) return text;
+  return text.substring(0, length) + '...';
 }
+
+function stripHTML(html) {
+  const tmp = document.createElement('DIV');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+}
+
+// Global functions for UI interactions
+window.showStepDetails = function(index) {
+  const reportData = sessionStorage.getItem('savingsReport');
+  const householdData = sessionStorage.getItem('household');
+  const parsedBillsData = sessionStorage.getItem('parsedBills');
+  
+  const report = JSON.parse(reportData);
+  const household = householdData ? JSON.parse(householdData) : {};
+  const bills = parsedBillsData ? JSON.parse(parsedBillsData) : [];
+  
+  const actionPlan = generateDatedActionPlan(report, bills, household);
+  const step = actionPlan.steps[index];
+  
+  document.getElementById('modalTitle').textContent = step.title;
+  
+  let bodyHTML = `<div style="font-size: 13px; line-height: 1.6;">`;
+  bodyHTML += step.description ? `<div style="margin-bottom: 12px;">${formatMarkdown(step.description)}</div>` : '';
+  
+  if (step.howTo && step.howTo.instructions) {
+    bodyHTML += '<div style="margin-top: 12px;"><strong>How to do this:</strong><ul style="margin: 8px 0; padding-left: 20px;">';
+    step.howTo.instructions.forEach(inst => {
+      bodyHTML += `<li style="margin-bottom: 6px;">${inst}</li>`;
+    });
+    bodyHTML += '</ul></div>';
+  }
+  bodyHTML += `</div>`;
+  
+  document.getElementById('modalBody').innerHTML = bodyHTML;
+  document.getElementById('stepModal').classList.add('show');
+  
+  // Track step viewed (anonymous)
+  trackEvent('step_viewed', {
+    step_category: step.category,
+    step_urgency: step.urgency
+  });
+};
+
+window.closeModal = function() {
+  document.getElementById('stepModal').classList.remove('show');
+};
+
+window.exportToCalendar = async function() {
+  const reportData = sessionStorage.getItem('savingsReport');
+  const householdData = sessionStorage.getItem('household');
+  const parsedBillsData = sessionStorage.getItem('parsedBills');
+  
+  const report = JSON.parse(reportData);
+  const household = householdData ? JSON.parse(householdData) : {};
+  const bills = parsedBillsData ? JSON.parse(parsedBillsData) : [];
+  
+  const actionPlan = generateDatedActionPlan(report, bills, household);
+  
+  // Convert steps to calendar format
+  const calendarSteps = actionPlan.steps.map(step => ({
+    what: step.title,
+    how: step.description,
+    description: step.description,
+    date: step.doByDate || new Date(),
+    deadline: step.deadline,
+    estimatedSavings: step.estimatedSavings,
+    source: step.doByDateSource,
+    recurring: step.recurring
+  }));
+  
+  const icsContent = generateICSContent(calendarSteps, 'Billback Savings Action Plan');
+  downloadICS(icsContent, 'billback-action-plan.ics');
+  
+  // Track export (anonymous)
+  trackEvent('calendar_exported', {
+    step_count: calendarSteps.length
+  });
+};
+
+window.exportToMarkdown = async function() {
+  const reportData = sessionStorage.getItem('savingsReport');
+  const householdData = sessionStorage.getItem('household');
+  const parsedBillsData = sessionStorage.getItem('parsedBills');
+  
+  const report = JSON.parse(reportData);
+  const household = householdData ? JSON.parse(householdData) : {};
+  const bills = parsedBillsData ? JSON.parse(parsedBillsData) : [];
+  
+  const actionPlan = generateDatedActionPlan(report, bills, household);
+  
+  // Convert steps to markdown format
+  const mdSteps = actionPlan.steps.map(step => ({
+    what: step.title,
+    how: stripHTML(step.description),
+    date: step.doByDate || new Date(),
+    estimatedSavings: step.estimatedSavings,
+    source: step.doByDateSource,
+    recurring: step.recurring
+  }));
+  
+  const markdown = generateMarkdownTodoList(mdSteps);
+  
+  const success = await copyToClipboard(markdown);
+  if (success) {
+    alert('✓ Checklist copied to clipboard! Paste it into your notes app.');
+  } else {
+    // Fallback: download as file
+    downloadTextFile(markdown, 'billback-action-checklist.md', 'text/markdown');
+    alert('✓ Checklist downloaded as billback-action-checklist.md');
+  }
+  
+  // Track export (anonymous)
+  trackEvent('checklist_exported', {
+    step_count: mdSteps.length
+  });
+};
+
+window.deleteAllData = function() {
+  if (confirm('Delete all your bill data and results from this browser?\n\nThis cannot be undone.')) {
+    sessionStorage.removeItem('savingsReport');
+    sessionStorage.removeItem('household');
+    sessionStorage.removeItem('parsedBills');
+    
+    // Track deletion (anonymous)
+    trackEvent('data_deleted', {});
+    
+    alert('✓ All your data has been deleted from this browser.');
+    window.location.href = '/app/upload.html';
+  }
+};
+
+function formatMarkdown(text) {
+  // Simple markdown-to-HTML conversion for modal display
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+}
+
+// Close modal on background click
+document.getElementById('stepModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeModal();
+  }
+});
 </script>
 </body>
 </html>
