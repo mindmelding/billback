@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload Your SDG&E Bills - Billback</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #ffffff;
+  --panel: #fbfbfc;
+  --line: #e9e9ee;
+  --line-strong: #dcdce3;
+  --fg: #1b1b22;
+  --fg-2: #5d5d6c;
+  --fg-3: #8b8b99;
+  --accent: #5e6ad2;
+  --accent-soft: #eef0fb;
+  --ok: #2f8a4f;
+  --ok-soft: #e9f6ee;
+  --warn: #b26a00;
+  --warn-soft: #fdf3e2;
+  --bad: #c2413a;
+  --bad-soft: #fcecea;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --r: 6px;
+}
+* { box-sizing: border-box; }
+body { 
+  background: var(--bg); 
+  color: var(--fg); 
+  font-family: var(--font); 
+  font-size: 13px; 
+  line-height: 1.5; 
+  -webkit-font-smoothing: antialiased; 
+  margin: 0;
+  padding: 20px;
+}
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--accent);
+  display: grid;
+  place-items: center;
+  color: var(--bg);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+h1 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.subtitle {
+  color: var(--fg-2);
+  font-size: 15px;
+  margin: 0 0 30px;
+  max-width: 60ch;
+}
+.privacy-banner {
+  background: var(--ok-soft);
+  border: 1px solid var(--ok);
+  border-radius: var(--r);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.privacy-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.privacy-text {
+  color: var(--ok);
+  font-weight: 500;
+}
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--panel);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.card p {
+  margin: 0 0 16px;
+  color: var(--fg-2);
+  font-size: 13px;
+}
+.upload-area {
+  border: 2px dashed var(--line-strong);
+  border-radius: var(--r);
+  padding: 32px;
+  text-align: center;
+  background: var(--bg);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.upload-area:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.upload-area.dragging {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.upload-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+.upload-text {
+  font-size: 14px;
+  color: var(--fg);
+  margin-bottom: 6px;
+}
+.upload-hint {
+  font-size: 12px;
+  color: var(--fg-3);
+}
+.file-input {
+  display: none;
+}
+.files-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  font-size: 12px;
+}
+.file-name {
+  color: var(--fg);
+  font-weight: 500;
+}
+.file-size {
+  color: var(--fg-3);
+  margin-left: 8px;
+}
+.file-remove {
+  background: none;
+  border: none;
+  color: var(--fg-3);
+  cursor: pointer;
+  padding: 4px;
+  font-size: 14px;
+}
+.file-remove:hover {
+  color: var(--bad);
+}
+.btn {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  color: var(--fg);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+.btn:hover {
+  filter: brightness(0.97);
+}
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.household-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-field label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg-2);
+}
+.form-field input,
+.form-field select {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--fg);
+}
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.checkbox-field input {
+  width: auto;
+}
+.status {
+  padding: 10px 14px;
+  border-radius: var(--r);
+  font-size: 13px;
+  margin-bottom: 20px;
+  white-space: pre-line;
+}
+.status.info {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.status.success {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.status.error {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+.progress {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  font-size: 12px;
+  color: var(--fg-2);
+}
+.footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--fg-3);
+}
+</style>
+</head>
+<body>
+
+<script type="module">
+// PostHog initialization with privacy-first configuration
+const POSTHOG_KEY = 'YOUR_POSTHOG_KEY'; // TODO: Set from environment config
+const IS_PRODUCTION = window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1');
+
+if (POSTHOG_KEY && POSTHOG_KEY !== 'YOUR_POSTHOG_KEY') {
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  posthog.init(POSTHOG_KEY, {
+    api_host: 'https://app.posthog.com',
+    autocapture: false,  // Privacy: no automatic event capture
+    disable_session_recording: true,  // Privacy: no session recordings
+    disable_persistence: false,  // Allow anonymous device ID for deduplication
+    respect_dnt: true  // Honor Do Not Track browser setting
+  });
+}
+
+function trackEvent(eventName, props = {}) {
+  if (window.posthog) {
+    // Only send anonymous, non-identifying properties
+    // No PII, no exact dollar amounts, no account numbers, no addresses
+    posthog.capture(eventName, {
+      ...props,
+      site: 'billback',
+      llc: 'mindmelding',
+      is_test: !IS_PRODUCTION
+    });
+  }
+}
+</script>
+
+<div class="container">
+  <div class="logo">B</div>
+  
+  <h1>Upload Your SDG&E Bills</h1>
+  <p class="subtitle">Upload 1-3 <strong>complete monthly bills</strong> to see your personalized savings. We need regular billing cycles (about 28-31 days) for accurate results. For solar homes, one recent bill with the Net Metering table gives us nearly a full year of usage data.</p>
+
+  <!-- Privacy Banner -->
+  <div class="privacy-banner">
+    <div class="privacy-icon">🔒</div>
+    <div class="privacy-text">
+      <strong>Your bill never leaves your device.</strong> All processing happens in your browser. No uploads, no servers, no storage. You can delete everything with one click on the results page.
+    </div>
+  </div>
+
+  <div id="status" style="display: none;"></div>
+
+  <div class="card">
+    <h2>Step 1: Upload Bills</h2>
+    <p>Upload your <strong>complete monthly SDG&E bill PDFs</strong>. We'll extract and analyze the data right here in your browser—nothing is sent to any server.</p>
+    <p style="font-size: 12px; color: var(--fg-3); margin-top: -8px;">
+      ✓ Regular monthly bills (about 28-31 days)<br>
+      ✗ Move-in, move-out, or partial bills<br>
+      ✗ True-up-only statements
+    </p>
+    
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-icon">📄</div>
+      <div class="upload-text">Drop PDFs here or click to browse</div>
+      <div class="upload-hint">Accepts complete monthly SDG&E bill PDFs (1-3 bills, any months)</div>
+    </div>
+    <input type="file" id="fileInput" class="file-input" accept="application/pdf" multiple>
+    
+    <div class="files-list" id="filesList"></div>
+  </div>
+
+  <div class="card">
+    <h2>Step 2: About Your Household (Optional)</h2>
+    <p>Help us personalize your savings. All fields optional.</p>
+    
+    <form class="household-form" id="householdForm">
+      <div class="form-field">
+        <label for="householdSize">People in household</label>
+        <select id="householdSize">
+          <option value="">Not sure</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5+</option>
+        </select>
+      </div>
+      
+      <div class="form-field">
+        <label for="annualIncome">Approximate annual household income (before tax)</label>
+        <select id="annualIncome">
+          <option value="">Prefer not to say</option>
+          <option value="30000">Under $30,000</option>
+          <option value="40000">$30,000 - $45,000</option>
+          <option value="55000">$45,000 - $65,000</option>
+          <option value="75000">$65,000 - $85,000</option>
+          <option value="95000">$85,000+</option>
+        </select>
+      </div>
+      
+      <div class="checkbox-field">
+        <input type="checkbox" id="isRenter">
+        <label for="isRenter">I rent (don't own this home)</label>
+      </div>
+    </form>
+  </div>
+
+  <button type="button" class="btn primary" id="analyzeBtn" disabled>
+    Analyze My Bills
+  </button>
+
+  <div class="progress" id="progress" style="display: none;"></div>
+
+  <div class="footer">
+    <p><strong>Why complete monthly bills?</strong> Move-in, move-out, and partial bills don't show your typical usage, so savings estimates would be unreliable. We need regular billing cycles to give you accurate results.</p>
+    <p><strong>100% client-side processing:</strong> Your bill PDF is read by your browser using PDF.js. All parsing, calculations, and analysis happen on your device. Nothing is uploaded to any server. No data is stored anywhere except temporarily in your browser's memory.</p>
+    <p>SDG&E rate tables last updated 2026-10-28. Savings are estimates; rates change several times a year.</p>
+  </div>
+</div>
+
+<script>
+// Ensure trackEvent is always defined (stub until PostHog loads)
+window.trackEvent = window.trackEvent || function() {};
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script type="module">
+// Set up PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// Import client-side modules
+import { parseSDGEBillText, validateBillingPeriod } from './src/parser.js';
+import { generateSavingsReport } from './src/engine.js';
+import * as rates from './src/rates.js';
+
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+const filesList = document.getElementById('filesList');
+const analyzeBtn = document.getElementById('analyzeBtn');
+const statusDiv = document.getElementById('status');
+const progressDiv = document.getElementById('progress');
+
+const files = [];
+
+// Upload area interactions
+uploadArea.addEventListener('click', () => fileInput.click());
+
+uploadArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadArea.classList.add('dragging');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+  uploadArea.classList.remove('dragging');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadArea.classList.remove('dragging');
+  handleFiles(e.dataTransfer.files);
+});
+
+fileInput.addEventListener('change', (e) => {
+  handleFiles(e.target.files);
+});
+
+function handleFiles(newFiles) {
+  for (const file of newFiles) {
+    if (file.type === 'application/pdf') {
+      files.push(file);
+    }
+  }
+  renderFilesList();
+  updateAnalyzeButton();
+}
+
+function renderFilesList() {
+  if (files.length === 0) {
+    filesList.innerHTML = '';
+    return;
+  }
+
+  filesList.innerHTML = files.map((file, index) => `
+    <div class="file-item">
+      <div>
+        <span class="file-name">${file.name}</span>
+        <span class="file-size">${(file.size / 1024).toFixed(1)} KB</span>
+      </div>
+      <button type="button" class="file-remove" data-index="${index}">×</button>
+    </div>
+  `).join('');
+
+  // Attach remove handlers
+  document.querySelectorAll('.file-remove').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const index = parseInt(e.target.dataset.index);
+      files.splice(index, 1);
+      renderFilesList();
+      updateAnalyzeButton();
+    });
+  });
+}
+
+function updateAnalyzeButton() {
+  analyzeBtn.disabled = files.length === 0;
+}
+
+// Extract text from PDF
+async function extractTextFromPDF(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  
+  let fullText = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const textContent = await page.getTextContent();
+    const pageText = textContent.items.map(item => item.str).join(' ');
+    fullText += pageText + '\n';
+  }
+  
+  return fullText;
+}
+
+function showStatus(type, message) {
+  statusDiv.className = `status ${type}`;
+  statusDiv.textContent = message;
+  statusDiv.style.display = 'block';
+}
+
+function showProgress(message) {
+  progressDiv.textContent = message;
+  progressDiv.style.display = 'block';
+}
+
+function hideProgress() {
+  progressDiv.style.display = 'none';
+}
+
+// Analyze bills (100% client-side)
+analyzeBtn.addEventListener('click', async () => {
+  try {
+    analyzeBtn.disabled = true;
+    showStatus('info', 'Processing bills in your browser...');
+    
+    // Track upload started (anonymous only)
+    trackEvent('bill_upload_started', {
+      bill_count: files.length
+    });
+    
+    // Extract text from PDFs
+    showProgress('Extracting text from PDFs...');
+    const extractedBills = [];
+    
+    for (let i = 0; i < files.length; i++) {
+      showProgress(`Extracting text from bill ${i + 1}/${files.length}...`);
+      const text = await extractTextFromPDF(files[i]);
+      extractedBills.push({ filename: files[i].name, text });
+    }
+    
+    // Parse bills (client-side deterministic parser)
+    showProgress('Parsing bill data...');
+    const parsedBills = [];
+    const rejectedBills = [];
+    
+    for (let i = 0; i < extractedBills.length; i++) {
+      try {
+        const billData = parseSDGEBillText(extractedBills[i].text);
+        
+        // Validate billing period
+        const validation = validateBillingPeriod(billData);
+        if (validation && !validation.valid) {
+          rejectedBills.push({
+            filename: extractedBills[i].filename,
+            reason: validation.reason,
+            message: validation.message
+          });
+          
+          // Track rejection (anonymous - just the reason)
+          trackEvent('bill_upload_rejected', {
+            reason: validation.reason
+          });
+          
+          continue;
+        }
+        
+        parsedBills.push(billData);
+      } catch (error) {
+        console.error(`Error parsing bill ${i + 1}:`, error);
+        showStatus('error', `Error parsing ${extractedBills[i].filename}. Please ensure it's a complete monthly SDG&E bill.`);
+        analyzeBtn.disabled = false;
+        hideProgress();
+        return;
+      }
+    }
+    
+    // Show rejection messages
+    if (rejectedBills.length > 0) {
+      const messages = rejectedBills.map(r => `• ${r.message}`).join('\n\n');
+      showStatus('error', `Some bills were set aside:\n\n${messages}\n\nPlease upload complete monthly bills instead.`);
+      
+      if (parsedBills.length === 0) {
+        analyzeBtn.disabled = false;
+        hideProgress();
+        return;
+      }
+    }
+    
+    // Track successful parsing (anonymous - just counts and booleans)
+    trackEvent('bill_parsed_success', {
+      bill_count: parsedBills.length,
+      has_solar: parsedBills.some(b => b.hasSolar),
+      has_gas: parsedBills.some(b => b.gas && b.gas.therms > 0),
+      provider: parsedBills[0].provider  // Provider name is OK (not PII)
+    });
+    
+    // Calculate savings (client-side engine)
+    showProgress('Calculating your savings...');
+    
+    const household = {
+      size: parseInt(document.getElementById('householdSize').value) || null,
+      income: parseInt(document.getElementById('annualIncome').value) || null,
+      renter: document.getElementById('isRenter').checked,
+      hasSolar: parsedBills.some(b => b.hasSolar)
+    };
+    
+    // Determine current rate plan
+    const firstBill = parsedBills[0];
+    let currentPlan;
+    
+    if (firstBill.provider === 'CEA') {
+      if (firstBill.providerTier === 'Clean Impact') {
+        currentPlan = rates.CEA_CLEAN_IMPACT;
+      } else {
+        currentPlan = rates.CEA_CLEAN_IMPACT_PLUS;
+      }
+    } else if (firstBill.provider === 'SDCP') {
+      currentPlan = rates.SDCP_POWER_ON;
+    } else {
+      currentPlan = rates.SDGE_TOU_DR1;
+    }
+    
+    // Transform bills into engine format
+    const engineBills = parsedBills.map(bill => ({
+      date: bill.billingPeriod.start,
+      usage: bill.usage,
+      cost: bill.totalAmount
+    }));
+    
+    // Extract NEM YTD data if available
+    const solarBill = parsedBills.find(b => b.hasSolar && b.nemYearToDate && b.nemYearToDate.length > 0);
+    const nemYearToDate = solarBill?.nemYearToDate || null;
+    
+    // Extract NEM data for true-up alert
+    const nemData = solarBill ? {
+      trueUpDate: solarBill.nemTrueUpDate,
+      balance: solarBill.nemBalance,
+      systemSize: solarBill.systemSize
+    } : null;
+    
+    // Extract gas usage
+    const gasUsage = firstBill.gas || null;
+    
+    // Generate savings report
+    const report = generateSavingsReport(
+      engineBills,
+      currentPlan,
+      household,
+      nemYearToDate,
+      nemData,
+      gasUsage
+    );
+    
+    // Store results in sessionStorage (stays in browser, never sent to server)
+    sessionStorage.setItem('savingsReport', JSON.stringify(report));
+    sessionStorage.setItem('household', JSON.stringify(household));
+    sessionStorage.setItem('parsedBills', JSON.stringify(parsedBills));
+    
+    // Redirect to results
+    window.location.href = '/app/results.html';
+    
+  } catch (error) {
+    console.error('Error:', error);
+    showStatus('error', `Error: ${error.message}`);
+    analyzeBtn.disabled = false;
+    hideProgress();
+  }
+});
+</script>
+</body>
+</html>
