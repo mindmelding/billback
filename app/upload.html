@@ -217,6 +217,7 @@ h1 {
   border-radius: var(--r);
   font-size: 13px;
   margin-bottom: 20px;
+  white-space: pre-line;
 }
 .status.info {
   background: var(--accent-soft);
@@ -253,18 +254,23 @@ h1 {
   <div class="logo">B</div>
   
   <h1>Upload Your SDG&E Bills</h1>
-  <p class="subtitle">Upload 1-3 SDG&E bill PDFs to see your personalized savings. For solar homes, one recent bill with the Net Metering table gives us nearly a full year of usage data.</p>
+  <p class="subtitle">Upload 1-3 <strong>complete monthly bills</strong> to see your personalized savings. We need regular billing cycles (about 28-31 days) for accurate results. For solar homes, one recent bill with the Net Metering table gives us nearly a full year of usage data.</p>
 
   <div id="status" style="display: none;"></div>
 
   <div class="card">
     <h2>Step 1: Upload Bills</h2>
-    <p>Upload your SDG&E bill PDFs. We'll extract the data locally in your browser—nothing is sent until you click Analyze.</p>
+    <p>Upload your <strong>complete monthly SDG&E bill PDFs</strong>. We'll extract the data locally in your browser—nothing is sent until you click Analyze.</p>
+    <p style="font-size: 12px; color: var(--fg-3); margin-top: -8px;">
+      ✓ Regular monthly bills (about 28-31 days)<br>
+      ✗ Move-in, move-out, or partial bills<br>
+      ✗ True-up-only statements
+    </p>
     
     <div class="upload-area" id="uploadArea">
       <div class="upload-icon">📄</div>
       <div class="upload-text">Drop PDFs here or click to browse</div>
-      <div class="upload-hint">Accepts SDG&E bill PDFs (1-3 bills, any months)</div>
+      <div class="upload-hint">Accepts complete monthly SDG&E bill PDFs (1-3 bills, any months)</div>
     </div>
     <input type="file" id="fileInput" class="file-input" accept="application/pdf" multiple>
     
@@ -314,6 +320,7 @@ h1 {
   <div class="progress" id="progress" style="display: none;"></div>
 
   <div class="footer">
+    <p><strong>Why complete monthly bills?</strong> Move-in, move-out, and partial bills don't show your typical usage, so savings estimates would be unreliable. We need regular billing cycles to give you accurate results.</p>
     <p>Your data stays private. Bills are processed in your browser using PDF.js. Only extracted numbers (no names, addresses, or account numbers) are sent to our server for calculations. We don't store anything.</p>
     <p>SDG&E rate tables last updated 2026-10-28. Savings are estimates; rates change several times a year.</p>
   </div>
@@ -461,12 +468,36 @@ analyzeBtn.addEventListener('click', async () => {
     
     const uploadData = await uploadResp.json();
     
-    if (uploadData.errors.length > 0) {
+    // Handle rejected bills
+    const rejectedBills = uploadData.errors.filter(e => e.rejected);
+    if (rejectedBills.length > 0) {
+      // Show rejection messages
+      const messages = rejectedBills.map(r => `• ${r.message}`).join('\n\n');
+      showStatus('error', `Some bills were set aside:\n\n${messages}\n\nPlease upload complete monthly bills instead.`);
+      
+      // Track rejections
+      rejectedBills.forEach(r => {
+        if (window.posthog) {
+          posthog.capture('bill_upload_rejected', {
+            reason: r.reason,
+            site: 'billback',
+            llc: 'mindmelding',
+            is_test: true
+          });
+        }
+      });
+    }
+    
+    if (uploadData.errors.length > 0 && !rejectedBills.length) {
       console.warn('Some bills had errors:', uploadData.errors);
     }
     
     if (uploadData.bills.length === 0) {
-      throw new Error('No bills could be parsed. Please try different files.');
+      if (rejectedBills.length > 0) {
+        throw new Error('All bills were rejected. Please upload complete monthly bills (not move-in, move-out, or partial bills).');
+      } else {
+        throw new Error('No bills could be parsed. Please try different files.');
+      }
     }
     
     // Calculate savings

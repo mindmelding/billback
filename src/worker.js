@@ -8,7 +8,7 @@
  * - Never submit forms or switch providers for customers
  */
 
-import { parseSDGEBillText, stripPersonalInfo, needsManualReview } from './parser.js';
+import { parseSDGEBillText, stripPersonalInfo, needsManualReview, validateBillingPeriod } from './parser.js';
 import { extractBillDataWithLLM, validateBillData } from './extraction.js';
 import { generateSavingsReport } from './engine.js';
 import * as rates from './rates.js';
@@ -48,6 +48,18 @@ async function handleUpload(request, env) {
           // **Try deterministic parser first** (cheaper, more private)
           let billData = parseSDGEBillText(value);
           
+          // **Validate billing period before proceeding**
+          const validation = validateBillingPeriod(billData);
+          if (validation && !validation.valid) {
+            errors.push({
+              file: key,
+              rejected: true,
+              reason: validation.reason,
+              message: validation.message
+            });
+            continue; // Skip this bill
+          }
+          
           // If deterministic parser failed or needs review, try LLM
           if (needsManualReview(billData) && env.LLM_API_KEY) {
             // Strip personal info before sending to LLM
@@ -56,12 +68,28 @@ async function handleUpload(request, env) {
               billData = await extractBillDataWithLLM(cleanedText, env);
               billData = validateBillData(billData);
               billData.method = 'llm-fallback';
+              billData._originalText = value; // Store for validation
+              
+              // Validate LLM-extracted bill too
+              const llmValidation = validateBillingPeriod(billData);
+              if (llmValidation && !llmValidation.valid) {
+                errors.push({
+                  file: key,
+                  rejected: true,
+                  reason: llmValidation.reason,
+                  message: llmValidation.message
+                });
+                continue;
+              }
             } catch (llmError) {
               // LLM failed, use deterministic result with manual review flag
               billData.needsManualReview = true;
               billData.llmError = llmError.message;
             }
           }
+          
+          // Clean up before sending to client
+          delete billData._originalText;
           
           bills.push(billData);
         } catch (error) {

@@ -5,7 +5,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { readFileSync } from 'node:fs';
-import { parseSDGEBillText, stripPersonalInfo, needsManualReview } from './parser.js';
+import { parseSDGEBillText, stripPersonalInfo, needsManualReview, validateBillingPeriod } from './parser.js';
 
 describe('Deterministic Parser', () => {
   describe('parseSDGEBillText with fixture', () => {
@@ -68,6 +68,98 @@ describe('Deterministic Parser', () => {
 
       // Should not need manual review
       assert.strictEqual(needsManualReview(parsed), false);
+      
+      // Should pass billing period validation (29 days)
+      const validation = validateBillingPeriod(parsed);
+      assert.strictEqual(validation, null, 'Should be a valid complete billing period');
+    });
+  });
+
+  describe('validateBillingPeriod', () => {
+    it('should accept complete billing periods (25-35 days)', () => {
+      const validBill = {
+        billingPeriod: { start: '2026-07-30', end: '2026-08-27' },
+        totalKwh: 624,
+        _originalText: 'Regular monthly bill'
+      };
+      
+      const result = validateBillingPeriod(validBill);
+      assert.strictEqual(result, null, 'Should accept 29-day bill');
+    });
+
+    it('should reject partial bills (< 25 days)', () => {
+      const partialBill = {
+        billingPeriod: { start: '2026-07-30', end: '2026-08-10' },
+        totalKwh: 200,
+        _originalText: 'Partial bill'
+      };
+      
+      const result = validateBillingPeriod(partialBill);
+      assert.ok(result && !result.valid);
+      assert.strictEqual(result.reason, 'partial_bill');
+      assert.ok(result.message.includes('11 days'));
+    });
+
+    it('should reject extended bills (> 35 days)', () => {
+      const extendedBill = {
+        billingPeriod: { start: '2026-07-01', end: '2026-08-20' },
+        totalKwh: 800,
+        _originalText: 'Extended bill'
+      };
+      
+      const result = validateBillingPeriod(extendedBill);
+      assert.ok(result && !result.valid);
+      assert.strictEqual(result.reason, 'extended_bill');
+    });
+
+    it('should reject move-in/move-out bills', () => {
+      const moveInBill = {
+        billingPeriod: { start: '2026-07-30', end: '2026-08-27' },
+        totalKwh: 400,
+        _originalText: 'MOVE-IN service bill for new customer'
+      };
+      
+      const result = validateBillingPeriod(moveInBill);
+      assert.ok(result && !result.valid);
+      assert.strictEqual(result.reason, 'move_service_change');
+      assert.ok(result.message.includes('move-in'));
+    });
+
+    it('should reject corrected/rebilled statements', () => {
+      const correctedBill = {
+        billingPeriod: { start: '2026-07-30', end: '2026-08-27' },
+        totalKwh: 624,
+        _originalText: 'CORRECTED STATEMENT - Rebilled charges'
+      };
+      
+      const result = validateBillingPeriod(correctedBill);
+      assert.ok(result && !result.valid);
+      assert.strictEqual(result.reason, 'corrected_bill');
+    });
+
+    it('should reject true-up-only statements', () => {
+      const trueUpOnly = {
+        billingPeriod: { start: '2026-10-28', end: '2026-10-28' },
+        totalKwh: 0,
+        hasSolar: true,
+        _originalText: 'Annual True-Up Statement'
+      };
+      
+      const result = validateBillingPeriod(trueUpOnly);
+      assert.ok(result && !result.valid);
+      assert.strictEqual(result.reason, 'trueup_only');
+    });
+
+    it('should accept bills with mid-cycle rate changes', () => {
+      // Example bill has "Rate 1" for 2 days, "Rate 2" for 27 days = 29 days total
+      const validBill = {
+        billingPeriod: { start: '2026-07-30', end: '2026-08-27' },
+        totalKwh: 624,
+        _originalText: 'Rate change on day 3 of your Billing Period'
+      };
+      
+      const result = validateBillingPeriod(validBill);
+      assert.strictEqual(result, null, 'Should accept bill with mid-cycle rate change');
     });
   });
 

@@ -219,6 +219,7 @@ export function parseSDGEBillText(text) {
 
   result.extractedAt = new Date().toISOString();
   result.method = 'deterministic-parser';
+  result._originalText = text; // Store for validation
   
   return result;
 }
@@ -305,6 +306,66 @@ export function stripPersonalInfo(text) {
   cleaned = cleaned.replace(/\d+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:ST|AVE|BLVD|DR|RD|LN|CT)/gi, '[ADDRESS]');
   
   return cleaned;
+}
+
+/**
+ * Validate billing period is a complete regular cycle
+ * @param {Object} parsedData - Parsed bill data
+ * @returns {Object|null} { valid: false, reason, message } or null if valid
+ */
+export function validateBillingPeriod(parsedData) {
+  if (!parsedData.billingPeriod || !parsedData.billingPeriod.start || !parsedData.billingPeriod.end) {
+    return {
+      valid: false,
+      reason: 'missing_dates',
+      message: 'Could not read billing period dates. Please check the bill and try again.'
+    };
+  }
+
+  const start = new Date(parsedData.billingPeriod.start);
+  const end = new Date(parsedData.billingPeriod.end);
+  const days = Math.round((end - start) / (1000 * 60 * 60 * 24));
+
+  // Check for indicators of non-standard bills BEFORE checking days
+  const text = parsedData._originalText || '';
+  
+  // True-up only (no regular usage charges) - check before days since these can be 0-1 days
+  if (parsedData.hasSolar && text.includes('True-Up') && !parsedData.totalKwh) {
+    return {
+      valid: false,
+      reason: 'trueup_only',
+      message: 'This appears to be a true-up-only statement without regular monthly usage. Please upload a regular monthly bill (not just the annual true-up).'
+    };
+  }
+
+  // Move-in/move-out indicators
+  if (/move.?in|move.?out|start.?service|stop.?service|final.?bill/i.test(text)) {
+    return {
+      valid: false,
+      reason: 'move_service_change',
+      message: 'This appears to be a move-in, move-out, or service change bill. These partial bills won\'t give accurate savings. Please upload a regular monthly bill from when you were living at this address.'
+    };
+  }
+
+  // Corrected/rebilled statements
+  if (/corrected|rebill|adjustment|revised.?statement/i.test(text)) {
+    return {
+      valid: false,
+      reason: 'corrected_bill',
+      message: 'This appears to be a corrected or rebilled statement. Please upload your regular monthly bill instead.'
+    };
+  }
+
+  // Complete billing period: 25-35 days (normal monthly cycle)
+  if (days < 25 || days > 35) {
+    return {
+      valid: false,
+      reason: days < 25 ? 'partial_bill' : 'extended_bill',
+      message: `This bill covers ${days} days. We need complete monthly bills (about 28-31 days) for accurate savings. Partial bills from move-in, move-out, or service changes won't give reliable results. Please upload a regular monthly bill instead.`
+    };
+  }
+
+  return null; // Valid
 }
 
 /**
