@@ -1,0 +1,161 @@
+ACCOUNT NUMBER 1234 5678 9012 3         DATE MAILED Sep 2, 2026         Page 1 of 10
+SERVICE FOR                                                          sdge.com
+
+JANE SAMPLE
+123 EXAMPLE ST
+OCEANSIDE, CA 92000
+
+No payment is due.
+Your account will true-up on Oct 28, 2026.
+Your account has a balance of $445.71
+
+Account Summary (Gas)
+Previous Balance                                                     $35.41
+Payment Received            8/21/26         THANK YOU                - 35.41
+Excess Credit Transfer                                                16.28
+Current Charges                                                      - 16.28
+Total Amount Due                                                       $.00
+
+Net Metering Account Summary
+Previous NEM YTD Balance                                            $354.22
+Payment Received             8/21/26         THANK YOU         - 354.22
+
+--- Page 2 ---
+
+Excess Credit Transfer                                               -16.28
+Current Charges                                                   + 461.99
+NEM Year-to-Date Balance                                           $445.71
+
+Summary of Current Charges
+                        Billing Period                   Usage           Amount($)
+Gas                     Jul 30, 2026 - Aug 27, 2026     13 Therms         33.08
+Electric Delivery       Jul 30, 2026 - Aug 27, 2026     624 kWh          217.97
+CCA Electric Generation                                               244.02
+California Climate Credit                                             -49.36
+Total Charges this Month                                            $445.71
+
+Your electric energy is provided by CLEAN ENERGY ALLIANCE. If you
+have any questions about the Community Choice Aggregation (CCA) charges
+on your bill, please contact your CCA at 1-833-232-3110.
+
+--- Page 3 ---
+
+Detail of Current Charges
+
+Gas Service
+Rate: GR-Residential        Baseline Allowance: 10 Therms
+Meter Number: 12345001      (Next scheduled read date Sep 28, 2026)     Cycle: 19
+
+Billing Period       Days   Current  Previous  Difference   Meter    Therm    Total
+                            Reading  Reading              Constant  Multiplier Therms
+07/30/26 - 08/27/26   29     1135     1122        13       1.000     1.022      13
+
+GAS CHARGES
+Gas Service Rate Change This Billing Period:
+There was a rate change on day 3 of your Billing Period. Therefore, your charges 
+for the first 2 days were at Rate 1, and the remaining 27 days were at Rate 2.
+
+Total Gas Charges                                                    $31.11
+
+TAXES & FEES ON GAS CHARGES                                      Amount($)
+Public Purpose Programs                   13 Therms x $.147540         1.92
+State Regulatory Fee                      13 Therms x $.003500          .05
+Total Taxes & Fees on Gas Charges                                   $1.97
+Total Gas Service                                                  $33.08
+
+--- Page 4 ---
+
+Electric Service
+Rate: Time of Use - TOU-DR1-Residential     Climate Zone: Coastal
+Baseline Allowance: 261 kWh
+
+Billing Period: 7/30/26 - 8/27/26     Total Days: 29
+Meter Number: 12345002                (Next scheduled read date Sep 28, 2026)
+Total Usage: 624                      (Usage based on interval data)
+
+ELECTRIC CHARGES                                                 Amount($)
+Base Services Charge                          $.79343 x 29 days     23.01
+
+Electricity Delivery (Details below)          48 kWh
+SUMMER USAGE On-Peak    Off-Peak    Super Off-Peak
+kWh used     33         16          −1
+Rate/kWh     $.31440    $.31440     $.00000
+2 Days       $10.38   + $5.03     + $.00              =            15.41
+
+Electricity Delivery (Details below)         576 kWh
+SUMMER USAGE On-Peak    Off-Peak    Super Off-Peak
+kWh used     322        177         77
+Rate/kWh     $.31093    $.31093     $.31093
+27 Days      $100.12  + $55.03    + $23.94            =           179.09
+
+Rate Change This Billing Period:
+There was a rate change on day 3 of your Billing Period.
+
+Total Electric Charges                                            $215.59
+
+--- Page 5 ---
+
+Community Choice Aggregation (CCA) Electric Generation Charges
+
+Your Electric energy is provided by the following CCA:
+CLEAN ENERGY ALLIANCE Phone: 1-833-232-3110
+CCA Account Number: 123456789012 Service Delivery Point: SDP123456789012345678
+
+Bill Date: Aug 27, 2026 Billing Period: 7/30/26 - 8/27/26
+
+                                                                Amount($)
+Clean Impact Plus 624 kWh X $0.001                                   .62
+Generation On-Peak Summer 355 kWh X $0.55397                      196.39
+Generation Off-Peak Summer 193 kWh X $0.22298                      43.10
+Generation Super Off-Peak Summer 76 kWh X $0.04914                  3.72
+State Surcharge Tax                                                  .19
+Total CCA Electric Generation Charges                           $244.02
+
+Your CCA rate is NEM TOU-DR-1.
+
+--- Page 6 ---
+
+Total Current Charges                                           $445.71
+
+--- Page 7 ---
+
+Your Electricity Dashboard
+
+Time of Use - Electricity
+
+Summer                                     kWh
+On-Peak                                    355
+Off-Peak                                   193
+Super Off-Peak                              76
+Total                                      624
+
+--- Page 8 ---
+
+Net Energy Metering Summary
+Current Rate:   Time of Use - TOU-DR1-Residential    Start Date: 10/29/2025    System Size: 3.44 kW
+Meter Number:   12345002                             True-Up Date: 10/28/2026  Version: 2.0
+
+Bill Date      On-Pk  Off-Pk  Super-Off-Pk  Total   NEM      Applied  Remaining  Cumulative
+                kWh     kWh        kWh       kWh   Charges   Credits    Credits    Balance
+11/26/2025       83    −139        28        −28    28.27    (28.27)    (6.19)         -
+12/29/2025      161     −97        50        114    56.33    (33.29)        -      23.04
+01/28/2026      115     −67        37         85    41.76    (21.82)        -      42.98
+02/27/2026      107    −147         9        −31    28.90    (39.60)        -      32.28
+03/30/2026       83     −29      −163       −109    20.69    (51.52)        -       1.45
+04/29/2026       31     −56      −157       −182     8.72    (10.17)   (48.06)         -
+05/29/2026       30     −49      −127       −146     7.49     (7.49)   (87.81)         -
+06/29/2026       85      21      −100          6    26.95    (26.95)   (88.47)         -
+07/29/2026      310     199       116        625   178.96    (88.47)        -      90.49
+08/27/2026      355     193        76        624   177.17     (0.26)        -     267.40
+
+YTD Totals    1,360    −171      −231        958   575.24   (307.84)
+
+YTD Net Metering Charges/Credits              $    267.40
+Non-Bypassable Charges                        $    318.89
+Subtotal                                      $    586.29
+Gas and Electric Meter Charges and Payments   $   (140.58)
+Current Account Balance                       $    445.71
+
+Understanding Your Net Metering Summary
+True-Up Date: The date your current period ends. This is when SDG&E will reconcile your 
+account and automatically reset your account for a new period.

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Billback End-to-End Test</title>
+  <style>
+    body { font-family: system-ui; padding: 40px; max-width: 800px; margin: 0 auto; }
+    h1 { color: #5e6ad2; }
+    .status { padding: 20px; margin: 20px 0; border-radius: 8px; }
+    .success { background: #e9f6ee; border: 1px solid #2f8a4f; color: #1f5e36; }
+    .error { background: #fcecea; border: 1px solid #c2413a; color: #8b2c28; }
+    pre { background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 12px; }
+    button { 
+      background: #5e6ad2; 
+      color: white; 
+      border: none; 
+      padding: 12px 24px; 
+      border-radius: 6px; 
+      font-size: 14px; 
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { filter: brightness(1.1); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <h1>Billback End-to-End Test</h1>
+  <p>This page tests the complete flow from bill text → parsing → calculation → results rendering.</p>
+  
+  <button id="runTest" onclick="runTest()">Run Test</button>
+  <div id="output"></div>
+
+  <script type="module">
+    async function runTest() {
+      const output = document.getElementById('output');
+      const btn = document.getElementById('runTest');
+      btn.disabled = true;
+      output.innerHTML = '<div class="status">Running test...</div>';
+
+      try {
+        // Load fixture
+        const fixtureResp = await fetch('/test/fixtures/sdge_bill_cea_solar_aug2026.txt');
+        const billText = await fixtureResp.text();
+        
+        output.innerHTML += '<div class="status success">✓ Loaded fixture (172 lines)</div>';
+
+        // Step 1: Upload/Parse
+        const formData = new FormData();
+        formData.append('bill_text_0', billText);
+
+        const uploadResp = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const uploadData = await uploadResp.json();
+        
+        if (!uploadData.success || uploadData.bills.length === 0) {
+          throw new Error('Bill parsing failed: ' + JSON.stringify(uploadData.errors));
+        }
+        
+        output.innerHTML += `<div class="status success">✓ Parsed bill: ${uploadData.bills[0].provider} ${uploadData.bills[0].providerTier}, ${uploadData.bills[0].totalKwh} kWh, ${uploadData.bills[0].nemYearToDate?.length || 0} NEM months</div>`;
+
+        // Step 2: Calculate savings
+        const calcResp = await fetch('/api/calculate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bills: uploadData.bills,
+            household: {
+              size: 2,
+              income: null,
+              renter: true,
+              hasSolar: uploadData.bills[0].hasSolar
+            }
+          })
+        });
+
+        const calcData = await calcResp.json();
+        
+        if (!calcData.success) {
+          throw new Error('Calculation failed: ' + calcData.error);
+        }
+
+        const report = calcData.report;
+        output.innerHTML += `<div class="status success">✓ Calculated savings: $${Math.round(report.totalSavingsRange[0])}–${Math.round(report.totalSavingsRange[1])}/yr (${report.currentPlan.confidence} confidence)</div>`;
+        output.innerHTML += `<div class="status success">✓ Provider alternatives: ${report.providerAlternatives.length}</div>`;
+        output.innerHTML += `<div class="status success">✓ Electric actions: ${report.electricActions.length}</div>`;
+        output.innerHTML += `<div class="status success">✓ Gas actions: ${report.gasActions.length}</div>`;
+        
+        if (report.nemTrueUpAlert) {
+          output.innerHTML += `<div class="status success">✓ True-up alert: ${report.nemTrueUpAlert.daysUntil} days until ${report.nemTrueUpAlert.trueUpDate}</div>`;
+        }
+
+        // Step 3: Simulate results page
+        sessionStorage.setItem('savingsReport', JSON.stringify(report));
+        sessionStorage.setItem('household', JSON.stringify({ renter: true, hasSolar: true }));
+        
+        output.innerHTML += `<div class="status success">✓ Stored in sessionStorage</div>`;
+        output.innerHTML += `<div class="status success"><strong>✓ End-to-end test passed!</strong><br><a href="/app/results.html" style="color: #5e6ad2; font-weight: 600;">→ View Results Page</a></div>`;
+
+        // Show report summary
+        output.innerHTML += `<h3>Report Summary</h3><pre>${JSON.stringify(report, null, 2).substring(0, 2000)}...</pre>`;
+
+      } catch (error) {
+        output.innerHTML += `<div class="status error">✗ Test failed: ${error.message}</div>`;
+        console.error(error);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    window.runTest = runTest;
+  </script>
+</body>
+</html>

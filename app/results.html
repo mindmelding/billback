@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Savings Results - Billback</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #ffffff;
+  --panel: #fbfbfc;
+  --line: #e9e9ee;
+  --line-strong: #dcdce3;
+  --fg: #1b1b22;
+  --fg-2: #5d5d6c;
+  --fg-3: #8b8b99;
+  --accent: #5e6ad2;
+  --accent-soft: #eef0fb;
+  --ok: #2f8a4f;
+  --ok-soft: #e9f6ee;
+  --warn: #b26a00;
+  --warn-soft: #fdf3e2;
+  --bad: #c2413a;
+  --bad-soft: #fcecea;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --r: 6px;
+}
+* { box-sizing: border-box; }
+body { 
+  background: var(--bg); 
+  color: var(--fg); 
+  font-family: var(--font); 
+  font-size: 13px; 
+  line-height: 1.5; 
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+  padding: 20px;
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--accent);
+  display: grid;
+  place-items: center;
+  color: var(--bg);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+h1 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.subtitle {
+  color: var(--fg-2);
+  font-size: 15px;
+  margin: 0 0 30px;
+  max-width: 70ch;
+}
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 17px;
+  font-weight: 600;
+}
+.card p {
+  margin: 0 0 16px;
+  color: var(--fg-2);
+  font-size: 13px;
+}
+.alert {
+  padding: 12px 14px;
+  border-radius: var(--r);
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+.alert.urgent {
+  background: var(--warn-soft);
+  border: 1px solid #f1d9ad;
+  color: #6d4300;
+}
+.alert strong {
+  font-weight: 600;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.metric {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--panel);
+}
+.metric .label {
+  font-size: 12px;
+  color: var(--fg-3);
+  margin-bottom: 6px;
+}
+.metric .value {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ok);
+  font-variant-numeric: tabular-nums;
+}
+.metric .detail {
+  font-size: 11px;
+  color: var(--fg-3);
+  margin-top: 4px;
+}
+.comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.comparison-row {
+  display: grid;
+  grid-template-columns: minmax(0, 200px) minmax(0, 1fr) 120px;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--panel);
+}
+.comparison-row.current {
+  background: var(--bad-soft);
+  border-color: var(--bad);
+}
+.comparison-row .provider {
+  font-weight: 500;
+  color: var(--fg);
+}
+.comparison-row .bar {
+  height: 8px;
+  background: var(--line);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.comparison-row .bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--ok);
+  border-radius: 4px;
+}
+.comparison-row .savings {
+  text-align: right;
+  font-weight: 600;
+  color: var(--ok);
+  font-variant-numeric: tabular-nums;
+}
+.comparison-row .current-badge {
+  color: var(--bad);
+  font-size: 11px;
+}
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.action {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.action:hover {
+  background: var(--panel);
+  border-color: var(--line-strong);
+}
+.action-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.action-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--fg);
+}
+.action-savings {
+  font-weight: 600;
+  color: var(--ok);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.action-desc {
+  font-size: 12px;
+  color: var(--fg-2);
+  margin-bottom: 8px;
+}
+.action-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 500;
+  background: var(--accent-soft);
+  color: var(--accent);
+  margin-right: 6px;
+}
+.action-badge.gas {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.btn {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  color: var(--fg);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+  margin-top: 12px;
+}
+.btn:hover {
+  filter: brightness(0.97);
+}
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+.footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--fg-3);
+}
+.confidence-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 500;
+  margin-left: 8px;
+}
+.confidence-badge.high {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.confidence-badge.medium {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.confidence-badge.low {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.tag {
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  color: var(--fg-2);
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">B</div>
+  
+  <div id="loading" style="text-align: center; padding: 60px 0;">
+    <p style="color: var(--fg-3);">Loading your savings report...</p>
+  </div>
+
+  <div id="results" style="display: none;"></div>
+
+  <div class="footer">
+    <p>Savings are estimates from uploaded bills and published rates (last updated 2026-10-28). Rates change several times a year. Behavioral savings are estimates based on research.</p>
+    <p>Per CA PU Code 366.5 and CARE rules, you give the final click, call or signature for provider switches, discounts and plan changes. We never switch providers or sign forms for you.</p>
+  </div>
+</div>
+
+<script>
+// PostHog initialization (placeholder for actual key)
+const POSTHOG_KEY = 'YOUR_POSTHOG_KEY'; // Set from config
+const IS_PRODUCTION = window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1');
+
+if (POSTHOG_KEY && POSTHOG_KEY !== 'YOUR_POSTHOG_KEY') {
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  posthog.init(POSTHOG_KEY, {api_host: 'https://app.posthog.com'});
+}
+
+function trackEvent(eventName, props = {}) {
+  if (window.posthog) {
+    posthog.capture(eventName, {
+      ...props,
+      site: 'billback',
+      llc: 'mindmelding',
+      is_test: !IS_PRODUCTION
+    });
+  }
+}
+
+// Load data from sessionStorage
+const reportData = sessionStorage.getItem('savingsReport');
+const householdData = sessionStorage.getItem('household');
+
+if (!reportData) {
+  document.getElementById('loading').innerHTML = '<p style="color: var(--bad);">No savings report found. Please <a href="/app/upload.html">upload your bills</a> first.</p>';
+} else {
+  const report = JSON.parse(reportData);
+  const household = householdData ? JSON.parse(householdData) : {};
+  
+  // Track results viewed
+  trackEvent('results_viewed', {
+    total_savings_min: report.totalSavingsRange[0],
+    total_savings_max: report.totalSavingsRange[1],
+    bills_analyzed: report.billsAnalyzed,
+    nem_months_analyzed: report.nemMonthsAnalyzed || 0,
+    confidence: report.currentPlan.confidence,
+    has_solar: household.hasSolar || false,
+    is_renter: household.renter || false
+  });
+
+  renderResults(report, household);
+}
+
+function renderResults(report, household) {
+  const resultsDiv = document.getElementById('results');
+  let html = '';
+
+  // Header
+  const savingsRange = `$${Math.round(report.totalSavingsRange[0])}–${Math.round(report.totalSavingsRange[1])}`;
+  html += `
+    <h1>You could save ${savingsRange} per year</h1>
+    <p class="subtitle">
+      Based on ${report.billsAnalyzed} bill(s)${report.nemMonthsAnalyzed ? ` with ${report.nemMonthsAnalyzed} months of solar history` : ''}.
+      ${report.currentPlan.provider} ${report.currentPlan.plan} → alternatives and behavior changes.
+      <span class="confidence-badge ${report.currentPlan.confidence}">${report.currentPlan.confidence} confidence</span>
+    </p>
+  `;
+
+  // Tags
+  html += '<div class="tags">';
+  if (household.renter) html += '<span class="tag">Renter</span>';
+  if (household.hasSolar) html += '<span class="tag">Solar</span>';
+  html += `<span class="tag">${report.currentPlan.provider}</span>`;
+  html += '</div>';
+
+  // True-up alert
+  if (report.nemTrueUpAlert) {
+    const alert = report.nemTrueUpAlert;
+    html += `
+      <div class="alert ${alert.isUrgent ? 'urgent' : ''}">
+        <strong>${alert.isUrgent ? '⚠️ ' : ''}Solar True-Up Alert:</strong> ${alert.message}
+      </div>
+    `;
+  }
+
+  // Savings metrics
+  html += '<div class="metrics">';
+  html += `
+    <div class="metric">
+      <div class="label">Total Potential Savings</div>
+      <div class="value">${savingsRange}/yr</div>
+      <div class="detail">${report.currentPlan.basis}</div>
+    </div>
+  `;
+  
+  if (report.savingsBreakdown) {
+    html += `
+      <div class="metric">
+        <div class="label">Provider Switch</div>
+        <div class="value">$${Math.round(report.savingsBreakdown.provider)}</div>
+        <div class="detail">Switch to cheaper option</div>
+      </div>
+      <div class="metric">
+        <div class="label">Electric Habits</div>
+        <div class="value">$${Math.round(report.savingsBreakdown.electric[0])}–${Math.round(report.savingsBreakdown.electric[1])}</div>
+        <div class="detail">Thermostat, appliances</div>
+      </div>
+    `;
+    
+    if (report.savingsBreakdown.gas[1] > 0) {
+      html += `
+        <div class="metric">
+          <div class="label">Gas Savings</div>
+          <div class="value">$${Math.round(report.savingsBreakdown.gas[0])}–${Math.round(report.savingsBreakdown.gas[1])}</div>
+          <div class="detail">Heating, water heater</div>
+        </div>
+      `;
+    }
+  }
+  html += '</div>';
+
+  // Provider comparisons
+  if (report.providerAlternatives.length > 0) {
+    html += '<div class="card"><h2>Provider Comparison</h2>';
+    html += '<p>How much the same usage would cost with different providers</p>';
+    html += '<div class="comparison">';
+    
+    // Current provider
+    const maxCost = Math.max(
+      report.currentPlan.annualCost,
+      ...report.providerAlternatives.map(p => p.annualCost)
+    );
+    
+    html += `
+      <div class="comparison-row current">
+        <div class="provider">
+          ${report.currentPlan.provider} ${report.currentPlan.plan}<br>
+          <span class="current-badge">Current</span>
+        </div>
+        <div class="bar"><div class="bar-fill" style="width: ${(report.currentPlan.annualCost / maxCost * 100).toFixed(1)}%; background: var(--bad);"></div></div>
+        <div class="savings" style="color: var(--bad);">$${Math.round(report.currentPlan.annualCost)}/yr</div>
+      </div>
+    `;
+    
+    // Alternatives
+    report.providerAlternatives.slice(0, 3).forEach(alt => {
+      if (alt.savings > 0) {
+        html += `
+          <div class="comparison-row">
+            <div class="provider">${alt.provider} ${alt.plan}</div>
+            <div class="bar"><div class="bar-fill" style="width: ${(alt.annualCost / maxCost * 100).toFixed(1)}%"></div></div>
+            <div class="savings">Save $${Math.round(alt.savings)}/yr</div>
+          </div>
+        `;
+      }
+    });
+    
+    html += '</div></div>';
+  }
+
+  // Actions - Electric
+  if (report.electricActions && report.electricActions.length > 0) {
+    html += '<div class="card"><h2>Electric Savings Actions</h2>';
+    html += '<p>Behavioral changes that reduce your bill with no lifestyle compromise</p>';
+    html += '<div class="actions">';
+    
+    report.electricActions.forEach((action, i) => {
+      const savingsText = action.annualSavingsRange 
+        ? `$${Math.round(action.annualSavingsRange[0])}–${Math.round(action.annualSavingsRange[1])}/yr`
+        : '';
+      
+      html += `
+        <div class="action" data-action-id="${action.id}" onclick="handleActionClick('${action.id}', '${action.action}')">
+          <div class="action-header">
+            <div class="action-title">
+              <span class="action-badge">Electric</span>
+              ${action.action}
+            </div>
+            <div class="action-savings">${savingsText}</div>
+          </div>
+          <div class="action-desc">${action.basis}</div>
+        </div>
+      `;
+    });
+    
+    html += '</div></div>';
+  }
+
+  // Actions - Gas
+  if (report.gasActions && report.gasActions.length > 0) {
+    html += '<div class="card"><h2>Gas Savings Actions</h2>';
+    html += '<p>Ways to reduce your gas bill for heating and water</p>';
+    html += '<div class="actions">';
+    
+    report.gasActions.forEach(action => {
+      const savingsText = action.annualSavingsRange 
+        ? `$${Math.round(action.annualSavingsRange[0])}–${Math.round(action.annualSavingsRange[1])}/yr`
+        : '';
+      
+      html += `
+        <div class="action" data-action-id="${action.id}" onclick="handleActionClick('${action.id}', '${action.action}')">
+          <div class="action-header">
+            <div class="action-title">
+              <span class="action-badge gas">Gas</span>
+              ${action.action}
+            </div>
+            <div class="action-savings">${savingsText}</div>
+          </div>
+          <div class="action-desc">${action.basis}</div>
+        </div>
+      `;
+    });
+    
+    html += '</div></div>';
+  }
+
+  // Discount programs
+  if (report.discountPrograms && report.discountPrograms.length > 0) {
+    html += '<div class="card"><h2>Discount Programs</h2>';
+    report.discountPrograms.forEach(prog => {
+      html += `
+        <div class="action" onclick="handleActionClick('care_fera', '${prog.program}')">
+          <div class="action-header">
+            <div class="action-title">
+              <span class="action-badge">Discount</span>
+              ${prog.program}: ${(prog.electricDiscount * 100).toFixed(0)}% off electric
+            </div>
+          </div>
+          <div class="action-desc">${prog.eligibility}</div>
+        </div>
+      `;
+    });
+    html += '</div>';
+  }
+
+  // Next steps
+  html += `
+    <div class="card">
+      <h2>Next Steps</h2>
+      <p>Want more detailed action plans with prefilled forms, call scripts, and thermostat schedules? The full action pack is coming soon.</p>
+      <a href="/app/upload.html" class="btn primary">Upload More Bills</a>
+    </div>
+  `;
+
+  resultsDiv.innerHTML = html;
+  resultsDiv.style.display = 'block';
+  document.getElementById('loading').style.display = 'none';
+}
+
+function handleActionClick(actionId, actionName) {
+  trackEvent('action_clicked', {
+    action_id: actionId,
+    action_name: actionName
+  });
+}
+</script>
+</body>
+</html>
