@@ -172,36 +172,51 @@ export function parseSDGEBillText(text) {
     result.confidence.totalKwh = 'high';
   }
 
-  // TOU usage (current month) - handle rate changes by summing all periods
-  // Look for pattern like: SUMMER USAGE On-Peak Off-Peak Super Off-Peak
-  //                        kWh used    355      193        76
+  // TOU usage (current month)
+  // Real SDG&E PDFs, after PDF.js y-coordinate line reconstruction, look like:
+  //   "Time of Use - Electricity Summer kWh On-Peak 355 Off-Peak 193 Super Off-Peak 76"
+  // pdftotext -layout (the fixture) instead prints SUMMER USAGE / kWh used on two lines.
   let onPeak = 0;
   let offPeak = 0;
   let superOffPeak = 0;
   let foundUsage = false;
-  
-  // More flexible regex to handle varying whitespace
-  const lines = text.split('\n');
-  for (let i = 0; i < lines.length - 1; i++) {
-    const line = lines[i];
-    const nextLine = lines[i + 1];
-    
-    if (/(SUMMER|WINTER)\s+USAGE/.test(line) && /kWh\s+used/.test(nextLine)) {
-      const season = line.match(/(SUMMER|WINTER)/i)[1].toLowerCase();
+
+  const touDash = text.match(
+    /Time of Use\s*[-–—]\s*Electricity\s+(Summer|Winter)\s+kWh\s+On-Peak\s+([-−]?\s*\d+)\s+Off-Peak\s+([-−]?\s*\d+)\s+Super\s*Off-Peak\s+([-−]?\s*\d+)/i
+  );
+  if (touDash) {
+    const toInt = (s) => parseInt(String(s).replace(/\s+/g, '').replace('−', '-'), 10);
+    onPeak = toInt(touDash[2]);
+    offPeak = toInt(touDash[3]);
+    superOffPeak = toInt(touDash[4]);
+    foundUsage = true;
+    if (!result.usage.season) {
+      result.usage.season = touDash[1].toLowerCase();
+    }
+  }
+
+  // Fallback: SUMMER USAGE / kWh used (pdftotext -layout). Sum all periods for mid-cycle rate changes.
+  if (!foundUsage) {
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length - 1; i++) {
+      const line = lines[i];
+      const nextLine = lines[i + 1];
       
-      // Extract numbers from next line
-      const numbers = nextLine.match(/([-−\d]+)/g);
-      if (numbers && numbers.length >= 3) {
-        // Skip the first match if it's just "kWh" related, look for actual numbers
-        const vals = numbers.filter(n => /^[-−]?\d+$/.test(n)).map(n => parseInt(n.replace('−', '-')));
-        if (vals.length >= 3) {
-          onPeak += vals[0];
-          offPeak += vals[1];
-          superOffPeak += vals[2];
-          foundUsage = true;
-          
-          if (!result.usage.season) {
-            result.usage.season = season;
+      if (/(SUMMER|WINTER)\s+USAGE/.test(line) && /kWh\s+used/.test(nextLine)) {
+        const season = line.match(/(SUMMER|WINTER)/i)[1].toLowerCase();
+        
+        const numbers = nextLine.match(/([-−\d]+)/g);
+        if (numbers && numbers.length >= 3) {
+          const vals = numbers.filter(n => /^[-−]?\d+$/.test(n)).map(n => parseInt(n.replace('−', '-')));
+          if (vals.length >= 3) {
+            onPeak += vals[0];
+            offPeak += vals[1];
+            superOffPeak += vals[2];
+            foundUsage = true;
+            
+            if (!result.usage.season) {
+              result.usage.season = season;
+            }
           }
         }
       }
@@ -293,7 +308,7 @@ function parseNEMYearToDateTable(text) {
   
   // Pattern for each row: MM/DD/YYYY   onPeak  offPeak  superOffPeak  total  nemCharges
   // Example: 11/26/2025    83      − 139     28           − 28      28.27
-  // Note: PDF.js renders negatives as '− N' (minus sign, space, digits)
+  // PDF.js y-reconstructed negatives are '− N' (U+2212, space, digits).
   const rowPattern = /(\d{1,2}\/\d{1,2}\/\d{4})\s+([-−]?\s*\d+)\s+([-−]?\s*\d+)\s+([-−]?\s*\d+)\s+([-−]?\s*\d+)\s+([\d.]+)/g;
   
   let match;
