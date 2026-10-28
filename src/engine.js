@@ -246,7 +246,147 @@ export function calculateGasSavings(gasUsage) {
 }
 
 /**
- * Calculate NEM true-up alert
+ * Calculate NEM true-up projection
+ * Projects remaining months until true-up using NEM YTD history
+ * @param {Object} nemData - { trueUpDate, balance, systemSize }
+ * @param {Array<Object>} nemYearToDate - Array of monthly NEM data
+ * @param {Object} ratePlan - Current rate plan for pricing
+ * @returns {Object|null} Projection object or null
+ */
+export function calculateNEMTrueUpProjection(nemData, nemYearToDate, ratePlan) {
+  if (!nemData || !nemData.trueUpDate || nemData.balance === null) {
+    return null;
+  }
+
+  const today = new Date();
+  const trueUpDate = new Date(nemData.trueUpDate);
+  
+  // Check if true-up has already passed
+  if (trueUpDate < today) {
+    return {
+      trueUpDate: nemData.trueUpDate,
+      isPast: true,
+      currentBalance: nemData.balance,
+      message: `Your solar true-up date (${nemData.trueUpDate}) has passed. Contact SDG&E if you haven't received your true-up bill yet.`
+    };
+  }
+
+  const daysUntil = Math.ceil((trueUpDate - today) / (1000 * 60 * 60 * 24));
+  const isUrgent = daysUntil <= 60;
+  
+  // If we don't have NEM history, can't project
+  if (!nemYearToDate || nemYearToDate.length === 0) {
+    return {
+      trueUpDate: nemData.trueUpDate,
+      daysUntil,
+      currentBalance: nemData.balance,
+      isUrgent,
+      message: isUrgent
+        ? `Your solar true-up is ${daysUntil} days away (${nemData.trueUpDate}). Current balance: $${nemData.balance.toFixed(2)} so far.`
+        : `Your solar true-up is on ${nemData.trueUpDate}. Current balance: $${nemData.balance.toFixed(2)} so far.`,
+      tips: isUrgent ? [
+        'Set aside money now for the true-up bill',
+        'Consider switching providers AFTER true-up to avoid double charges',
+        'Check if you\'re on the best rate plan before your next year starts'
+      ] : []
+    };
+  }
+
+  // Find most recent bill date from NEM history
+  const sortedHistory = nemYearToDate.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  const latestBillDate = new Date(sortedHistory[0].date);
+  
+  // Calculate months remaining from latest bill to true-up
+  const monthsRemaining = Math.ceil((trueUpDate - latestBillDate) / (1000 * 60 * 60 * 24 * 30));
+  
+  if (monthsRemaining <= 0) {
+    // True-up is on or before latest bill date
+    return {
+      trueUpDate: nemData.trueUpDate,
+      daysUntil,
+      currentBalance: nemData.balance,
+      projectedBalance: nemData.balance,
+      isUrgent,
+      isPast: false,
+      message: `Your solar true-up is ${daysUntil} days away (${nemData.trueUpDate}). Expected amount: $${nemData.balance.toFixed(2)}.`,
+      basis: 'Latest bill through true-up date',
+      tips: isUrgent ? [
+        'Set aside money now for the true-up bill',
+        'Consider switching providers AFTER true-up to avoid double charges'
+      ] : []
+    };
+  }
+
+  // Project remaining months using prior-year monthly averages
+  // Group history by month (0-11) to get seasonal patterns
+  const monthlyAverages = {};
+  nemYearToDate.forEach(month => {
+    const monthNum = new Date(month.date).getMonth();
+    if (!monthlyAverages[monthNum]) {
+      monthlyAverages[monthNum] = { total: 0, count: 0 };
+    }
+    monthlyAverages[monthNum].total += month.nemCharges;
+    monthlyAverages[monthNum].count++;
+  });
+
+  // Calculate projected charges for remaining months
+  let projectedMin = nemData.balance;
+  let projectedMax = nemData.balance;
+  const projectionDetails = [];
+
+  for (let i = 0; i < monthsRemaining; i++) {
+    const futureDate = new Date(latestBillDate);
+    futureDate.setMonth(futureDate.getMonth() + i + 1);
+    const monthNum = futureDate.getMonth();
+    
+    if (monthlyAverages[monthNum]) {
+      const avgCharge = monthlyAverages[monthNum].total / monthlyAverages[monthNum].count;
+      projectedMin += avgCharge * 0.9; // ±10% range
+      projectedMax += avgCharge * 1.1;
+      
+      projectionDetails.push({
+        month: futureDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+        estimatedCharge: avgCharge,
+        basis: `Average from ${monthlyAverages[monthNum].count} prior ${futureDate.toLocaleDateString('en-US', { month: 'long' })} bill(s)`
+      });
+    } else {
+      // No history for this month, use overall average
+      const overallAvg = nemYearToDate.reduce((sum, m) => sum + m.nemCharges, 0) / nemYearToDate.length;
+      projectedMin += overallAvg * 0.8; // wider range due to uncertainty
+      projectedMax += overallAvg * 1.2;
+      
+      projectionDetails.push({
+        month: futureDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+        estimatedCharge: overallAvg,
+        basis: 'Overall average (no prior-year data for this month)'
+      });
+    }
+  }
+
+  return {
+    trueUpDate: nemData.trueUpDate,
+    daysUntil,
+    currentBalance: nemData.balance,
+    latestBillDate: sortedHistory[0].date,
+    projectedBalance: [Math.max(0, projectedMin), projectedMax],
+    monthsRemaining,
+    projectionDetails,
+    isUrgent,
+    isPast: false,
+    message: isUrgent
+      ? `Your solar true-up is ${daysUntil} days away (${nemData.trueUpDate}). Projected amount: $${Math.round(projectedMin)}–${Math.round(projectedMax)} (currently $${nemData.balance.toFixed(2)} so far).`
+      : `Your solar true-up is on ${nemData.trueUpDate}. Projected amount: $${Math.round(projectedMin)}–${Math.round(projectedMax)} (currently $${nemData.balance.toFixed(2)} so far).`,
+    basis: `${nemData.balance.toFixed(2)} through ${sortedHistory[0].date} + ${monthsRemaining} month(s) projected from prior-year averages`,
+    tips: isUrgent ? [
+      `Set aside $${Math.round(projectedMax)} for the true-up bill`,
+      'Consider switching providers AFTER true-up to avoid double charges',
+      'Check if you\'re on the best rate plan before your next year starts'
+    ] : []
+  };
+}
+
+/**
+ * Calculate NEM true-up alert (DEPRECATED - use calculateNEMTrueUpProjection)
  * @param {Object} nemData - { trueUpDate, balance, systemSize }
  * @returns {Object|null} Alert object or null
  */
@@ -428,7 +568,11 @@ export function generateSavingsReport(bills, currentPlan, household = {}, nemYea
   const providerComparisons = compareProviders(bills, currentPlan, nemYearToDate);
   const behavioralSavings = calculateBehavioralSavings(bills, currentPlan);
   const gasSavings = gasUsage ? calculateGasSavings(gasUsage) : [];
-  const nemTrueUpAlert = nemData ? calculateNEMTrueUpAlert(nemData) : null;
+  
+  // Use new true-up projection instead of simple alert
+  const nemTrueUpProjection = (nemData && nemYearToDate) 
+    ? calculateNEMTrueUpProjection(nemData, nemYearToDate, currentPlan)
+    : null;
   
   const careFeraEligibility = household.size && household.income
     ? checkCareFeraEligibility(household.size, household.income, household.onBenefits)
@@ -470,7 +614,7 @@ export function generateSavingsReport(bills, currentPlan, household = {}, nemYea
     electricActions: applicableElectricActions,
     gasActions: applicableGasActions,
     discountPrograms: careFeraEligibility ? [careFeraEligibility] : [],
-    nemTrueUpAlert,
+    nemTrueUpProjection,
     totalSavingsRange: [totalMin, totalMax],
     savingsBreakdown: {
       provider: providerSavings,
