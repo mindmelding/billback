@@ -177,12 +177,12 @@ export function parseSDGEBillText(text) {
     result.ccaGeneration = parseFloat(ccaGenMatch[1].replace(/,/g, ''));
   }
 
-  const ytdNetMatch = text.match(/YTD Net Metering Charges\/Credits\s+\$?\s*([\d,]+\.?\d*)/i);
+  const ytdNetMatch = text.match(/YTD Net Metering Charges\s*\/\s*Credits[\s\S]{0,40}?\$?\s*([\d,]+\.\d{2})/i);
   if (ytdNetMatch) {
     result.ytdNetMetering = parseFloat(ytdNetMatch[1].replace(/,/g, ''));
   }
 
-  const ytdNbcMatch = text.match(/Non-Bypassable Charges\s+\$?\s*([\d,]+\.?\d*)/i);
+  const ytdNbcMatch = text.match(/Non-Bypassable Charges[\s\S]{0,40}?\$?\s*([\d,]+\.\d{2})/i);
   if (ytdNbcMatch) {
     result.ytdNbc = parseFloat(ytdNbcMatch[1].replace(/,/g, ''));
   }

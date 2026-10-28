@@ -196,10 +196,13 @@ function calculateNemHouseholdAnnual(nemYearToDate, ratePlan, options = {}) {
   const high = electricNet + gasHigh;
   const mid = (low + high) / 2;
 
-  const parts = [
-    `SDG&E electric (YTD net NEM $${Number(ytdNet ?? 0).toFixed(2)} + NBC $${Number(ytdNbc ?? 0).toFixed(2)}, includes base) ≈ $${Math.round(sdgeElectric)}/yr over ${monthsCovered} months`,
-    `CCA generation (signed NEM kWh at ${ratePlan.provider} ${ratePlan.plan}) ≈ $${Math.round(ccaGeneration)}/yr`
-  ];
+  const parts = [];
+  if (ytdNet != null && ytdNbc != null) {
+    parts.push(`SDG&E electric (YTD net NEM $${Number(ytdNet).toFixed(2)} + NBC $${Number(ytdNbc).toFixed(2)}, includes base) ≈ $${Math.round(sdgeElectric)}/yr over ${monthsCovered} months`);
+  } else {
+    parts.push(`SDG&E electric from ${monthsCovered} months of printed NEM Charges ≈ $${Math.round(sdgeElectric)}/yr`);
+  }
+  parts.push(`CCA generation (signed NEM kWh at ${ratePlan.provider} ${ratePlan.plan}) ≈ $${Math.round(ccaGeneration)}/yr`);
   if (climateAnnual) {
     parts.push(`minus 2 California Climate Credits of $${climateEach.toFixed(2)} (−$${climateAnnual.toFixed(2)})`);
   }

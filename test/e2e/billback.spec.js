@@ -130,7 +130,7 @@ test.describe('Billback E2E Flow', () => {
     expect(pageContent).not.toMatch(/\$563/);
     expect(pageContent).not.toMatch(/\$615/);
     expect(pageContent).not.toMatch(/\$1,377/);
-    expect(pageContent).toMatch(/\$1,\d{3}–\$1,\d{3}/);
+    expect(pageContent).toMatch(/\$1,\d{3}–1,\d{3}/);
     expect(pageContent).toMatch(/Based on one bill/);
     expect(pageContent).toMatch(/CCA generation/);
     expect(pageContent).toMatch(/Climate Credit/);

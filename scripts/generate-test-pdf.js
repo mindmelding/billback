@@ -97,6 +97,8 @@ export function generateTestPdf(outputPath) {
     line('Current Charges                              + 461.99');
     line('CCA Electric Generation                      244.02');
     line('California Climate Credit                    -49.36');
+    line('YTD Net Metering Charges/Credits              $    267.40');
+    line('Non-Bypassable Charges                        $    318.89');
 
     y += 10;
     line('Net Energy Metering');
@@ -117,6 +119,11 @@ export function generateTestPdf(outputPath) {
       [600, '76']
     ]);
     y += 22;
+
+    if (y > 520) {
+      doc.addPage();
+      y = 50;
+    }
 
     line('Net Energy Metering Summary');
     line('Current Rate:   Time of Use - TOU-DR1-Residential    Start Date: 10/29/2025    System Size: 3.44 kW');
