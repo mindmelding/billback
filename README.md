@@ -46,6 +46,8 @@ https://raw.githubusercontent.com/mindmelding/billback/cursor/single-file-build-
   - `calendar.js`: .ics generation, Google/Outlook links, Markdown/plain text export
 - `data/`: Example figures from one real Oceanside bill (renters, rooftop solar on NEM 2.0, Clean Energy Alliance), with no personal details.
 - `test/fixtures/`: Redacted test bills
+- `brand/`: logo (SVG, PNG exports, social card) and the style kit in `brand/style-kit/` (tokens, `bb-` components, live preview). See `brand/README.md`.
+- `research/screenshots/`: CEA opt-down and opt-out form screens, captured 2026-10-28 with dummy values only.
 - `research/`: Findings, sources, and opt-out timing rules (dated and verified)
 
 ## Run it locally

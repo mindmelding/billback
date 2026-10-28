@@ -1,0 +1,156 @@
+/* Billback components, v1 (2026-10-28). Needs tokens.css.
+   Class prefix bb- so it can sit next to older page CSS. */
+
+.bb { font-family: var(--bb-font); font-size: var(--bb-text-md); line-height: var(--bb-leading); color: var(--bb-fg); background: var(--bb-bg); -webkit-font-smoothing: antialiased; }
+.bb *, .bb *::before, .bb *::after { box-sizing: border-box; }
+.bb .num, .bb [data-num] { font-variant-numeric: tabular-nums; }
+.bb :focus-visible { outline: none; box-shadow: var(--bb-focus); border-radius: var(--bb-r-sm); }
+
+/* Type */
+.bb-display { font-size: var(--bb-text-3xl); font-weight: 600; letter-spacing: var(--bb-tracking-display); line-height: 1.1; text-wrap: balance; margin: 0; }
+.bb-h1 { font-size: var(--bb-text-xl); font-weight: 600; letter-spacing: var(--bb-tracking-tight); margin: 0; text-wrap: balance; }
+.bb-h2 { font-size: var(--bb-text-lg); font-weight: 600; letter-spacing: var(--bb-tracking-tight); margin: 0; }
+.bb-h3 { font-size: var(--bb-text-md); font-weight: 600; margin: 0; }
+.bb-eyebrow { font-size: var(--bb-text-xs); font-weight: 600; color: var(--bb-fg-2); text-transform: uppercase; letter-spacing: .04em; margin: 0; }
+.bb-body { color: var(--bb-fg-2); max-width: 68ch; margin: 0; }
+.bb-meta { font-size: var(--bb-text-xs); color: var(--bb-fg-3); }
+.bb-id { font-size: var(--bb-text-xs); color: var(--bb-fg-3); font-variant-numeric: tabular-nums; }
+
+/* Buttons */
+.bb-btn { font: inherit; font-size: var(--bb-text-sm); font-weight: 500; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 30px; padding: 5px 12px; border-radius: var(--bb-r); border: 1px solid var(--bb-line-strong); background: var(--bb-bg); color: var(--bb-fg); text-decoration: none; cursor: pointer; transition: background var(--bb-fast) var(--bb-ease), border-color var(--bb-fast) var(--bb-ease); }
+.bb-btn:hover { background: var(--bb-panel); }
+.bb-btn--primary { background: var(--bb-accent); border-color: var(--bb-accent); color: #fff; }
+.bb-btn--primary:hover { background: var(--bb-accent-strong); border-color: var(--bb-accent-strong); }
+.bb-btn--you { background: var(--bb-you-soft); border-color: var(--bb-you-line); color: var(--bb-you-ink); }
+.bb-btn--ghost { border-color: transparent; background: transparent; color: var(--bb-fg-2); }
+.bb-btn--ghost:hover { background: var(--bb-sunken); color: var(--bb-fg); }
+.bb-btn--lg { min-height: 44px; padding: 10px 18px; font-size: var(--bb-text-md); border-radius: var(--bb-r-lg); }
+.bb-btn--block { width: 100%; }
+.bb-btn[disabled], .bb-btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
+
+/* Chips: status words, always paired with a color */
+.bb-chip { display: inline-flex; align-items: center; gap: 5px; padding: 1px 7px; border-radius: var(--bb-r-sm); border: 1px solid var(--bb-line-strong); font-size: var(--bb-text-xs); color: var(--bb-fg-2); white-space: nowrap; background: var(--bb-bg); }
+.bb-chip--ready { color: var(--bb-accent-strong); background: var(--bb-accent-soft); border-color: var(--bb-accent-line); }
+.bb-chip--you { color: var(--bb-you-ink); background: var(--bb-you-soft); border-color: var(--bb-you-line); }
+.bb-chip--save { color: var(--bb-save-ink); background: var(--bb-save-soft); border-color: var(--bb-save-line); font-weight: 500; }
+.bb-chip--over { color: var(--bb-over); background: var(--bb-over-soft); border-color: var(--bb-over-line); }
+.bb-chip--round { border-radius: var(--bb-r-pill); }
+
+/* Status dot: ready (we filled it in), you (needs you), opt (optional), done */
+.bb-dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--bb-fg-4); flex: none; }
+.bb-dot--ready { border-color: var(--bb-accent); background: conic-gradient(var(--bb-accent) 0 75%, transparent 0); }
+.bb-dot--you { border-color: var(--bb-you); background: conic-gradient(var(--bb-you) 0 50%, transparent 0); }
+.bb-dot--opt { border-style: dashed; }
+.bb-dot--done { border-color: var(--bb-save); background: var(--bb-save) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3.2 6.2l1.9 1.9 3.8-4' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% no-repeat; }
+
+/* Segmented control: This month / This year / Since joining */
+.bb-seg { display: inline-flex; padding: 2px; gap: 2px; background: var(--bb-sunken); border-radius: var(--bb-r); }
+.bb-seg button { font: inherit; font-size: var(--bb-text-sm); border: 0; background: transparent; color: var(--bb-fg-2); padding: 3px 10px; border-radius: var(--bb-r-sm); cursor: pointer; }
+.bb-seg button[aria-pressed="true"] { background: var(--bb-bg); color: var(--bb-fg); font-weight: 500; box-shadow: 0 1px 2px rgba(20,20,40,.08), 0 0 0 1px var(--bb-line); }
+
+/* Card */
+.bb-card { border: 1px solid var(--bb-line); border-radius: var(--bb-r); background: var(--bb-bg); }
+.bb-card__h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 14px; border-bottom: 1px solid var(--bb-line); }
+.bb-card__b { padding: 14px; }
+.bb-card--soft { background: var(--bb-panel); }
+
+/* Metric strip */
+.bb-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); border: 1px solid var(--bb-line); border-radius: var(--bb-r); }
+.bb-metric { padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; box-shadow: -1px 0 0 var(--bb-line); }
+.bb-metric__k { font-size: var(--bb-text-xs); color: var(--bb-fg-3); }
+.bb-metric__v { font-size: var(--bb-text-xl); font-weight: 600; letter-spacing: var(--bb-tracking-tight); font-variant-numeric: tabular-nums; }
+.bb-metric__v--save { color: var(--bb-save); }
+.bb-metric__v--over { color: var(--bb-over); }
+.bb-metric__s { font-size: var(--bb-text-xs); color: var(--bb-fg-2); }
+
+/* Savings receipt: today vs after vs you get back (from Wise's "You saved" breakdown) */
+.bb-receipt { border: 1px solid var(--bb-line); border-radius: var(--bb-r-lg); padding: 6px 16px; background: var(--bb-bg); }
+.bb-receipt__row { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 0; }
+.bb-receipt__row + .bb-receipt__row { border-top: 1px solid var(--bb-line); }
+.bb-receipt__ic { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--bb-sunken); color: var(--bb-fg-2); }
+.bb-receipt__ic svg { width: 16px; height: 16px; }
+.bb-receipt__l b { display: block; font-weight: 500; }
+.bb-receipt__l span { font-size: var(--bb-text-xs); color: var(--bb-fg-3); }
+.bb-receipt__v { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.bb-receipt__row--total { border-top: 1px solid var(--bb-line-strong) !important; }
+.bb-receipt__row--total .bb-receipt__ic { background: var(--bb-save); color: #fff; }
+.bb-receipt__row--total .bb-receipt__v { color: var(--bb-save); font-size: var(--bb-text-xl); letter-spacing: var(--bb-tracking-tight); }
+.bb-receipt__foot { font-size: var(--bb-text-xs); color: var(--bb-fg-3); padding: 8px 0 10px; border-top: 1px solid var(--bb-line); }
+
+/* Price compare: new price, old price struck, saved chip (from Monzo) */
+.bb-compare { display: inline-flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.bb-compare__new { font-size: var(--bb-text-xl); font-weight: 600; font-variant-numeric: tabular-nums; }
+.bb-compare__old { color: var(--bb-fg-3); text-decoration: line-through; font-variant-numeric: tabular-nums; }
+
+/* Action list: one row per action (from Monarch recommendations, Oyster steps, Linear issues) */
+.bb-actions { border: 1px solid var(--bb-line); border-radius: var(--bb-r); overflow: hidden; }
+.bb-actions__grp { font-size: var(--bb-text-xs); color: var(--bb-fg-2); font-weight: 500; padding: 8px 12px 4px; display: flex; align-items: center; gap: 6px; background: var(--bb-bg); }
+.bb-action { width: 100%; font: inherit; color: inherit; text-align: left; background: var(--bb-bg); border: 0; border-top: 1px solid var(--bb-line); padding: 10px 12px; display: grid; grid-template-columns: 3.2rem 14px minmax(0, 1fr) auto; gap: 10px; align-items: center; cursor: pointer; }
+.bb-action:hover { background: var(--bb-panel); }
+.bb-action[aria-selected="true"] { background: var(--bb-accent-soft); }
+.bb-action__t { min-width: 0; }
+.bb-action__t b { display: block; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bb-action__t span { font-size: var(--bb-text-xs); color: var(--bb-fg-3); }
+.bb-action__amt { font-size: var(--bb-text-sm); font-weight: 500; color: var(--bb-save-text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Steps: numbered, each with its own button on the right */
+.bb-steps { list-style: none; margin: 0; padding: 0; border: 1px solid var(--bb-line); border-radius: var(--bb-r); }
+.bb-step { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 14px; }
+.bb-step + .bb-step { border-top: 1px solid var(--bb-line); }
+.bb-step__n { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--bb-line-strong); display: grid; place-items: center; font-size: var(--bb-text-xs); font-weight: 600; color: var(--bb-fg-2); }
+.bb-step--done .bb-step__n { background: var(--bb-save); border-color: var(--bb-save); color: #fff; }
+.bb-step--done .bb-step__t b { color: var(--bb-fg-3); text-decoration: line-through; }
+.bb-step__t b { display: block; font-weight: 500; }
+.bb-step__t span { font-size: var(--bb-text-xs); color: var(--bb-fg-3); }
+
+/* Progress (from Origin onboarding): segmented bar + "2 of 5 done" */
+.bb-progress { display: flex; flex-direction: column; gap: 6px; }
+.bb-progress__bar { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; }
+.bb-progress__bar i { height: 6px; border-radius: 3px; background: var(--bb-sunken); }
+.bb-progress__bar i.on { background: var(--bb-save); }
+.bb-progress__bar i.you { background: var(--bb-you); }
+
+/* Upload zone (from Wise "Upload. Check. Send."): one target, then how it works */
+.bb-drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; padding: 28px 16px; border: 1.5px dashed var(--bb-line-strong); border-radius: var(--bb-r-lg); background: var(--bb-panel); color: var(--bb-fg-2); cursor: pointer; transition: border-color var(--bb-fast) var(--bb-ease), background var(--bb-fast) var(--bb-ease); }
+.bb-drop:hover, .bb-drop.is-over { border-color: var(--bb-accent); background: var(--bb-accent-soft); }
+.bb-drop b { color: var(--bb-fg); font-weight: 600; }
+.bb-drop svg { width: 22px; height: 22px; color: var(--bb-accent); }
+.bb-how { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.bb-how li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start; }
+.bb-how__ic { width: 28px; height: 28px; border-radius: var(--bb-r); background: var(--bb-accent-soft); color: var(--bb-accent-strong); display: grid; place-items: center; }
+.bb-how__ic svg { width: 15px; height: 15px; }
+.bb-how b { display: block; font-weight: 500; }
+.bb-how span { color: var(--bb-fg-2); font-size: var(--bb-text-sm); }
+
+/* Prefilled form: what we filled in, ready to copy or open */
+.bb-filled { border: 1px solid var(--bb-line); border-radius: var(--bb-r); background: var(--bb-panel); }
+.bb-filled__h { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--bb-line); font-size: var(--bb-text-xs); color: var(--bb-fg-2); }
+.bb-field { display: grid; grid-template-columns: minmax(0, 10rem) minmax(0, 1fr); gap: 10px; padding: 7px 10px; align-items: center; }
+.bb-field + .bb-field { border-top: 1px solid var(--bb-line); }
+.bb-field__k { font-size: 12px; color: var(--bb-fg-3); }
+.bb-field__v { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.bb-field__v .bb-auto { font-size: 10.5px; color: var(--bb-accent-strong); margin-left: 6px; }
+.bb-input { font: inherit; font-size: var(--bb-text-sm); color: var(--bb-fg); background: var(--bb-bg); border: 1px solid var(--bb-line-strong); border-radius: var(--bb-r-sm); padding: 5px 8px; width: 100%; }
+.bb-input:focus { outline: none; border-color: var(--bb-accent); box-shadow: 0 0 0 3px var(--bb-accent-soft); }
+
+/* Time-of-use meter (from Tesla charge stats): share of kWh by window */
+.bb-tou { display: flex; flex-direction: column; gap: 8px; }
+.bb-tou__bar { display: flex; height: 10px; border-radius: 3px; overflow: hidden; gap: 2px; }
+.bb-tou__bar i { display: block; height: 100%; }
+.bb-tou__bar .off { background: var(--bb-tou-off); }
+.bb-tou__bar .mid { background: var(--bb-tou-mid); }
+.bb-tou__bar .on { background: var(--bb-tou-on); }
+.bb-tou__legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: var(--bb-text-xs); color: var(--bb-fg-2); }
+.bb-tou__legend span::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; background: currentColor; vertical-align: 0; }
+
+/* Callouts */
+.bb-callout { border-radius: var(--bb-r); padding: 9px 12px; font-size: var(--bb-text-sm); border: 1px solid var(--bb-line); background: var(--bb-panel); color: var(--bb-fg-2); }
+.bb-callout--you { background: var(--bb-you-soft); border-color: var(--bb-you-line); color: var(--bb-you-ink); }
+.bb-callout--save { background: var(--bb-save-soft); border-color: var(--bb-save-line); color: var(--bb-save-ink); }
+
+/* Toast: a single proof line, never fake (from Rocket Money's "just saved" bar). Only show real, consented numbers. */
+.bb-toast { display: inline-flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--bb-r-lg); background: var(--bb-fg); color: #fff; font-size: var(--bb-text-sm); box-shadow: var(--bb-shadow-pop); }
+.bb-toast b { color: #9fe0b5; font-weight: 600; }
+
+/* Trust line under every result: where the numbers come from and that the customer keeps the final click */
+.bb-trust { font-size: var(--bb-text-xs); color: var(--bb-fg-3); max-width: 80ch; }

@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Billback Style Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<link rel="icon" href="../png/billback-mark-32.png">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  body { margin: 0; }
+  .kit { max-width: 1120px; margin: 0 auto; padding: 32px 20px 64px; display: flex; flex-direction: column; gap: 48px; }
+  .kit-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-bottom: 20px; border-bottom: 1px solid var(--bb-line); }
+  .kit-top img { height: 44px; width: auto; }
+  section { display: flex; flex-direction: column; gap: 16px; }
+  .sec-h { display: flex; flex-direction: column; gap: 4px; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .grid-2 { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); }
+  .logo-tile { border: 1px solid var(--bb-line); border-radius: var(--bb-r-lg); padding: 28px; display: grid; place-items: center; min-height: 170px; }
+  .logo-tile.dark { background: var(--bb-fg); }
+  .logo-tile.accent { background: var(--bb-accent); }
+  .logo-tile img { max-width: 100%; height: auto; }
+  .sw { border: 1px solid var(--bb-line); border-radius: var(--bb-r); overflow: hidden; }
+  .sw i { display: block; height: 56px; }
+  .sw div { padding: 8px 10px; display: flex; flex-direction: column; gap: 1px; }
+  .sw b { font-weight: 500; }
+  .sw code { font-family: var(--bb-mono); font-size: 11px; color: var(--bb-fg-3); }
+  .swatches { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .type-row { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: 16px; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--bb-line); }
+  .phone { width: 100%; max-width: 360px; border: 1px solid var(--bb-line); border-radius: 28px; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; background: var(--bb-bg); box-shadow: var(--bb-shadow-pop); margin-inline: auto; }
+  .phone-top { display: flex; align-items: center; justify-content: space-between; }
+  .phone-top img { height: 22px; }
+  .rule { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .rule li { display: grid; grid-template-columns: 18px minmax(0,1fr); gap: 8px; color: var(--bb-fg-2); }
+  .rule li::before { content: "✓"; color: var(--bb-save); font-weight: 600; }
+  .rule.no li::before { content: "✕"; color: var(--bb-over); }
+  .refs { width: 100%; border-collapse: collapse; }
+  .refs th, .refs td { text-align: left; padding: 8px 10px; border-top: 1px solid var(--bb-line); vertical-align: top; font-size: var(--bb-text-sm); }
+  .refs th { color: var(--bb-fg-3); font-weight: 500; font-size: var(--bb-text-xs); background: var(--bb-panel); }
+  .refs a { color: var(--bb-accent-strong); }
+  .stack { display: flex; flex-direction: column; gap: 12px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .wf { width: 100%; height: auto; display: block; }
+  @media (max-width: 560px) { .type-row { grid-template-columns: minmax(0,1fr); gap: 2px; } }
+</style>
+</head>
+<body class="bb">
+<main class="kit">
+
+  <header class="kit-top">
+    <img src="../billback-lockup.svg" alt="Billback. Get your power bill back.">
+    <div class="stack" style="gap:4px; align-items:flex-end">
+      <span class="bb-chip">Style kit v1 · 2026-10-28</span>
+      <span class="bb-meta">Tokens: tokens.css · Components: components.css</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-h">
+      <p class="bb-eyebrow">Principles</p>
+      <h1 class="bb-display">Calm screens, loud numbers.</h1>
+      <p class="bb-body" style="font-size:var(--bb-text-lg)">People come to Billback annoyed at their power bill. The interface stays quiet, white and orderly, so the one number that matters (what they get back) is the loudest thing on the screen.</p>
+    </div>
+    <div class="grid">
+      <div class="bb-card bb-card__b stack"><h3 class="bb-h3">1. Lead with the money</h3><p class="bb-body">Every screen opens on a dollar figure, with a range when it's an estimate. Green means money back. Red means money leaving that doesn't have to.</p></div>
+      <div class="bb-card bb-card__b stack"><h3 class="bb-h3">2. Show what we did</h3><p class="bb-body">Indigo marks work we've done: prefilled, ready, one tap left. Amber marks the steps only the customer can take: a call, a signature, a tick.</p></div>
+      <div class="bb-card bb-card__b stack"><h3 class="bb-h3">3. The last click is theirs</h3><p class="bb-body">We never switch, sign or submit for anyone. Buttons say exactly what opens ("Open CEA form, filled in") and the trust line says where the numbers came from.</p></div>
+      <div class="bb-card bb-card__b stack"><h3 class="bb-h3">4. Date every figure</h3><p class="bb-body">Rates change several times a year. Each number shows its source and date in a meta line beneath it.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-h"><p class="bb-eyebrow">Logo</p><h2 class="bb-h2">The B that pays you back</h2><p class="bb-body">The lower bowl of the B is a return arrow. Use the mark alone at 32px and below. Keep clear space equal to the arrow's height on every side. Don't recolor it, outline it, or set it on photos.</p></div>
+    <div class="grid">
+      <div class="logo-tile"><img src="../billback-lockup.svg" alt="Billback lockup" width="300"></div>
+      <div class="logo-tile"><img src="../billback-mark.svg" alt="Billback mark" width="96"></div>
+      <div class="logo-tile dark"><img src="../billback-mark.svg" alt="Billback mark on dark" width="96"></div>
+    </div>
+    <div class="row">
+      <img src="../png/billback-mark-16.png" width="16" height="16" alt="16px">
+      <img src="../png/billback-mark-32.png" width="32" height="32" alt="32px">
+      <img src="../png/billback-mark-64.png" width="48" height="48" alt="48px">
+      <img src="../png/billback-mark-180.png" width="64" height="64" alt="64px">
+      <span class="bb-meta">Favicon, app and touch icons are in brand/png/</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-h"><p class="bb-eyebrow">Color</p><h2 class="bb-h2">Four meanings, nothing else</h2><p class="bb-body">Neutrals do most of the work. Each accent color has one job, and a status always pairs its color with a word.</p></div>
+    <div class="swatches">
+      <div class="sw"><i style="background:var(--bb-accent)"></i><div><b>Accent</b><span class="bb-meta">We did this, primary</span><code>--bb-accent #5e6ad2</code></div></div>
+      <div class="sw"><i style="background:var(--bb-save)"></i><div><b>Save</b><span class="bb-meta">Money back</span><code>--bb-save #2f8a4f</code></div></div>
+      <div class="sw"><i style="background:var(--bb-you)"></i><div><b>You</b><span class="bb-meta">Needs the customer</span><code>--bb-you #b26a00</code></div></div>
+      <div class="sw"><i style="background:var(--bb-over)"></i><div><b>Over</b><span class="bb-meta">Overpaid today</span><code>--bb-over #c2413a</code></div></div>
+      <div class="sw"><i style="background:var(--bb-fg)"></i><div><b>Ink</b><span class="bb-meta">Text, toasts</span><code>--bb-fg #1b1b22</code></div></div>
+      <div class="sw"><i style="background:var(--bb-fg-2)"></i><div><b>Ink 2</b><span class="bb-meta">Secondary copy</span><code>--bb-fg-2 #5d5d6c</code></div></div>
+      <div class="sw"><i style="background:var(--bb-fg-3)"></i><div><b>Ink 3</b><span class="bb-meta">Meta, labels</span><code>--bb-fg-3 #737382</code></div></div>
+      <div class="sw"><i style="background:var(--bb-line)"></i><div><b>Line</b><span class="bb-meta">Hairlines</span><code>--bb-line #e9e9ee</code></div></div>
+      <div class="sw"><i style="background:var(--bb-panel); box-shadow: inset 0 -1px 0 var(--bb-line)"></i><div><b>Panel</b><span class="bb-meta">Sidebars, groups</span><code>--bb-panel #fbfbfc</code></div></div>
+      <div class="sw"><i style="background:linear-gradient(90deg,var(--bb-tou-off) 0 33%,var(--bb-tou-mid) 33% 66%,var(--bb-tou-on) 66%)"></i><div><b>Time of use</b><span class="bb-meta">Off, mid, on-peak</span><code>--bb-tou-*</code></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-h"><p class="bb-eyebrow">Type</p><h2 class="bb-h2">Inter, three weights, tabular numbers</h2></div>
+    <div>
+      <div class="type-row"><span class="bb-meta">Display 40/600</span><span class="bb-display num">$595–870 a year</span></div>
+      <div class="type-row"><span class="bb-meta">Hero 28/600</span><span style="font-size:var(--bb-text-2xl);font-weight:600;letter-spacing:var(--bb-tracking-display)">Your bill, step by step</span></div>
+      <div class="type-row"><span class="bb-meta">Title 20/600</span><span class="bb-h1">You could cut about $595–870 a year</span></div>
+      <div class="type-row"><span class="bb-meta">Panel 16/600</span><span class="bb-h2">Opt down to CEA Clean Impact</span></div>
+      <div class="type-row"><span class="bb-meta">Body 13/400</span><span class="bb-body">Clean Impact gets a 3.9¢/kWh relief credit through Dec 31, 2026. It's free and you can switch back any time.</span></div>
+      <div class="type-row"><span class="bb-meta">Eyebrow 11.5/600</span><span class="bb-eyebrow">We fill in</span></div>
+      <div class="type-row"><span class="bb-meta">Meta 11.5/400</span><span class="bb-meta">From the Sep 2026 SDG&amp;E bill and published 2026 rates. Estimates are marked.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-h"><p class="bb-eyebrow">Components</p><h2 class="bb-h2">The parts</h2></div>
+    <div class="grid-2">
+      <div class="bb-card"><div class="bb-card__h"><h3 class="bb-h3">Buttons</h3></div><div class="bb-card__b stack">
+        <div class="row"><button class="bb-btn bb-btn--primary">Open CEA form, filled in</button><button class="bb-btn">Copy answers</button><button class="bb-btn bb-btn--you">Call SDG&amp;E</button><button class="bb-btn bb-btn--ghost">Skip</button></div>
+        <div class="row"><button class="bb-btn bb-btn--primary bb-btn--lg">Send us your bill</button><button class="bb-btn bb-btn--primary" disabled>Enter the 12-digit number first</button></div>
+      </div></div>
+      <div class="bb-card"><div class="bb-card__h"><h3 class="bb-h3">Status</h3></div><div class="bb-card__b stack">
+        <div class="row"><span class="bb-chip bb-chip--ready"><span class="bb-dot bb-dot--ready"></span>Ready: we filled it in</span><span class="bb-chip bb-chip--you"><span class="bb-dot bb-dot--you"></span>Needs your call</span><span class="bb-chip"><span class="bb-dot bb-dot--opt"></span>Optional</span><span class="bb-chip bb-chip--save"><span class="bb-dot bb-dot--done"></span>Done</span></div>
+        <div class="row"><span class="bb-chip bb-chip--save">+$420 a year</span><span class="bb-chip bb-chip--over">CEA extra $104 in Aug</span><span class="bb-chip bb-chip--round">Renters can do it</span><span class="bb-chip bb-chip--round">TOU-DR1</span></div>
+      </div></div>
+      <div class="bb-card"><div class="bb-card__h"><h3 class="bb-h3">Metric strip</h3><div class="bb-seg" role="group" aria-label="Period"><button aria-pressed="false">Month</button><button aria-pressed="true">Year</button><button aria-pressed="false">Since joining</button></div></div><div class="bb-card__b">
+        <div class="bb-metrics">
+          <div class="bb-metric"><span class="bb-metric__k">Peak bill today</span><span class="bb-metric__v bb-metric__v--over">$462</span><span class="bb-metric__s">Aug 2026, 624 kWh</span></div>
+          <div class="bb-metric"><span class="bb-metric__k">After actions</span><span class="bb-metric__v">$273–319</span><span class="bb-metric__s">Same usage</span></div>
+          <div class="bb-metric"><span class="bb-metric__k">Back per year</span><span class="bb-metric__v bb-metric__v--save">$595–870</span><span class="bb-metric__s">Before CARE or FERA</span></div>
+        </div>
+      </div></div>
+      <div class="bb-card"><div class="bb-card__h"><h3 class="bb-h3">Price compare and progress</h3></div><div class="bb-card__b stack">
+        <div class="bb-compare"><span class="bb-compare__new">$273–319</span><span class="bb-compare__old">$462</span><span class="bb-chip bb-chip--save">Up to $189 back in August</span></div>
+        <div class="bb-progress"><div class="bb-progress__bar" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="you"></i><i></i><i></i></div><span class="bb-meta">2 of 5 done · 1 needs your call</span></div>
+        <div class="bb-tou"><div class="bb-tou__bar" aria-label="Off-peak 58%, mid-peak 18%, on-peak 24%"><i class="off" style="flex:58"></i><i class="mid" style="flex:18"></i><i class="on" style="flex:24"></i></div><div class="bb-tou__legend"><span style="color:var(--bb-tou-off)"><b style="color:var(--bb-fg-2);font-weight:400">Off-peak 58%</b></span><span style="color:var(--bb-tou-mid)"><b style="color:var(--bb-fg-2);font-weight:400">Mid 18%</b></span><span style="color:var(--bb-tou-on)"><b style="color:var(--bb-fg-2);font-weight:400">On-peak 4–9pm 24%</b></span></div></div>
+      </div></div>
+      <div class="bb-card"><div class="bb-card__h"><h3 class="bb-h3">Prefilled form</h3></div><div class="bb-card__b">
+        <div class="bb-filled">
+          <div class="bb-filled__h"><span>Form answers</span><button class="bb-btn">Copy</button></div>
+          <div class="bb-field"><span class="bb-field__k">SDG&amp;E account</span><span class="bb-field__v">•••• •••• 4821<span class="bb-auto">filled in</span></span></div>
+          <div class="bb-field"><span class="bb-field__k">Service ZIP</span><span class="bb-field__v">92101<span class="bb-auto">filled in</span></span></div>
+          <div class="bb-field"><span class="bb-field__k">Last name</span><span class="bb-field__v"><input class="bb-input" placeholder="As printed on the bill"></span></div>
+        </div>
+      </div></div>
+      <div class="bb-card"><div class="bb-card__h"><h3 class="bb-h3">Callouts, toast, trust line</h3></div><div class="bb-card__b stack">
+        <div class="bb-callout bb-callout--you">You'll need to tick "I am the account holder" yourself. We can't do that part.</div>
+        <div class="bb-callout bb-callout--save">Switch saved. Your next bill should show SDG&amp;E generation instead of CEA.</div>
+        <div><span class="bb-toast">Switch is in. Next bill: about <b>$38</b> less</span></div>
+        <p class="bb-trust">Estimates from one bill and published rates, checked 2026-10-28. We never switch your provider or sign for you.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-h"><p class="bb-eyebrow">Patterns</p><h2 class="bb-h2">Send a bill, get a receipt, work the list</h2><p class="bb-body">Three screens cover the whole service: the upload (phone first), the savings receipt, and the action pack.</p></div>
+    <div class="grid-2" style="align-items:start">
+      <div class="phone" aria-label="Upload screen example">
+        <div class="phone-top"><img src="../billback-lockup.svg" alt="Billback"><span class="bb-chip bb-chip--round">San Diego</span></div>
+        <h2 class="bb-h1" style="font-size:24px">Send your bill.<br>Get it back.</h2>
+        <label class="bb-drop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"/></svg>
+          <b>Upload your SDG&amp;E bill</b>
+          <span class="bb-meta">PDF or a photo · or forward the email</span>
+          <input type="file" hidden>
+        </label>
+        <ul class="bb-how">
+          <li><span class="bb-how__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/></svg></span><div><b>We read the bill</b><span>Plan, provider, usage and every fee.</span></div></li>
+          <li><span class="bb-how__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span><div><b>We fill in every form</b><span>Each fix becomes one tap, call or signature.</span></div></li>
+          <li><span class="bb-how__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span><div><b>You keep the savings</b><span>You give the final click. Always.</span></div></li>
+        </ul>
+        <button class="bb-btn bb-btn--primary bb-btn--lg bb-btn--block">Check my bill</button>
+        <p class="bb-trust" style="text-align:center">Free check. We never store your account number.</p>
+      </div>
+
+      <div class="stack">
+        <div class="bb-receipt">
+          <div class="bb-receipt__row"><span class="bb-receipt__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span><div class="bb-receipt__l"><b>Paying today</b><span>CEA Clean Impact Plus, TOU-DR1</span></div><span class="bb-receipt__v num">$462</span></div>
+          <div class="bb-receipt__row"><span class="bb-receipt__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12l5 5L20 6"/></svg></span><div class="bb-receipt__l"><b>After the action pack</b><span>SDG&amp;E power, same usage, better timing</span></div><span class="bb-receipt__v num">$273–319</span></div>
+          <div class="bb-receipt__row bb-receipt__row--total"><span class="bb-receipt__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 14l-4-4 4-4"/><path d="M5 10h9a5 5 0 010 10h-2"/></svg></span><div class="bb-receipt__l"><b>You get back</b><span>Peak month · about $595–870 a year</span></div><span class="bb-receipt__v num">$143–189</span></div>
+          <p class="bb-receipt__foot">Example household, Aug 2026 bill and published rates. Last checked Oct 28, 2026.</p>
+        </div>
+
+        <div class="bb-actions">
+          <div class="bb-actions__grp"><span class="bb-dot bb-dot--ready"></span>Ready: we filled it in · 2</div>
+          <button class="bb-action" aria-selected="true"><span class="bb-id">SAV-1</span><span class="bb-dot bb-dot--ready"></span><span class="bb-action__t"><b>Opt down to CEA Clean Impact</b><span>Prefilled link · 3 taps</span></span><span class="bb-action__amt">$20–25/mo</span></button>
+          <button class="bb-action"><span class="bb-id">SAV-3</span><span class="bb-dot bb-dot--ready"></span><span class="bb-action__t"><b>Set the summer thermostat schedule</b><span>Your thermostat app · 5 minutes</span></span><span class="bb-action__amt">$25–55/mo</span></button>
+          <div class="bb-actions__grp" style="border-top:1px solid var(--bb-line)"><span class="bb-dot bb-dot--you"></span>Needs your call or signature · 1</div>
+          <button class="bb-action"><span class="bb-id">SAV-2</span><span class="bb-dot bb-dot--you"></span><span class="bb-action__t"><b>Return to SDG&amp;E power on May 1, 2027</b><span>Phone call · 3 minutes</span></span><span class="bb-action__amt">$420–460/yr</span></button>
+        </div>
+
+        <ol class="bb-steps">
+          <li class="bb-step bb-step--done"><span class="bb-step__n">1</span><span class="bb-step__t"><b>Send your bill</b><span>Received Oct 28</span></span><span class="bb-chip bb-chip--save">Done</span></li>
+          <li class="bb-step"><span class="bb-step__n">2</span><span class="bb-step__t"><b>Open the prefilled CEA form</b><span>Pick Clean Impact, tick the box, submit</span></span><button class="bb-btn bb-btn--primary">Open</button></li>
+          <li class="bb-step"><span class="bb-step__n">3</span><span class="bb-step__t"><b>Call SDG&amp;E to schedule the switch</b><span>We'll give you the script</span></span><button class="bb-btn bb-btn--you">Script</button></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-h"><p class="bb-eyebrow">Voice</p><h2 class="bb-h2">Plain, on your side, a little bit of edge</h2></div>
+    <div class="grid-2">
+      <div class="bb-card bb-card__b stack"><h3 class="bb-h3">Do</h3><ul class="rule">
+        <li>"You paid $104 more for CEA in August than SDG&amp;E's own power."</li>
+        <li>"We filled it in. You press Submit."</li>
+        <li>"Get your power bill back."</li>
+        <li>Say ranges when it's an estimate: "$20–25 a month".</li>
+        <li>Name the button after what opens: "Open CEA form, filled in".</li>
+      </ul></div>
+      <div class="bb-card bb-card__b stack"><h3 class="bb-h3">Don't</h3><ul class="rule no">
+        <li>"Stick it to SDG&amp;E!" Angry copy reads as a scam. The numbers carry the edge.</li>
+        <li>"Save up to 50%!" No unbounded claims, no figure without a date.</li>
+        <li>"We'll switch you." We never switch, sign or submit for anyone.</li>
+        <li>Exclamation marks, emoji in UI, stock photos of light bulbs.</li>
+        <li>Fake social proof. Toasts only show real, consented results.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-h"><p class="bb-eyebrow">References</p><h2 class="bb-h2">What we took from similar apps (Mobbin)</h2><p class="bb-body">Patterns only, never their visuals. Links open the screen on Mobbin.</p></div>
+    <div class="bb-card" style="overflow-x:auto">
+      <table class="refs">
+        <thead><tr><th>App</th><th>Pattern</th><th>Where it shows up in Billback</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://mobbin.com/screens/424f922b-dd1b-4120-9e67-32fe714d5a0f">Wise</a></td><td>"You saved" breakdown: other providers vs what you paid, then the difference, with a last-updated date</td><td>Savings receipt</td></tr>
+          <tr><td><a href="https://mobbin.com/screens/a4810e56-b3ae-4d50-a0fd-917c3d0e350f">Wise</a></td><td>"Upload. Check. Send.": one upload target, then three lines on how it works</td><td>Send-your-bill screen</td></tr>
+          <tr><td><a href="https://mobbin.com/screens/4b33ebd9-c7e5-4336-a3cf-7dcf850e42c2">Rocket Money</a></td><td>"We lower your bills for you" with two checkmarked promises and a real-savings proof bar</td><td>Upload screen promises, toast</td></tr>
+          <tr><td><a href="https://mobbin.com/screens/b3059de1-f01f-4bb9-a465-04e6d2d934c3">Monzo</a></td><td>New amount, old amount struck through, green "saved" chip</td><td>Price compare</td></tr>
+          <tr><td><a href="https://mobbin.com/screens/53631102-dc15-414f-92b8-e6802620d214">Monarch</a></td><td>Recommendations list with status ("not started · 8 tasks") and categories</td><td>Action list groups</td></tr>
+          <tr><td><a href="https://mobbin.com/screens/50fd50d0-ccb6-45f0-9779-6c5b8dcb1fe1">Oyster</a></td><td>Numbered to-dos, one button per row, "pending" when it's someone else's turn</td><td>Steps</td></tr>
+          <tr><td><a href="https://mobbin.com/screens/912394f8-c88e-455b-8018-24a8196761d3">Origin</a></td><td>Segmented onboarding progress, "33% complete"</td><td>Progress</td></tr>
+          <tr><td><a href="https://mobbin.com/screens/c2ed3983-9a5c-4c5d-a782-ac0be81b4b5d">Octopus Energy</a></td><td>Day/Week/Month/Year usage bars with the tariff named under the chart</td><td>Segmented control, usage chart</td></tr>
+          <tr><td><a href="https://mobbin.com/screens/f332f73c-408f-46ec-9201-de21fdd6cfb2">Tesla</a></td><td>"$119 saved" headline plus a time-of-use split (off, mid, on-peak)</td><td>Time-of-use meter</td></tr>
+          <tr><td><a href="https://mobbin.com/screens/7104fa28-c881-46bf-9660-ec1801b939bf">Walmart</a></td><td>"Saved this month" with This month / This year / Lifetime</td><td>Metric strip periods</td></tr>
+          <tr><td><a href="https://mobbin.com/screens/2ab7933c-2a1a-4f2e-8fdc-e07a7c752633">Xero</a></td><td>Suggested-action tiles that lead with the dollar amount</td><td>Action rows lead with savings</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="bb-trust">Example values only; no customer data. Figures are from the example household in data/ and research/sdge-savings.md, checked 2026-10-28.</p>
+</main>
+<script>
+  document.querySelectorAll('.bb-seg').forEach(function (g) {
+    g.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      g.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+    });
+  });
+</script>
+</body>
+</html>
