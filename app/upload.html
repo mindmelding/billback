@@ -475,8 +475,42 @@ async function extractTextFromPDF(file) {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const textContent = await page.getTextContent();
-    const pageText = textContent.items.map(item => item.str).join(' ');
-    fullText += pageText + '\n';
+    
+    // Reconstruct lines based on y-position (vertical position)
+    // Group items by similar y-coordinate (within 2 units)
+    const lines = [];
+    let currentLine = [];
+    let currentY = null;
+    
+    for (const item of textContent.items) {
+      if (!item.str.trim()) continue; // Skip empty items
+      
+      const itemY = Math.round(item.transform[5]); // Y-coordinate
+      
+      if (currentY === null || Math.abs(itemY - currentY) < 2) {
+        // Same line
+        currentLine.push(item);
+        currentY = itemY;
+      } else {
+        // New line
+        if (currentLine.length > 0) {
+          // Sort current line by X position and join
+          currentLine.sort((a, b) => a.transform[4] - b.transform[4]);
+          lines.push(currentLine.map(it => it.str).join(' '));
+        }
+        currentLine = [item];
+        currentY = itemY;
+      }
+    }
+    
+    // Add last line
+    if (currentLine.length > 0) {
+      currentLine.sort((a, b) => a.transform[4] - b.transform[4]);
+      lines.push(currentLine.map(it => it.str).join(' '));
+    }
+    
+    // Join lines with newlines
+    fullText += lines.join('\n') + '\n';
   }
   
   return fullText;
@@ -632,9 +666,25 @@ analyzeBtn.addEventListener('click', async () => {
     );
     
     // Store results in sessionStorage (stays in browser, never sent to server)
+    // Sanitize parsed bills: mask account number, remove full bill text
+    const sanitizedBills = parsedBills.map(bill => {
+      const sanitized = { ...bill };
+      
+      // Mask account number to last 4 digits
+      if (sanitized.accountNumber && sanitized.accountNumber.length > 4) {
+        const last4 = sanitized.accountNumber.slice(-4);
+        sanitized.accountNumber = '****' + last4;
+      }
+      
+      // Remove full bill text (not needed for results display)
+      delete sanitized._originalText;
+      
+      return sanitized;
+    });
+    
     sessionStorage.setItem('savingsReport', JSON.stringify(report));
     sessionStorage.setItem('household', JSON.stringify(household));
-    sessionStorage.setItem('parsedBills', JSON.stringify(parsedBills));
+    sessionStorage.setItem('parsedBills', JSON.stringify(sanitizedBills));
     
     // Redirect to results
     window.location.href = '/app/results.html';

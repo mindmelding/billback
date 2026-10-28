@@ -259,9 +259,17 @@ export function calculateNEMTrueUpProjection(nemData, nemYearToDate, ratePlan) {
   }
 
   const today = new Date();
-  const trueUpDate = new Date(nemData.trueUpDate);
+  today.setHours(0, 0, 0, 0); // Set to start of day for comparison
   
-  // Check if true-up has already passed
+  // Parse true-up date as local date
+  const trueUpDateParts = nemData.trueUpDate.split('-');
+  const trueUpDate = new Date(
+    parseInt(trueUpDateParts[0]),
+    parseInt(trueUpDateParts[1]) - 1,
+    parseInt(trueUpDateParts[2])
+  );
+  
+  // Check if true-up has already passed (not including today)
   if (trueUpDate < today) {
     return {
       trueUpDate: nemData.trueUpDate,

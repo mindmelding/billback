@@ -1,6 +1,6 @@
 /**
  * Tests for optOutTiming.js - Opt-out and switch timing calculations (CORRECTED)
- * Updated with verified rules from Sean's independent research
+ * Updated with verified rules from independent research against official tariffs
  */
 
 import { 

@@ -54,6 +54,16 @@ export const METER_READ_SCHEDULE = {
 };
 
 /**
+ * Parse a date string as local date (not UTC)
+ * @param {string} dateStr - Date string in 'YYYY-MM-DD' format
+ * @returns {Date} Local date object
+ */
+function parseLocalDate(dateStr) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+/**
  * Get meter read dates for a specific cycle
  * @param {number} cycle - Billing cycle number (e.g., 19)
  * @param {Date} startDate - Start date to filter from
@@ -66,7 +76,7 @@ export function getMeterReadDates(cycle, startDate = null, endDate = null) {
     throw new Error(`Meter read schedule not available for cycle ${cycle}`);
   }
   
-  let result = dates.map(d => new Date(d));
+  let result = dates.map(d => parseLocalDate(d));
   
   if (startDate) {
     result = result.filter(d => d >= startDate);

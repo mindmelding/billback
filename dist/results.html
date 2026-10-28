@@ -401,7 +401,7 @@ const householdData = sessionStorage.getItem('household');
 const parsedBillsData = sessionStorage.getItem('parsedBills');
 
 if (!reportData) {
-  document.getElementById('loading').innerHTML = '<p style="color: var(--bad);">No savings report found. Please <a href="/app/upload.html">upload your bills</a> first.</p>';
+  document.getElementById('loading').innerHTML = '<p style="color: var(--bad);">No savings report found. Please <a href="index.html">upload your bills</a> first.</p>';
 } else {
   const report = JSON.parse(reportData);
   const household = householdData ? JSON.parse(householdData) : {};
@@ -669,7 +669,7 @@ window.deleteAllData = function() {
     trackEvent('data_deleted', {});
     
     alert('✓ All your data has been deleted from this browser.');
-    window.location.href = '/app/upload.html';
+    window.location.href = 'index.html';
   }
 };
 

@@ -238,10 +238,18 @@ export function parseSDGEBillText(text) {
     result.confidence.totalAmount = 'high';
   }
 
-  // ZIP code
-  const zipMatch = text.match(/\b(\d{5})\b/);
-  if (zipMatch) {
-    result.serviceAddress.zip = zipMatch[1];
+  // ZIP code (from service address)
+  // Look for 5 digits after common address indicators
+  const addressZipMatch = text.match(/(?:SERVICE FOR|Service Address|Mailing Address|ACCOUNT|Your Address)[\s\S]{0,500}?\b(\d{5})\b/i);
+  if (addressZipMatch) {
+    result.serviceAddress.zip = addressZipMatch[1];
+  } else {
+    // Fallback: first 5-digit number on first page
+    const firstPageText = text.substring(0, 2000);
+    const zipMatch = firstPageText.match(/\b(\d{5})\b/);
+    if (zipMatch) {
+      result.serviceAddress.zip = zipMatch[1];
+    }
   }
 
   // **CRITICAL: Parse Net Metering YTD table for full year of usage**
@@ -284,8 +292,9 @@ function parseNEMYearToDateTable(text) {
   const tableSection = text.slice(tableStart, tableStart + 5000);
   
   // Pattern for each row: MM/DD/YYYY   onPeak  offPeak  superOffPeak  total  nemCharges
-  // Example: 11/26/2025    83      −139     28           −28      28.27
-  const rowPattern = /(\d{1,2}\/\d{1,2}\/\d{4})\s+([-−\d]+)\s+([-−\d]+)\s+([-−\d]+)\s+([-−\d]+)\s+([\d.]+)/g;
+  // Example: 11/26/2025    83      − 139     28           − 28      28.27
+  // Note: PDF.js renders negatives as '− N' (minus sign, space, digits)
+  const rowPattern = /(\d{1,2}\/\d{1,2}\/\d{4})\s+([-−]?\s*\d+)\s+([-−]?\s*\d+)\s+([-−]?\s*\d+)\s+([-−]?\s*\d+)\s+([\d.]+)/g;
   
   let match;
   while ((match = rowPattern.exec(tableSection)) !== null) {
@@ -296,10 +305,10 @@ function parseNEMYearToDateTable(text) {
     
     months.push({
       date,
-      onPeak: parseInt(match[2].replace('−', '-')),
-      offPeak: parseInt(match[3].replace('−', '-')),
-      superOffPeak: parseInt(match[4].replace('−', '-')),
-      total: parseInt(match[5].replace('−', '-')),
+      onPeak: parseInt(match[2].replace(/\s+/g, '').replace('−', '-')),
+      offPeak: parseInt(match[3].replace(/\s+/g, '').replace('−', '-')),
+      superOffPeak: parseInt(match[4].replace(/\s+/g, '').replace('−', '-')),
+      total: parseInt(match[5].replace(/\s+/g, '').replace('−', '-')),
       nemCharges: parseFloat(match[6])
     });
   }
@@ -466,7 +475,7 @@ export function validateBillingPeriod(parsedData) {
   }
 
   // Corrected/rebilled statements
-  if (/corrected|rebill|adjustment|revised.?statement/i.test(text)) {
+  if (/corrected\s+bill|rebill|this\s+bill\s+replaces|revised\s+statement/i.test(text)) {
     return {
       valid: false,
       reason: 'corrected_bill',

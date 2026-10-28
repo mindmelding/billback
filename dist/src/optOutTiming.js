@@ -4,7 +4,7 @@
  * All rules are dated and sourced - unverified rules are labeled explicitly
  * 
  * Research source: /workspace/research/opt-out-timing-rules.md
- * Last updated: 2026-10-28 (corrected per Sean's independent research)
+ * Last updated: 2026-10-28 (corrected per independent research against official tariffs)
  * 
  * @module optOutTiming
  */
@@ -14,6 +14,16 @@ import {
   calculateCEATierChangeDeadline,
   getNextMeterRead
 } from './meterReadSchedule.js';
+
+/**
+ * Parse a date string as local date (not UTC)
+ * @param {string} dateStr - Date string in 'YYYY-MM-DD' format
+ * @returns {Date} Local date object
+ */
+function parseLocalDate(dateStr) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
 
 /**
  * Timing rule with verification status
@@ -55,10 +65,11 @@ export function calculateOptOutTiming(currentPlan, bills, savingsReport, househo
       alt => alt.provider === 'CEA' && alt.plan === 'Clean Impact'
     );
     
-    if (cleanImpactAlternative && cleanImpactAlternative.savings > 0) {
+    // Always show timing for CCA customers, even if savings <= 0
+    if (cleanImpactAlternative) {
       try {
         const tierChange = calculateCEATierChangeDeadline(cycle, today);
-        const reliefCreditDeadline = new Date('2026-12-31');
+        const reliefCreditDeadline = parseLocalDate('2026-12-31');
         
         // Calculate value: only one billing cycle (Nov 27 - Dec 29 for cycle 19)
         // Not $10-30/month - credit expires Dec 31, 2026
@@ -93,11 +104,12 @@ export function calculateOptOutTiming(currentPlan, bills, savingsReport, househo
       alt => alt.provider === 'SDG&E'
     );
     
-    if (sdgeAlternative && sdgeAlternative.savings > 0) {
+    // Always show timing for CCA customers with solar, even if savings <= 0
+    if (sdgeAlternative) {
       try {
         // Target: return before June 1 summer pricing starts
         // For cycle 19: May 28, 2027 read
-        const targetSwitchDate = new Date('2027-05-28');
+        const targetSwitchDate = parseLocalDate('2027-05-28');
         const optOutInfo = calculateCCAOptOutDeadline(cycle, targetSwitchDate);
         
         // Calculate credit forfeiture
@@ -183,17 +195,17 @@ export function calculateOptOutTiming(currentPlan, bills, savingsReport, househo
         // Additional warning about rate plan changes
         rules.push({
           action: 'Do NOT change SDG&E rate plan now',
-          recommendedDate: new Date('2027-05-15'), // About 2 weeks before May 28 switch
+          recommendedDate: parseLocalDate('2027-05-15'), // About 2 weeks before May 28 switch
           deadline: null,
           avoidWindow: `${today.toLocaleDateString()} - ${optOutInfo.switchDate.toLocaleDateString()}`,
           reason: `Rate plan changes allowed once per 12 months and lock you in. Best plan on CEA (e.g., DR-SES has lower CEA generation rates in summer than TOU-DR1) differs from best plan on SDG&E bundled. Save your one change per year for just before the ${optOutInfo.switchDate.toLocaleDateString()} switch to SDG&E.`,
           costOfEarly: 'Wrong rate plan for your provider. Locked in for 12 months.',
           costOfLate: 'None - wait until ~2 weeks before switch to SDG&E, then choose best bundled plan.',
-          source: 'SDG&E Rule 12 §D (verified 2026-10-28); Sean\'s analysis',
+          source: 'SDG&E Rule 12 §D (verified 2026-10-28)',
           verified: true, // Rule verified; analysis is derived
           estimatedSavings: 0, // Prevents bad decision, not direct savings
           urgency: 'medium',
-          daysUntil: Math.max(0, Math.ceil((new Date('2027-05-15') - today) / (1000 * 60 * 60 * 24))),
+          daysUntil: Math.max(0, Math.ceil((parseLocalDate('2027-05-15') - today) / (1000 * 60 * 60 * 24))),
           daysUntilDeadline: null
         });
         
@@ -211,7 +223,7 @@ export function calculateOptOutTiming(currentPlan, bills, savingsReport, househo
     
     if (sdgeAlternative && sdgeAlternative.savings > 0) {
       try {
-        const targetSwitchDate = new Date('2027-05-28'); // Before summer
+        const targetSwitchDate = parseLocalDate('2027-05-28'); // Before summer
         const optOutInfo = calculateCCAOptOutDeadline(cycle, targetSwitchDate);
         const recommendedSubmitDate = new Date(optOutInfo.noticeDeadline);
         recommendedSubmitDate.setDate(recommendedSubmitDate.getDate() - 14);
