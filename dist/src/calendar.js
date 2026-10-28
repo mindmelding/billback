@@ -7,6 +7,30 @@
  */
 
 /**
+ * Fold a line to 75 octets per RFC 5545
+ * @param {string} line - The line to fold
+ * @returns {string} Folded line with CRLF + space
+ */
+function foldLine(line) {
+  if (line.length <= 75) return line;
+  
+  const result = [];
+  let remaining = line;
+  
+  // First line gets 75 chars
+  result.push(remaining.substring(0, 75));
+  remaining = remaining.substring(75);
+  
+  // Continuation lines get 74 chars (1 space prefix)
+  while (remaining.length > 0) {
+    result.push(' ' + remaining.substring(0, 74));
+    remaining = remaining.substring(74);
+  }
+  
+  return result.join('\r\n');
+}
+
+/**
  * Generate iCalendar (.ics) file content from action plan
  * @param {Array} actionPlan - Dated action plan from actionPlan.js
  * @param {string} title - Calendar title (default: "Billback Savings Plan")
@@ -16,7 +40,7 @@ export function generateICSContent(actionPlan, title = "Billback Savings Plan") 
   const now = new Date();
   const timestamp = now.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   
-  let ics = [
+  const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'PRODID:-//Billback//Savings Action Plan//EN',
@@ -25,7 +49,7 @@ export function generateICSContent(actionPlan, title = "Billback Savings Plan") 
     `X-WR-CALNAME:${title}`,
     'X-WR-TIMEZONE:America/Los_Angeles',
     'X-WR-CALDESC:Your personalized energy savings action plan'
-  ].join('\r\n');
+  ];
 
   actionPlan.forEach((step, index) => {
     const uid = `billback-${Date.now()}-${index}@billback.com`;
@@ -52,49 +76,43 @@ export function generateICSContent(actionPlan, title = "Billback Savings Plan") 
     }
 
     // Create VEVENT
-    ics += '\r\n' + [
-      'BEGIN:VEVENT',
-      `UID:${uid}`,
-      `DTSTAMP:${timestamp}`,
-      `DTSTART;VALUE=DATE:${dtstart}`,
-      `SUMMARY:${escapeICS(step.what || step.title || step.action)}`,
-      `DESCRIPTION:${escapeICS(description)}`,
-      'STATUS:CONFIRMED',
-      'TRANSP:TRANSPARENT'
-    ].join('\r\n');
+    lines.push('BEGIN:VEVENT');
+    lines.push(`UID:${uid}`);
+    lines.push(`DTSTAMP:${timestamp}`);
+    lines.push(`DTSTART;VALUE=DATE:${dtstart}`);
+    lines.push(foldLine(`SUMMARY:${escapeICS(step.what || step.title || step.action)}`));
+    lines.push(foldLine(`DESCRIPTION:${escapeICS(description)}`));
+    lines.push('STATUS:CONFIRMED');
+    lines.push('TRANSP:TRANSPARENT');
 
     // Add recurring rule if specified
     if (step.recurring) {
       const rrule = buildRRule(step.recurring);
       if (rrule) {
-        ics += `\r\nRRULE:${rrule}`;
+        lines.push(foldLine(`RRULE:${rrule}`));
       }
     }
 
     // Add reminders (VALARM)
     // 7 days before
-    ics += '\r\n' + [
-      'BEGIN:VALARM',
-      'TRIGGER:-P7D',
-      'ACTION:DISPLAY',
-      `DESCRIPTION:Reminder: ${escapeICS(step.what || step.title || step.action)} in 7 days`,
-      'END:VALARM'
-    ].join('\r\n');
+    lines.push('BEGIN:VALARM');
+    lines.push('TRIGGER:-P7D');
+    lines.push('ACTION:DISPLAY');
+    lines.push(foldLine(`DESCRIPTION:Reminder: ${escapeICS(step.what || step.title || step.action)} in 7 days`));
+    lines.push('END:VALARM');
 
     // 1 day before
-    ics += '\r\n' + [
-      'BEGIN:VALARM',
-      'TRIGGER:-P1D',
-      'ACTION:DISPLAY',
-      `DESCRIPTION:Reminder: ${escapeICS(step.what || step.title || step.action)} tomorrow`,
-      'END:VALARM'
-    ].join('\r\n');
+    lines.push('BEGIN:VALARM');
+    lines.push('TRIGGER:-P1D');
+    lines.push('ACTION:DISPLAY');
+    lines.push(foldLine(`DESCRIPTION:Reminder: ${escapeICS(step.what || step.title || step.action)} tomorrow`));
+    lines.push('END:VALARM');
 
-    ics += '\r\nEND:VEVENT';
+    lines.push('END:VEVENT');
   });
 
-  ics += '\r\nEND:VCALENDAR';
-  return ics;
+  lines.push('END:VCALENDAR');
+  return lines.join('\r\n');
 }
 
 /**
