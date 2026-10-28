@@ -1,8 +1,10 @@
 /**
  * Tests for optOutTiming.js - Opt-out and switch timing calculations (CORRECTED)
- * Updated with verified rules from Sean's independent research
+ * Updated with verified rules from independent research against official tariffs
  */
 
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
 import { 
   calculateOptOutTiming, 
   formatTimingRuleAsAction,
@@ -62,7 +64,7 @@ function testFixtureHouseholdOptOutTiming() {
   console.log('✓ Found CEA tier downgrade rule');
   
   // Check deadline is Thu Nov 19, 2026 (5 business days before Nov 27 read, accounting for Thanksgiving)
-  const expectedTierDeadline = new Date('2026-11-19');
+  const expectedTierDeadline = new Date(2026, 10, 19);
   if (tierRule.deadline.toDateString() !== expectedTierDeadline.toDateString()) {
     console.error(`❌ FAIL: Expected tier deadline Nov 19, 2026, got ${tierRule.deadline.toLocaleDateString()}`);
     return false;
@@ -76,47 +78,50 @@ function testFixtureHouseholdOptOutTiming() {
   }
   console.log('✓ Tier opt-down savings correctly estimated as ~$6 (one cycle before Dec 31 expiration)');
   
-  // Test 2: CCA opt-out to SDG&E notice deadline
-  const optOutRule = rules.find(r => r.action.includes('Opt out of CEA and return to SDG&E'));
-  if (!optOutRule) {
+  // Test 2: CCA opt-out to SDG&E - check for the separate action steps
+  const submitRule = rules.find(r => r.action.includes('Submit CCA opt-out'));
+  const noticeDeadlineRule = rules.find(r => r.action.includes('SDG&E must receive'));
+  const switchRule = rules.find(r => r.action.includes('You switch back to SDG&E'));
+  
+  if (!submitRule || !noticeDeadlineRule || !switchRule) {
     console.error('❌ FAIL: No CCA opt-out rule found');
     return false;
   }
-  console.log('✓ Found CCA opt-out rule');
+  console.log('✓ Found CCA opt-out rules (submit, notice deadline, switch date)');
   
-  // Check deadline is Fri Nov 27, 2026
-  const expectedOptOutDeadline = new Date('2026-11-27');
-  if (optOutRule.deadline.toDateString() !== expectedOptOutDeadline.toDateString()) {
-    console.error(`❌ FAIL: Expected opt-out deadline Nov 27, 2026, got ${optOutRule.deadline.toLocaleDateString()}`);
+  // Check notice deadline is Fri Nov 27, 2026
+  const expectedOptOutDeadline = new Date(2026, 10, 27);
+  if (noticeDeadlineRule.deadline.toDateString() !== expectedOptOutDeadline.toDateString()) {
+    console.error(`❌ FAIL: Expected opt-out deadline Nov 27, 2026, got ${noticeDeadlineRule.deadline.toLocaleDateString()}`);
     return false;
   }
   console.log('✓ CCA opt-out notice deadline is Fri Nov 27, 2026 (SDG&E must receive)');
   
-  // Check that reasoning mentions May 28, 2027 switch date
+  // Check that switch rule mentions May 28, 2027
   // toLocaleDateString() will format as "5/28/2027" in US locale
-  if (!optOutRule.reason.includes('5/28') && !optOutRule.reason.includes('May')) {
+  if (!switchRule.reason.includes('5/28') && !switchRule.reason.includes('May')) {
     console.error('❌ FAIL: Reasoning should mention May 28, 2027 switch date');
-    console.error(`   Actual reason: ${optOutRule.reason.substring(0, 200)}`);
+    console.error(`   Actual reason: ${switchRule.reason.substring(0, 200)}`);
     return false;
   }
   console.log('✓ Reasoning correctly mentions May 28, 2027 switch date');
   
-  // Check that credit forfeiture is mentioned
-  if (!optOutRule.reason.includes('forfeited') && !optOutRule.reason.includes('forfeit')) {
+  // Check that submit rule mentions credit forfeiture
+  if (!submitRule.reason.includes('forfeited') && !submitRule.reason.includes('forfeit')) {
     console.error('❌ FAIL: Should mention credit forfeiture from interim true-up');
     return false;
   }
   console.log('✓ Credit forfeiture from interim true-up mentioned');
   
   // Check verified status
-  if (!optOutRule.verified) {
+  if (!noticeDeadlineRule.verified) {
     console.error('❌ FAIL: Opt-out rule should be verified (based on SDG&E Rule 27)');
     return false;
   }
   console.log('✓ Opt-out rule is marked as verified');
   
   // Check source references SDG&E Rule 27
-  if (!optOutRule.source.includes('Rule 27')) {
+  if (!noticeDeadlineRule.source.includes('Rule 27')) {
     console.error('❌ FAIL: Source should reference SDG&E Rule 27');
     return false;
   }
@@ -337,8 +342,8 @@ function testFormatTimingRuleAsAction() {
   
   const rule = {
     action: 'Switch from CEA Clean Impact Plus to Clean Impact',
-    recommendedDate: new Date('2026-11-01'),
-    deadline: new Date('2026-11-19'),
+    recommendedDate: new Date(2026, 10, 1),
+    deadline: new Date(2026, 10, 19),
     avoidWindow: null,
     reason: 'Relief credit ends Dec 31, 2026',
     costOfEarly: 'None',
@@ -517,33 +522,29 @@ function testRuleSorting() {
   return true;
 }
 
-// Run all tests
-console.log('╔══════════════════════════════════════════════════════╗');
-console.log('║   Opt-Out Timing Module Tests (CORRECTED)            ║');
-console.log('╚══════════════════════════════════════════════════════╝');
-
-const results = [
-  testFixtureHouseholdOptOutTiming(),
-  testCEACleanImpactPlusDowngrade(),
-  testNonSolarCCAOptOut(),
-  testCAREEnrollmentTiming(),
-  testFormatTimingRuleAsAction(),
-  testCountdownText(),
-  testTimeSensitiveDetection(),
-  testRuleSorting()
-];
-
-const passed = results.filter(r => r).length;
-const total = results.length;
-
-console.log('\n╔══════════════════════════════════════════════════════╗');
-console.log(`║   Test Results: ${passed}/${total} passed                          ║`);
-console.log('╚══════════════════════════════════════════════════════╝');
-
-if (passed === total) {
-  console.log('\n✅ All tests passed!\n');
-  process.exit(0);
-} else {
-  console.log(`\n❌ ${total - passed} test(s) failed\n`);
-  process.exit(1);
-}
+describe('Opt-Out Timing', () => {
+  it('fixture household opt-out timing', () => {
+    assert.ok(testFixtureHouseholdOptOutTiming());
+  });
+  it('CEA Clean Impact Plus downgrade', () => {
+    assert.ok(testCEACleanImpactPlusDowngrade());
+  });
+  it('non-solar CCA opt-out', () => {
+    assert.ok(testNonSolarCCAOptOut());
+  });
+  it('CARE enrollment timing', () => {
+    assert.ok(testCAREEnrollmentTiming());
+  });
+  it('format timing rule as action', () => {
+    assert.ok(testFormatTimingRuleAsAction());
+  });
+  it('countdown text', () => {
+    assert.ok(testCountdownText());
+  });
+  it('time-sensitive detection', () => {
+    assert.ok(testTimeSensitiveDetection());
+  });
+  it('rule sorting', () => {
+    assert.ok(testRuleSorting());
+  });
+});

@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Savings Results - Billback</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #ffffff;
+  --panel: #fbfbfc;
+  --line: #e9e9ee;
+  --line-strong: #dcdce3;
+  --fg: #1b1b22;
+  --fg-2: #5d5d6c;
+  --fg-3: #8b8b99;
+  --accent: #5e6ad2;
+  --accent-soft: #eef0fb;
+  --ok: #2f8a4f;
+  --ok-soft: #e9f6ee;
+  --warn: #b26a00;
+  --warn-soft: #fdf3e2;
+  --bad: #c2413a;
+  --bad-soft: #fcecea;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --r: 6px;
+}
+* { box-sizing: border-box; }
+body { 
+  background: var(--bg); 
+  color: var(--fg); 
+  font-family: var(--font); 
+  font-size: 13px; 
+  line-height: 1.5; 
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+  padding: 20px;
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--accent);
+  display: grid;
+  place-items: center;
+  color: var(--bg);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+h1 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.subtitle {
+  color: var(--fg-2);
+  font-size: 15px;
+  margin: 0 0 30px;
+  max-width: 70ch;
+}
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 17px;
+  font-weight: 600;
+}
+.card p {
+  margin: 0 0 16px;
+  color: var(--fg-2);
+  font-size: 13px;
+}
+.alert {
+  padding: 12px 14px;
+  border-radius: var(--r);
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+.alert.urgent {
+  background: var(--warn-soft);
+  border: 1px solid #f1d9ad;
+  color: #6d4300;
+}
+.alert strong {
+  font-weight: 600;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.metric {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--panel);
+}
+.metric .label {
+  font-size: 12px;
+  color: var(--fg-3);
+  margin-bottom: 6px;
+}
+.metric .value {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ok);
+  font-variant-numeric: tabular-nums;
+}
+.metric .detail {
+  font-size: 11px;
+  color: var(--fg-3);
+  margin-top: 4px;
+}
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.timeline-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg);
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.timeline-item:hover {
+  background: var(--panel);
+  border-color: var(--line-strong);
+}
+.timeline-item.urgent {
+  border-color: var(--bad);
+  background: var(--bad-soft);
+}
+.timeline-item.high {
+  border-color: var(--warn);
+  background: var(--warn-soft);
+}
+.timeline-date {
+  flex-shrink: 0;
+  width: 80px;
+  padding-top: 4px;
+}
+.timeline-date-day {
+  font-size: 11px;
+  color: var(--fg-3);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.timeline-date-num {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+  margin-top: 4px;
+}
+.timeline-content {
+  flex: 1;
+}
+.timeline-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--fg);
+}
+.timeline-desc {
+  font-size: 12px;
+  color: var(--fg-2);
+  margin-bottom: 8px;
+}
+.timeline-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 500;
+}
+.badge.urgent {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+.badge.high {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.badge.medium {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.badge.verified {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.badge.unverified {
+  background: var(--fg-3);
+  color: var(--bg);
+}
+.badge.savings {
+  background: var(--ok-soft);
+  color: var(--ok);
+  font-weight: 600;
+}
+.export-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.btn {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  color: var(--fg);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+.btn:hover {
+  filter: brightness(0.97);
+}
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+.btn.danger {
+  background: var(--bad);
+  border-color: var(--bad);
+  color: var(--bg);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--fg-3);
+}
+.delete-section {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-top: 30px;
+}
+.delete-section h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.delete-section p {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--fg-2);
+}
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal.show {
+  display: flex;
+}
+.modal-content {
+  background: var(--bg);
+  border-radius: var(--r);
+  padding: 24px;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.modal-content h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.modal-content pre {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 12px;
+  font-size: 11px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">B</div>
+  
+  <div id="loading" style="text-align: center; padding: 60px 0;">
+    <p style="color: var(--fg-3);">Loading your savings report...</p>
+  </div>
+
+  <div id="results" style="display: none;"></div>
+
+  <div class="footer">
+    <p><strong>Privacy:</strong> Your bill data is stored only in your browser's session storage. It's never sent to any server. You can delete everything with the button above.</p>
+    <p>Savings are estimates from uploaded bills and published rates (last updated 2026-10-28). Rates change several times a year. Behavioral savings are estimates based on research.</p>
+    <p>Per CA PU Code 366.5 and CARE rules, you give the final click, call or signature for provider switches, discounts and plan changes. We never switch providers or sign forms for you.</p>
+  </div>
+</div>
+
+<!-- Modal for step details -->
+<div id="stepModal" class="modal">
+  <div class="modal-content">
+    <h3 id="modalTitle"></h3>
+    <div id="modalBody"></div>
+    <div class="modal-buttons">
+      <button class="btn primary" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Define trackEvent once on window before any page script uses it.
+// No-op unless a real PostHog key is configured — never load a dummy key.
+(function () {
+  window.trackEvent = function (eventName, props) {
+    if (!window.posthog || typeof window.posthog.capture !== 'function') return;
+    var host = window.location.hostname;
+    var isProd = host !== 'localhost' && host.indexOf('127.0.0.1') === -1;
+    window.posthog.capture(eventName, Object.assign({}, props || {}, {
+      site: 'billback',
+      llc: 'mindmelding',
+      is_test: !isProd
+    }));
+  };
+
+  var POSTHOG_KEY = ''; // Set a real phc_ key to enable analytics
+  var isRealKey = typeof POSTHOG_KEY === 'string'
+    && /^phc_[A-Za-z0-9]+$/.test(POSTHOG_KEY)
+    && POSTHOG_KEY.length > 24
+    && !/dummy|placeholder|test_key|your_posthog/i.test(POSTHOG_KEY);
+  if (!isRealKey) return;
+
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  window.posthog.init(POSTHOG_KEY, {
+    api_host: 'https://app.posthog.com',
+    autocapture: false,
+    disable_session_recording: true,
+    disable_persistence: false,
+    respect_dnt: true
+  });
+})();
+</script>
+<script type="module">
+// Import client-side modules
+import { generateDatedActionPlan } from './src/actionPlan.js';
+import { 
+  generateICSContent, 
+  downloadICS,
+  generateMarkdownTodoList,
+  copyToClipboard,
+  downloadTextFile
+} from './src/calendar.js';
+import { parseLocalDate } from './src/meterReadSchedule.js';
+
+// Load data from sessionStorage
+const reportData = sessionStorage.getItem('savingsReport');
+const householdData = sessionStorage.getItem('household');
+const parsedBillsData = sessionStorage.getItem('parsedBills');
+
+if (!reportData) {
+  document.getElementById('loading').innerHTML = '<p style="color: var(--bad);">No savings report found. Please <a href="index.html">upload your bills</a> first.</p>';
+} else {
+  const report = JSON.parse(reportData);
+  const household = householdData ? JSON.parse(householdData) : {};
+  const bills = parsedBillsData ? JSON.parse(parsedBillsData) : [];
+  
+  // Generate action plan with opt-out timing
+  const actionPlan = generateDatedActionPlan(report, bills, household);
+  
+  // Track results viewed (anonymous aggregates only)
+  window.trackEvent('plan_viewed', {
+    action_count: actionPlan.steps.length,
+    has_solar: household.hasSolar || false,
+    is_renter: household.renter || false,
+    provider: bills[0]?.provider || 'unknown'
+  });
+
+  renderResults(report, household, actionPlan);
+}
+
+function renderResults(report, household, actionPlan) {
+  const resultsDiv = document.getElementById('results');
+  let html = '';
+
+  // Header
+  const savingsRange = `$${Math.round(report.totalSavingsRange[0])}–${Math.round(report.totalSavingsRange[1])}`;
+  html += `
+    <h1>You could save ${savingsRange} per year</h1>
+    <p class="subtitle">
+      Based on ${report.billsAnalyzed} bill(s)${report.nemMonthsAnalyzed ? ` with ${report.nemMonthsAnalyzed} months of solar history` : ''}.
+      ${report.currentPlan.provider} ${report.currentPlan.plan} → alternatives and actions below.
+    </p>
+    <p><a href="index.html">Upload another bill</a></p>
+  `;
+
+  // True-up projection (engine emits nemTrueUpProjection, not nemTrueUpAlert)
+  if (report.nemTrueUpProjection && !report.nemTrueUpProjection.isPast) {
+    const projection = report.nemTrueUpProjection;
+    html += `
+      <div class="alert ${projection.isUrgent ? 'urgent' : ''}">
+        <strong>${projection.isUrgent ? '⚠️ ' : ''}Solar true-up projection:</strong> ${projection.message}
+      </div>
+    `;
+  }
+
+  // Savings metrics
+  html += '<div class="metrics">';
+  html += `
+    <div class="metric">
+      <div class="label">Total Potential Savings</div>
+      <div class="value">${savingsRange}/yr</div>
+      <div class="detail">${report.currentPlan.basis}</div>
+    </div>
+  `;
+  
+  if (report.savingsBreakdown) {
+    html += `
+      <div class="metric">
+        <div class="label">Provider Switch</div>
+        <div class="value">$${Math.round(report.savingsBreakdown.provider)}</div>
+        <div class="detail">Switch to cheaper option</div>
+      </div>
+      <div class="metric">
+        <div class="label">Electric Habits</div>
+        <div class="value">$${Math.round(report.savingsBreakdown.electric[0])}–${Math.round(report.savingsBreakdown.electric[1])}</div>
+        <div class="detail">Thermostat, appliances</div>
+      </div>
+    `;
+    
+    if (report.savingsBreakdown.gas[1] > 0) {
+      html += `
+        <div class="metric">
+          <div class="label">Gas Savings</div>
+          <div class="value">$${Math.round(report.savingsBreakdown.gas[0])}–${Math.round(report.savingsBreakdown.gas[1])}</div>
+          <div class="detail">Heating, water heater</div>
+        </div>
+      `;
+    }
+  }
+  html += '</div>';
+
+  // Action Timeline
+  if (actionPlan && actionPlan.steps && actionPlan.steps.length > 0) {
+    html += '<div class="card">';
+    html += '<h2>📅 Your Action Timeline</h2>';
+    html += '<p>Specific steps with dates and deadlines. Click any step for full details.</p>';
+    
+    html += '<div class="timeline">';
+    actionPlan.steps.forEach((step, i) => {
+      const date = step.doByDate ? parseLocalDate(step.doByDate) : new Date();
+      const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const urgencyClass = step.urgency === 'urgent' ? 'urgent' : step.urgency === 'high' ? 'high' : '';
+      
+      html += `
+        <div class="timeline-item ${urgencyClass}" onclick="showStepDetails(${i})">
+          <div class="timeline-date">
+            <div class="timeline-date-day">${dateStr}</div>
+            <div class="timeline-date-num">${date.getDate()}</div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-title">${step.title}</div>
+            <div class="timeline-desc">${truncate(stripHTML(step.description || ''), 120)}</div>
+            <div class="timeline-badges">
+              ${step.urgency ? `<span class="badge ${step.urgency}">${step.urgency.toUpperCase()}</span>` : ''}
+              ${step.verified === false ? '<span class="badge unverified">UNVERIFIED</span>' : ''}
+              ${step.verified === true ? '<span class="badge verified">VERIFIED</span>' : ''}
+              ${step.estimatedSavings ? `<span class="badge savings">${step.estimatedSavings}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+
+    // Export buttons
+    html += '<div class="export-buttons">';
+    html += '<button class="btn primary" onclick="exportToCalendar()">📅 Download Calendar (.ics)</button>';
+    html += '<button class="btn" onclick="exportToMarkdown()">📋 Copy Checklist</button>';
+    html += '</div>';
+    
+    html += '</div>';
+  }
+
+  // Delete data section
+  html += `
+    <div class="delete-section">
+      <h3>🔒 Your Data</h3>
+      <p>Your bill data and results are stored only in your browser. Nothing was sent to any server. You can delete everything right now:</p>
+      <p><a href="index.html">Upload another bill</a></p>
+      <button class="btn danger" onclick="deleteAllData()">Delete My Data</button>
+    </div>
+  `;
+
+  resultsDiv.innerHTML = html;
+  resultsDiv.style.display = 'block';
+  document.getElementById('loading').style.display = 'none';
+}
+
+function truncate(text, length) {
+  if (text.length <= length) return text;
+  return text.substring(0, length) + '...';
+}
+
+function stripHTML(html) {
+  const tmp = document.createElement('DIV');
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || '';
+}
+
+// Global functions for UI interactions
+window.showStepDetails = function(index) {
+  const reportData = sessionStorage.getItem('savingsReport');
+  const householdData = sessionStorage.getItem('household');
+  const parsedBillsData = sessionStorage.getItem('parsedBills');
+  
+  const report = JSON.parse(reportData);
+  const household = householdData ? JSON.parse(householdData) : {};
+  const bills = parsedBillsData ? JSON.parse(parsedBillsData) : [];
+  
+  const actionPlan = generateDatedActionPlan(report, bills, household);
+  const step = actionPlan.steps[index];
+  
+  document.getElementById('modalTitle').textContent = step.title;
+  
+  let bodyHTML = `<div style="font-size: 13px; line-height: 1.6;">`;
+  bodyHTML += step.description ? `<div style="margin-bottom: 12px;">${formatMarkdown(step.description)}</div>` : '';
+  
+  if (step.howTo && step.howTo.instructions) {
+    bodyHTML += '<div style="margin-top: 12px;"><strong>How to do this:</strong><ul style="margin: 8px 0; padding-left: 20px;">';
+    step.howTo.instructions.forEach(inst => {
+      bodyHTML += `<li style="margin-bottom: 6px;">${inst}</li>`;
+    });
+    bodyHTML += '</ul></div>';
+  }
+  bodyHTML += `</div>`;
+  
+  document.getElementById('modalBody').innerHTML = bodyHTML;
+  document.getElementById('stepModal').classList.add('show');
+  
+  // Track step viewed (anonymous)
+  window.trackEvent('step_viewed', {
+    step_category: step.category,
+    step_urgency: step.urgency
+  });
+};
+
+window.closeModal = function() {
+  document.getElementById('stepModal').classList.remove('show');
+};
+
+window.exportToCalendar = async function() {
+  const reportData = sessionStorage.getItem('savingsReport');
+  const householdData = sessionStorage.getItem('household');
+  const parsedBillsData = sessionStorage.getItem('parsedBills');
+  
+  const report = JSON.parse(reportData);
+  const household = householdData ? JSON.parse(householdData) : {};
+  const bills = parsedBillsData ? JSON.parse(parsedBillsData) : [];
+  
+  const actionPlan = generateDatedActionPlan(report, bills, household);
+  
+  // Convert steps to calendar format
+  const calendarSteps = actionPlan.steps.map(step => ({
+    what: step.title,
+    how: step.description,
+    description: step.description,
+    date: step.doByDate || new Date(),
+    deadline: step.deadline,
+    estimatedSavings: step.estimatedSavings,
+    source: step.doByDateSource,
+    recurring: step.recurring
+  }));
+  
+  const icsContent = generateICSContent(calendarSteps, 'Billback Savings Action Plan');
+  downloadICS(icsContent, 'billback-action-plan.ics');
+  
+  // Track export (anonymous)
+  window.trackEvent('calendar_exported', {
+    step_count: calendarSteps.length
+  });
+};
+
+window.exportToMarkdown = async function() {
+  const reportData = sessionStorage.getItem('savingsReport');
+  const householdData = sessionStorage.getItem('household');
+  const parsedBillsData = sessionStorage.getItem('parsedBills');
+  
+  const report = JSON.parse(reportData);
+  const household = householdData ? JSON.parse(householdData) : {};
+  const bills = parsedBillsData ? JSON.parse(parsedBillsData) : [];
+  
+  const actionPlan = generateDatedActionPlan(report, bills, household);
+  
+  // Convert steps to markdown format
+  const mdSteps = actionPlan.steps.map(step => ({
+    what: step.title,
+    how: stripHTML(step.description),
+    date: step.doByDate || new Date(),
+    estimatedSavings: step.estimatedSavings,
+    source: step.doByDateSource,
+    recurring: step.recurring
+  }));
+  
+  const markdown = generateMarkdownTodoList(mdSteps);
+  
+  const success = await copyToClipboard(markdown);
+  if (success) {
+    alert('✓ Checklist copied to clipboard! Paste it into your notes app.');
+  } else {
+    // Fallback: download as file
+    downloadTextFile(markdown, 'billback-action-checklist.md', 'text/markdown');
+    alert('✓ Checklist downloaded as billback-action-checklist.md');
+  }
+  
+  // Track export (anonymous)
+  window.trackEvent('checklist_exported', {
+    step_count: mdSteps.length
+  });
+};
+
+window.deleteAllData = function() {
+  if (confirm('Delete all your bill data and results from this browser?\n\nThis cannot be undone.')) {
+    sessionStorage.removeItem('savingsReport');
+    sessionStorage.removeItem('household');
+    sessionStorage.removeItem('parsedBills');
+    
+    // Track deletion (anonymous)
+    window.trackEvent('data_deleted', {});
+    
+    alert('✓ All your data has been deleted from this browser.');
+    window.location.href = 'index.html';
+  }
+};
+
+function formatMarkdown(text) {
+  // Simple markdown-to-HTML conversion for modal display
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+}
+
+// Close modal on background click
+document.getElementById('stepModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeModal();
+  }
+});
+</script>
+</body>
+</html>

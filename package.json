@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test src/**/*.test.js",
+    "test:e2e": "playwright test",
+    "build": "node scripts/build-dist.js",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit"
@@ -15,6 +17,9 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20231218.0",
+    "@playwright/test": "^1.40.0",
+    "ical.js": "^1.5.0",
+    "pdfkit": "^0.13.0",
     "wrangler": "^3.22.1",
     "typescript": "^5.3.3"
   }

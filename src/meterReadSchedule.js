@@ -54,6 +54,48 @@ export const METER_READ_SCHEDULE = {
 };
 
 /**
+ * Parse a date string as a local calendar date (not UTC midnight).
+ * `new Date('YYYY-MM-DD')` is UTC, so getDate() is one day early in US timezones.
+ * @param {string|Date} dateStr - 'YYYY-MM-DD' string or Date
+ * @returns {Date} Local date at midnight
+ */
+export function parseLocalDate(dateStr) {
+  if (dateStr instanceof Date) {
+    return new Date(dateStr.getFullYear(), dateStr.getMonth(), dateStr.getDate());
+  }
+  if (dateStr == null || dateStr === '') {
+    const n = new Date();
+    return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  }
+  const s = String(dateStr).trim();
+  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) {
+    return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+  }
+  const mdy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (mdy) {
+    let year = Number(mdy[3]);
+    if (year < 100) year += year < 50 ? 2000 : 1900;
+    return new Date(year, Number(mdy[1]) - 1, Number(mdy[2]));
+  }
+  const d = new Date(s);
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+/**
+ * Format a Date as YYYY-MM-DD in local time (never toISOString, which is UTC).
+ * @param {string|Date} date
+ * @returns {string}
+ */
+export function formatLocalDate(date) {
+  const d = date instanceof Date ? date : parseLocalDate(date);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/**
  * Get meter read dates for a specific cycle
  * @param {number} cycle - Billing cycle number (e.g., 19)
  * @param {Date} startDate - Start date to filter from
@@ -66,7 +108,7 @@ export function getMeterReadDates(cycle, startDate = null, endDate = null) {
     throw new Error(`Meter read schedule not available for cycle ${cycle}`);
   }
   
-  let result = dates.map(d => new Date(d));
+  let result = dates.map(d => parseLocalDate(d));
   
   if (startDate) {
     result = result.filter(d => d >= startDate);

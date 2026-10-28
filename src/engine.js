@@ -6,6 +6,8 @@
  */
 
 import * as rates from './rates.js';
+import { detectNEMPaymentPattern, calculateTrueUpAmount } from './parser.js';
+import { parseLocalDate } from './meterReadSchedule.js';
 
 /**
  * Calculate monthly bill cost for a given rate plan and usage
@@ -49,7 +51,7 @@ export function calculateAnnualCost(bills, ratePlan, nemYearToDate = null) {
     
     nemYearToDate.forEach(month => {
       // Determine season from date
-      const date = new Date(month.date);
+      const date = parseLocalDate(month.date);
       const monthNum = date.getMonth();
       const season = (monthNum >= 5 && monthNum <= 9) ? 'summer' : 'winter';
       
@@ -104,7 +106,7 @@ export function calculateAnnualCost(bills, ratePlan, nemYearToDate = null) {
     let winterCount = 0;
 
     sorted.forEach(bill => {
-      const month = new Date(bill.date).getMonth(); // 0-11
+      const month = parseLocalDate(bill.date).getMonth(); // 0-11
       const isSummer = month >= 5 && month <= 9; // Jun-Oct
       
       const cost = calculateMonthlyCost(bill.usage, ratePlan);
@@ -146,7 +148,7 @@ export function calculateAnnualCost(bills, ratePlan, nemYearToDate = null) {
   return {
     annualCost: avgCost * 12,
     confidence: 'low',
-    basis: `${sorted.length} month(s), simple annualization (seasonal variation not accounted for)`
+    basis: `${sorted.length} month(s), simple annualization — rough seasonal estimate (actual usage varies by season)`
   };
 }
 
@@ -161,8 +163,15 @@ export function compareProviders(bills, currentPlan, nemYearToDate = null) {
   const currentCostData = calculateAnnualCost(bills, currentPlan, nemYearToDate);
   const alternatives = [];
 
+  // Get customer's CCA territory from current provider
+  // CEA serves: Oceanside, Carlsbad, Vista, Del Mar, San Marcos, Escondido
+  // SDCP serves: San Diego, Chula Vista, La Mesa, National City, Imperial Beach
+  // Only compare providers available in the customer's territory
+  const customerCCA = currentPlan.provider === 'CEA' ? 'CEA' : 
+                      currentPlan.provider === 'SDCP' ? 'SDCP' : null;
+
   // Get all rate plans except the current one
-  const plans = [
+  let plans = [
     rates.SDGE_TOU_DR1,
     rates.CEA_CLEAN_IMPACT,
     rates.CEA_CLEAN_IMPACT_PLUS,
@@ -171,6 +180,16 @@ export function compareProviders(bills, currentPlan, nemYearToDate = null) {
   ].filter(plan => 
     !(plan.provider === currentPlan.provider && plan.plan === currentPlan.plan)
   );
+
+  // Territory filtering: only show providers available to this customer
+  if (customerCCA === 'CEA') {
+    // CEA customers can only switch to SDG&E bundled or other CEA tiers
+    plans = plans.filter(plan => plan.provider === 'SDG&E' || plan.provider === 'CEA');
+  } else if (customerCCA === 'SDCP') {
+    // SDCP customers can only switch to SDG&E bundled or other SDCP tiers
+    plans = plans.filter(plan => plan.provider === 'SDG&E' || plan.provider === 'SDCP');
+  }
+  // If customer is on SDG&E bundled, territory is unknown, so show all options
 
   for (const plan of plans) {
     const costData = calculateAnnualCost(bills, plan, nemYearToDate);
@@ -258,10 +277,12 @@ export function calculateNEMTrueUpProjection(nemData, nemYearToDate, ratePlan) {
     return null;
   }
 
-  const today = new Date();
-  const trueUpDate = new Date(nemData.trueUpDate);
+  const today = parseLocalDate(new Date());
   
-  // Check if true-up has already passed
+  // Parse true-up date as local date (not UTC)
+  const trueUpDate = parseLocalDate(nemData.trueUpDate);
+  
+  // Check if true-up has already passed (not including today)
   if (trueUpDate < today) {
     return {
       trueUpDate: nemData.trueUpDate,
@@ -273,6 +294,43 @@ export function calculateNEMTrueUpProjection(nemData, nemYearToDate, ratePlan) {
 
   const daysUntil = Math.ceil((trueUpDate - today) / (1000 * 60 * 60 * 24));
   const isUrgent = daysUntil <= 60;
+
+  // Monthly NEM payers already paid prior YTD charges. True-up is the unpaid remainder
+  // (current printed balance minus payments), not the full YTD plus remaining months.
+  const paymentHistory = nemData.paymentHistory || nemData.nemPaymentHistory || [];
+  const paymentPattern = detectNEMPaymentPattern({
+    hasSolar: true,
+    nemPaymentHistory: paymentHistory
+  });
+  if (paymentPattern.paysMonthly === true) {
+    const trueUp = calculateTrueUpAmount({
+      hasSolar: true,
+      nemBalance: nemData.balance,
+      nemPaymentHistory: paymentHistory
+    }, true);
+    const amount = trueUp.estimatedAmount;
+    const lo = Math.max(0, Math.round(amount));
+    const hi = Math.max(lo, Math.round(amount));
+    return {
+      trueUpDate: nemData.trueUpDate,
+      daysUntil,
+      currentBalance: nemData.balance,
+      projectedBalance: [lo, hi],
+      unpaidRemainder: amount,
+      paysMonthly: true,
+      isUrgent,
+      isPast: false,
+      message: isUrgent
+        ? `Your solar true-up is ${daysUntil} days away (${nemData.trueUpDate}). This account pays NEM charges monthly, so the true-up is the unpaid remainder of about $${Math.round(amount)} (not the printed YTD balance of $${Number(nemData.balance).toFixed(2)}).`
+        : `Your solar true-up is on ${nemData.trueUpDate}. Unpaid NEM remainder (monthly payer): about $${Math.round(amount)}.`,
+      basis: trueUp.reasoning,
+      tips: isUrgent ? [
+        `Set aside about $${Math.round(amount)} for the true-up bill`,
+        'You already pay NEM charges monthly; the true-up settles only the unpaid remainder',
+        'Consider switching providers AFTER true-up to avoid double charges'
+      ] : []
+    };
+  }
   
   // If we don't have NEM history, can't project
   if (!nemYearToDate || nemYearToDate.length === 0) {
@@ -293,8 +351,8 @@ export function calculateNEMTrueUpProjection(nemData, nemYearToDate, ratePlan) {
   }
 
   // Find most recent bill date from NEM history
-  const sortedHistory = nemYearToDate.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
-  const latestBillDate = new Date(sortedHistory[0].date);
+  const sortedHistory = nemYearToDate.slice().sort((a, b) => parseLocalDate(b.date) - parseLocalDate(a.date));
+  const latestBillDate = parseLocalDate(sortedHistory[0].date);
   
   // Calculate months remaining from latest bill to true-up
   const monthsRemaining = Math.ceil((trueUpDate - latestBillDate) / (1000 * 60 * 60 * 24 * 30));
@@ -321,7 +379,7 @@ export function calculateNEMTrueUpProjection(nemData, nemYearToDate, ratePlan) {
   // Group history by month (0-11) to get seasonal patterns
   const monthlyAverages = {};
   nemYearToDate.forEach(month => {
-    const monthNum = new Date(month.date).getMonth();
+    const monthNum = parseLocalDate(month.date).getMonth();
     if (!monthlyAverages[monthNum]) {
       monthlyAverages[monthNum] = { total: 0, count: 0 };
     }

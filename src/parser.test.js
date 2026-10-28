@@ -221,6 +221,60 @@ describe('Deterministic Parser', () => {
     });
   });
 
+  describe('PDF.js y-coordinate reconstructed layout', () => {
+    it('should parse TOU kWh from a single reconstructed dashboard line', () => {
+      const billText = `
+ACCOUNT NUMBER 1234 5678 9012 3
+CCA Account Number: 123456789012
+Billing Period: 7/30/26 - 8/27/26
+Cycle: 19
+CLEAN ENERGY ALLIANCE
+Clean Impact Plus 624 kWh
+Rate: Time of Use - TOU-DR1-Residential
+Climate Zone: Coastal
+Net Energy Metering
+Version: 2.0
+System Size: 3.44 kW
+True-Up Date: 10/28/2026
+Current Account Balance $445.71
+Total Usage: 624
+Time of Use - Electricity Summer kWh On-Peak 355 Off-Peak 193 Super Off-Peak 76
+13 Therms
+Total Gas Service $33.08
+Total Current Charges $445.71
+OCEANSIDE, CA 92000
+Community Choice Aggregation
+Generation On-Peak Summer 355 kWh X $0.55397
+Generation Off-Peak Summer 193 kWh X $0.22298
+Generation Super Off-Peak Summer 76 kWh X $0.04914
+Total CCA
+Baseline Adjustment Credit $0.00
+Net Metering Account Summary
+Payment Received   8/21/26    THANK YOU    - 354.22
+NEM Year-to-Date Balance $445.71
+Net Energy Metering Summary
+11/26/2025 83 − 139 28 − 28 28.27
+12/29/2025 161 − 97 50 114 56.33
+01/28/2026 115 − 67 37 85 41.76
+02/27/2026 107 − 147 9 − 31 28.90
+03/30/2026 83 − 29 − 163 − 109 20.69
+04/29/2026 31 − 56 − 157 − 182 8.72
+05/29/2026 30 − 49 − 127 − 146 7.49
+06/29/2026 85 21 − 100 6 26.95
+07/29/2026 310 199 116 625 178.96
+08/27/2026 355 193 76 624 177.17
+`;
+      const parsed = parseSDGEBillText(billText);
+      assert.strictEqual(parsed.usage.onPeak, 355);
+      assert.strictEqual(parsed.usage.offPeak, 193);
+      assert.strictEqual(parsed.usage.superOffPeak, 76);
+      assert.strictEqual(parsed.nemYearToDate.length, 10);
+      assert.strictEqual(parsed.nemYearToDate[0].offPeak, -139);
+      assert.strictEqual(parsed.nemPaymentHistory.length, 1);
+      assert.strictEqual(parsed.nemPaymentHistory[0].amount, 354.22);
+    });
+  });
+
   describe('Billed CEA Rates Extraction', () => {
     it('should extract CEA generation rates from bill', () => {
       const billText = readFileSync('./test/fixtures/sdge_bill_cea_solar_aug2026.txt', 'utf-8');
