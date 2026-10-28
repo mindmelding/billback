@@ -1,0 +1,21 @@
+{
+  "name": "billback",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SDG&E bill-savings service for San Diego households",
+  "type": "module",
+  "scripts": {
+    "test": "node --test src/**/*.test.js",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231218.0",
+    "wrangler": "^3.22.1",
+    "typescript": "^5.3.3"
+  }
+}
