@@ -420,11 +420,28 @@ analyzeBtn.addEventListener('click', async () => {
       trueUpDate: solarBill.nemTrueUpDate,
       balance: solarBill.nemBalance,
       systemSize: solarBill.systemSize,
-      paymentHistory: solarBill.nemPaymentHistory || []
+      paymentHistory: solarBill.nemPaymentHistory || [],
+      previousNemYtd: solarBill.previousNemYtd,
+      currentNemCharges: solarBill.currentNemCharges,
+      excessCreditTransfer: solarBill.excessCreditTransfer,
+      ytdNetMetering: solarBill.ytdNetMetering,
+      ytdNbc: solarBill.ytdNbc,
+      climateCredit: solarBill.climateCredit,
+      billedRates: solarBill.billedRates
     } : null;
     
     // Extract gas usage
-    const gasUsage = firstBill.gas || null;
+    const gasUsage = firstBill.gas
+      ? { ...firstBill.gas, history: firstBill.thermHistory || [] }
+      : null;
+
+    const billContext = {
+      ytdNetMetering: (solarBill || firstBill).ytdNetMetering,
+      ytdNbc: (solarBill || firstBill).ytdNbc,
+      climateCredit: (solarBill || firstBill).climateCredit,
+      billedRates: (solarBill || firstBill).billedRates,
+      thermHistory: firstBill.thermHistory || []
+    };
     
     // Generate savings report
     const report = generateSavingsReport(
@@ -433,7 +450,8 @@ analyzeBtn.addEventListener('click', async () => {
       household,
       nemYearToDate,
       nemData,
-      gasUsage
+      gasUsage,
+      billContext
     );
     
     // Store results in sessionStorage (stays in browser, never sent to server)

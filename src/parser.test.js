@@ -35,6 +35,13 @@ describe('Deterministic Parser', () => {
       assert.strictEqual(parsed.systemSize, 3.44);
       assert.strictEqual(parsed.nemTrueUpDate, '2026-10-28');
       assert.strictEqual(parsed.nemBalance, 445.71);
+      assert.strictEqual(parsed.previousNemYtd, 354.22);
+      assert.strictEqual(parsed.excessCreditTransfer, 16.28);
+      assert.strictEqual(parsed.currentNemCharges, 461.99);
+      assert.strictEqual(parsed.ccaGeneration, 244.02);
+      assert.strictEqual(parsed.climateCredit, 49.36);
+      assert.strictEqual(parsed.ytdNetMetering, 267.40);
+      assert.strictEqual(parsed.ytdNbc, 318.89);
 
       // Usage
       assert.strictEqual(parsed.totalKwh, 624);
@@ -218,6 +225,54 @@ describe('Deterministic Parser', () => {
       const payment = parsed.nemPaymentHistory[0];
       assert.strictEqual(payment.date, '2026-08-21', 'Should parse payment date');
       assert.strictEqual(payment.amount, 354.22, 'Should parse payment amount');
+    });
+
+    it('should parse Excess Credit Transfer and Current Charges past Continued', () => {
+      const billText = readFileSync('./test/fixtures/sdge_bill_cea_solar_aug2026.txt', 'utf-8');
+      const parsed = parseSDGEBillText(billText);
+      assert.ok(billText.includes('Continued on next page'));
+      assert.strictEqual(parsed.previousNemYtd, 354.22);
+      assert.strictEqual(parsed.excessCreditTransfer, 16.28);
+      assert.strictEqual(parsed.currentNemCharges, 461.99);
+      // 354.22 - 354.22 - 16.28 + 461.99 = 445.71
+      const rebuilt = parsed.previousNemYtd
+        - parsed.nemPaymentHistory[0].amount
+        - parsed.excessCreditTransfer
+        + parsed.currentNemCharges;
+      assert.ok(Math.abs(rebuilt - parsed.nemBalance) < 0.01, `Rebuilt ${rebuilt} vs balance ${parsed.nemBalance}`);
+    });
+
+    it('should parse real "Payment 8/21 −$354.22" wording', () => {
+      const billText = `
+ACCOUNT NUMBER 1234 5678 9012 3
+CCA Account Number: 123456789012
+Billing Period: 7/30/26 - 8/27/26
+CLEAN ENERGY ALLIANCE
+Clean Impact Plus 624 kWh
+Rate: Time of Use - TOU-DR1-Residential
+Net Energy Metering
+Version: 2.0
+System Size: 3.44 kW
+True-Up Date: 10/28/2026
+Current Account Balance $445.71
+Total Usage: 624
+Total Current Charges $445.71
+DATE MAILED Sep 2, 2026
+Net Metering Account Summary
+Previous NEM YTD Balance $354.22
+Payment 8/21 −$354.22
+Excess Credit Transfer −$16.28
+Current Charges +$461.99
+Current Account Balance $445.71
+Summary of Current Charges
+`;
+      const parsed = parseSDGEBillText(billText);
+      assert.strictEqual(parsed.previousNemYtd, 354.22);
+      assert.strictEqual(parsed.nemPaymentHistory.length, 1);
+      assert.strictEqual(parsed.nemPaymentHistory[0].date, '2026-08-21');
+      assert.strictEqual(parsed.nemPaymentHistory[0].amount, 354.22);
+      assert.strictEqual(parsed.excessCreditTransfer, 16.28);
+      assert.strictEqual(parsed.currentNemCharges, 461.99);
     });
 
     it('should parse Payment Received after Previous NEM YTD Balance without NEM Year-to-Date Balance', () => {

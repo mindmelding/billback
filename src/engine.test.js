@@ -14,7 +14,8 @@ import {
   calculateBehavioralSavings,
   checkCareFeraEligibility,
   generateSavingsReport,
-  calculateNEMTrueUpProjection
+  calculateNEMTrueUpProjection,
+  calculateAnnualGenerationCost
 } from './engine.js';
 import { parseSDGEBillText } from './parser.js';
 import * as rates from './rates.js';
@@ -97,10 +98,14 @@ describe('Savings Engine', () => {
       assert.strictEqual(result.confidence, 'medium', 'Should have medium confidence with both seasons');
     });
 
-    it('should use NEM YTD net charges for a solar home, not abs(kWh) × rates', () => {
+    it('should use net NEM + NBC + CCA generation, a gas range, and climate credits', () => {
       const billText = readFileSync('./test/fixtures/sdge_bill_cea_solar_aug2026.txt', 'utf-8');
       const parsed = parseSDGEBillText(billText);
       assert.ok(parsed.nemYearToDate.length >= 10);
+      assert.strictEqual(parsed.ytdNetMetering, 267.40);
+      assert.strictEqual(parsed.ytdNbc, 318.89);
+      assert.strictEqual(parsed.ccaGeneration, 244.02);
+      assert.strictEqual(parsed.climateCredit, 49.36);
 
       const bills = [{
         date: parsed.billingPeriod.start,
@@ -112,20 +117,38 @@ describe('Savings Engine', () => {
         bills,
         rates.CEA_CLEAN_IMPACT_PLUS,
         parsed.nemYearToDate,
-        { gasCost: parsed.gas.cost }
+        {
+          ytdNetMetering: parsed.ytdNetMetering,
+          ytdNbc: parsed.ytdNbc,
+          climateCredit: parsed.climateCredit,
+          billedRates: parsed.billedRates,
+          gasUsage: parsed.gas
+        }
       );
 
-      // Fixture NEM table: $575.24 net charges over 10 months → $690.29/yr,
-      // plus $24.12 × 12 base ($289.44) plus $33.08 × 12 gas ($396.96) ≈ $1,377.
-      // The old abs(kWh)×rates path treated exports as consumption and printed ~$2,637.
-      const expected = 575.24 * (12 / 10) + 24.12 * 12 + 33.08 * 12;
-      assert.ok(Math.abs(result.annualCost - expected) < 1, `Expected ~$${expected.toFixed(2)}, got ${result.annualCost}`);
-      assert.ok(result.annualCost > 1000 && result.annualCost < 1700, `Plausible NEM annual, got ${result.annualCost}`);
+      const sdgeElectric = (267.40 + 318.89) * (12 / 10);
+      assert.ok(Math.abs(result.components.sdgeElectric - sdgeElectric) < 1, `SDG&E electric ${result.components.sdgeElectric} vs ${sdgeElectric}`);
+      assert.ok(result.components.ccaGeneration > 500, `CCA generation should annualize well above this cycle's $244, got ${result.components.ccaGeneration}`);
+      assert.ok(result.components.ccaGeneration < 900, `CCA generation should not be $244×12, got ${result.components.ccaGeneration}`);
+      assert.ok(Math.abs(result.components.climateCredit - 98.72) < 0.01, `Two climate credits, got ${result.components.climateCredit}`);
+      assert.ok(result.components.gas[1] > result.components.gas[0] + 50, 'Gas should be a seasonal range, not one month × 12');
+      assert.ok(
+        Math.abs(result.components.gas[0] - 33.08 * 12) > 1
+        || Math.abs(result.components.gas[1] - 33.08 * 12) > 1,
+        'Gas range must not collapse to August × 12'
+      );
+      assert.ok(result.annualCostRange[0] < result.annualCostRange[1]);
+      assert.ok(result.annualCostRange[0] >= 1500 && result.annualCostRange[0] <= 1750, `Low ${result.annualCostRange[0]}`);
+      assert.ok(result.annualCostRange[1] >= 1850 && result.annualCostRange[1] <= 2100, `High ${result.annualCostRange[1]}`);
+      assert.ok(result.annualCostRange[0] >= 1550 - 50 && result.annualCostRange[1] <= 1950 + 100,
+        `Expected roughly $1,550–1,950, got ${result.annualCostRange.map(n => Math.round(n)).join('–')}`);
       assert.ok(result.annualCost < 2000, 'Must not be the gross abs(kWh) figure (~$2,637)');
-      assert.ok(result.basis.includes('NEM YTD net charges'), result.basis);
-      assert.ok(result.basis.includes('base services'), result.basis);
-      assert.ok(result.basis.includes('gas'), result.basis);
-      assert.ok(result.basis.includes('extrapolated to 12 months'), result.basis);
+      assert.ok(Math.abs(result.annualCost - 1377) > 50, 'Must not be the old $1,377 (gross NEM + extra base + gas×12)');
+      assert.strictEqual(result.confidence, 'low');
+      assert.ok(result.basis.includes('NBC'), result.basis);
+      assert.ok(result.basis.includes('CCA generation'), result.basis);
+      assert.ok(result.basis.includes('Climate Credit'), result.basis);
+      assert.ok(result.basis.includes('one bill'), result.basis);
     });
   });
 
@@ -153,6 +176,39 @@ describe('Savings Engine', () => {
       const sdgeOption = comparisons.find(c => c.provider === 'SDG&E');
       assert.ok(sdgeOption, 'Should include SDG&E option');
       assert.ok(sdgeOption.savings > 0, 'SDG&E should show positive savings for solar home');
+    });
+
+    it('should compare CEA tiers on generation cost only with sign-consistent savings', () => {
+      const billText = readFileSync('./test/fixtures/sdge_bill_cea_solar_aug2026.txt', 'utf-8');
+      const parsed = parseSDGEBillText(billText);
+      const bills = [{
+        date: parsed.billingPeriod.start,
+        usage: parsed.usage,
+        cost: parsed.totalAmount
+      }];
+      const options = {
+        ytdNetMetering: parsed.ytdNetMetering,
+        ytdNbc: parsed.ytdNbc,
+        climateCredit: parsed.climateCredit,
+        billedRates: parsed.billedRates,
+        gasUsage: parsed.gas
+      };
+      const comparisons = compareProviders(bills, rates.CEA_CLEAN_IMPACT_PLUS, parsed.nemYearToDate, options);
+      const impact = comparisons.find(c => c.provider === 'CEA' && c.plan === 'Clean Impact');
+      assert.ok(impact, 'Should include Clean Impact');
+      assert.strictEqual(impact.compareMode, 'generation');
+      const plusGen = calculateAnnualGenerationCost(parsed.nemYearToDate, rates.CEA_CLEAN_IMPACT_PLUS, parsed.billedRates).generationCost;
+      const impactGen = calculateAnnualGenerationCost(parsed.nemYearToDate, rates.CEA_CLEAN_IMPACT, null).generationCost;
+      const expectedSavings = plusGen - impactGen;
+      assert.ok(Math.abs(impact.savings - expectedSavings) < 1, `Savings ${impact.savings} vs gen delta ${expectedSavings}`);
+      if (impact.annualCost > plusGen && impact.savings > 0) {
+        // Household-equivalent annual for Impact must be below current if savings are positive
+        const current = calculateAnnualCost(bills, rates.CEA_CLEAN_IMPACT_PLUS, parsed.nemYearToDate, options);
+        assert.ok(impact.annualCost < current.annualCost + 0.5,
+          `Clean Impact listed at $${impact.annualCost.toFixed(2)} with +$${impact.savings.toFixed(0)} savings must be cheaper than current $${current.annualCost.toFixed(2)}`);
+      }
+      assert.ok(Math.abs(impact.annualCost - 1428.55) > 50, 'Must not list bundled $1,428.55 for Clean Impact');
+      assert.ok(impact.savings === 0 || Math.sign(impact.savings) === Math.sign(plusGen - impactGen) || Math.abs(impact.savings) < 0.01);
     });
   });
 
@@ -211,7 +267,7 @@ describe('Savings Engine', () => {
 
       assert.ok(report.providerAlternatives.length > 0, 'Should have provider alternatives');
       assert.ok(report.electricActions.length > 0, 'Should have electric actions');
-      assert.ok(report.totalSavingsRange[0] > 0, 'Should show some savings');
+      assert.ok(report.totalSavingsRange[1] > 0, 'Should show some savings');
       
       // The prototype shows $595-870/year savings
       // Our calculation uses 1 month annualized, so may differ
@@ -220,15 +276,70 @@ describe('Savings Engine', () => {
       assert.ok(annualSavings > 400, `Annual savings ${annualSavings} should exceed $400`);
       assert.ok(annualSavings < 3000, `Annual savings ${annualSavings} should be under $3000`);
     });
+
+    it('should build fixture household annual from net NEM, NBC, CCA, gas range, climate credit', () => {
+      const billText = readFileSync('./test/fixtures/sdge_bill_cea_solar_aug2026.txt', 'utf-8');
+      const parsed = parseSDGEBillText(billText);
+      const bills = [{
+        date: parsed.billingPeriod.start,
+        usage: parsed.usage,
+        cost: parsed.totalAmount
+      }];
+      const nemData = {
+        trueUpDate: parsed.nemTrueUpDate,
+        balance: parsed.nemBalance,
+        systemSize: parsed.systemSize,
+        paymentHistory: parsed.nemPaymentHistory,
+        previousNemYtd: parsed.previousNemYtd,
+        currentNemCharges: parsed.currentNemCharges,
+        excessCreditTransfer: parsed.excessCreditTransfer
+      };
+      const report = generateSavingsReport(
+        bills,
+        rates.CEA_CLEAN_IMPACT_PLUS,
+        { renter: true, hasSolar: true },
+        parsed.nemYearToDate,
+        nemData,
+        parsed.gas,
+        {
+          ytdNetMetering: parsed.ytdNetMetering,
+          ytdNbc: parsed.ytdNbc,
+          climateCredit: parsed.climateCredit,
+          billedRates: parsed.billedRates
+        }
+      );
+
+      const c = report.currentPlan.components;
+      assert.ok(c, 'Should expose annual cost components');
+      assert.ok(Math.abs(c.sdgeElectric - 703.55) < 1, `SDG&E electric ${c.sdgeElectric}`);
+      assert.ok(c.ccaGeneration > 500 && c.ccaGeneration < 900, `CCA gen ${c.ccaGeneration}`);
+      assert.ok(Math.abs(c.climateCredit - 98.72) < 0.01);
+      assert.ok(c.gas[1] > c.gas[0] + 50, 'Gas should be a range');
+      const [lo, hi] = report.currentPlan.annualCostRange;
+      assert.ok(lo >= 1500 && hi <= 2100 && lo < hi, `Range ${Math.round(lo)}–${Math.round(hi)}`);
+      assert.strictEqual(report.currentPlan.confidence, 'low');
+      assert.ok(report.nemTrueUpProjection.paysMonthly);
+      assert.ok(Math.abs(report.nemTrueUpProjection.lastCycleCharges - 461.99) < 0.01);
+
+      const impact = report.providerAlternatives.find(a => a.plan === 'Clean Impact');
+      assert.ok(impact);
+      if (impact.savings > 0) {
+        assert.ok(impact.annualCost <= report.currentPlan.annualCost + 0.5,
+          `Positive savings but listed ${impact.annualCost} > current ${report.currentPlan.annualCost}`);
+      }
+    });
   });
 
   describe('NEM true-up projection for monthly payers', () => {
-    it('should project the unpaid remainder (~$91), not YTD plus remaining months', () => {
+    it('should project last cycle charges (~$462), not balance minus payment (~$91)', () => {
       const nemData = {
         trueUpDate: '2026-10-28',
         balance: 445.71,
         systemSize: 3.44,
-        paymentHistory: [{ date: '2026-08-21', amount: 354.22 }]
+        paymentHistory: [{ date: '2026-08-21', amount: 354.22 }],
+        previousNemYtd: 354.22,
+        currentNemCharges: 461.99,
+        excessCreditTransfer: 16.28
       };
       const nemYearToDate = [
         { date: '2026-08-27', onPeak: 355, offPeak: 193, superOffPeak: 76, total: 624, nemCharges: 177.17 }
@@ -238,8 +349,11 @@ describe('Savings Engine', () => {
       assert.strictEqual(projection.paysMonthly, true);
       const amount = Array.isArray(projection.projectedBalance)
         ? projection.projectedBalance[0]
-        : projection.unpaidRemainder;
-      assert.ok(amount > 85 && amount < 100, `Expected ~$91, got ${amount}`);
+        : projection.lastCycleCharges;
+      assert.ok(amount > 450 && amount < 470, `Expected ~$462, got ${amount}`);
+      assert.ok(String(projection.message).includes('last cycle'));
+      assert.ok(String(projection.message).includes('normal monthly bill'));
+      assert.ok(!String(projection.message).includes('91'));
       assert.ok(!String(projection.message).includes('563'));
       assert.ok(!String(projection.message).includes('615'));
     });

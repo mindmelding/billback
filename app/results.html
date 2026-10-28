@@ -158,35 +158,59 @@ function renderResults(report, household, actionPlan, bills) {
   const saveMin = Math.round(report.totalSavingsRange[0]);
   const saveMax = Math.round(report.totalSavingsRange[1]);
   const savingsRange = `$${saveMin}–${saveMax}`;
-  const annualNow = Math.round(report.currentPlan.annualCost || 0);
-  const afterMin = Math.max(0, annualNow - saveMax);
-  const afterMax = Math.max(0, annualNow - saveMin);
+  const annualRange = report.currentPlan.annualCostRange;
+  const annualLow = Math.round((annualRange && annualRange[0] != null) ? annualRange[0] : (report.currentPlan.annualCost || 0));
+  const annualHigh = Math.round((annualRange && annualRange[1] != null) ? annualRange[1] : annualLow);
+  const annualNowLabel = annualLow === annualHigh
+    ? `$${money(annualLow)}/yr`
+    : `$${money(annualLow)}–${money(annualHigh)}/yr`;
+  const afterMin = Math.max(0, annualLow - saveMax);
+  const afterMax = Math.max(0, annualHigh - saveMin);
   const bill = bills[0] || {};
   const billAmount = bill.totalAmount != null ? bill.totalAmount : null;
   const planLabel = `${report.currentPlan.provider || ''} ${report.currentPlan.plan || ''}`.trim();
   const usage = bill.usage || null;
   const projection = report.nemTrueUpProjection;
   const paysMonthlyNem = !!(projection && projection.paysMonthly);
-  const nemYtd = bill.nemBalance != null ? bill.nemBalance : (projection && projection.currentBalance);
-  const nemPaid = (bill.nemPaymentHistory || []).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
-  const trueUpRemainder = paysMonthlyNem && projection.unpaidRemainder != null
-    ? projection.unpaidRemainder
+  const previousYtd = bill.previousNemYtd != null ? bill.previousNemYtd : (projection && projection.previousNemYtd);
+  const cycleCharges = bill.currentNemCharges != null ? bill.currentNemCharges
+    : (projection && (projection.currentNemCharges != null ? projection.currentNemCharges : projection.lastCycleCharges));
+  const lastPayment = (bill.nemPaymentHistory || [])[0];
+  const paidShort = lastPayment && lastPayment.date
+    ? lastPayment.date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, (_, y, m, d) => `${Number(m)}/${Number(d)}`)
+    : '';
+  const trueUpAmount = paysMonthlyNem && projection.lastCycleCharges != null
+    ? projection.lastCycleCharges
     : null;
+  const confidence = report.currentPlan.confidence || '';
+  const components = report.currentPlan.components || null;
 
   let billChips = '';
-  if (paysMonthlyNem && nemYtd != null) {
-    if (trueUpRemainder != null) {
-      billChips += `<span class="bb-chip bb-chip--you">True-up remainder about $${Math.round(trueUpRemainder)}</span>`;
-    }
-    const paidBit = nemPaid > 0 ? `, $${nemPaid.toFixed(2)} already paid` : '';
-    billChips += `<span class="bb-chip">NEM year-to-date charges $${Number(nemYtd).toFixed(2)}${paidBit}</span>`;
-  } else if (billAmount != null) {
+  if (paysMonthlyNem && trueUpAmount != null) {
+    billChips += `<span class="bb-chip bb-chip--you">True-up about a normal monthly bill (≈ $${Math.round(trueUpAmount)})</span>`;
+  }
+  if (paysMonthlyNem && previousYtd != null && cycleCharges != null && paidShort) {
+    billChips += `<span class="bb-chip">Previous balance $${Number(previousYtd).toFixed(2)} paid ${paidShort}; this cycle's charges $${Number(cycleCharges).toFixed(2)}</span>`;
+  } else if (billAmount != null && !paysMonthlyNem) {
     billChips += `<span class="bb-chip">This bill $${Number(billAmount).toFixed(2)}</span>`;
   }
+  if (annualLow !== annualHigh) {
+    billChips += `<span class="bb-chip">Based on one bill · ${confidence || 'low'} confidence</span>`;
+  }
 
-  const payingTodayDetail = paysMonthlyNem && nemYtd != null
-    ? `NEM year-to-date charges $${Number(nemYtd).toFixed(2)}${nemPaid > 0 ? `, $${nemPaid.toFixed(2)} already paid` : ''}${trueUpRemainder != null ? ` · true-up about $${Math.round(trueUpRemainder)}` : ''}`
+  const payingTodayDetail = paysMonthlyNem && previousYtd != null && cycleCharges != null
+    ? `Previous balance $${Number(previousYtd).toFixed(2)} paid ${paidShort}; this cycle's charges $${Number(cycleCharges).toFixed(2)}`
     : (billAmount != null ? `This bill $${Number(billAmount).toFixed(2)}` : '');
+
+  let componentLine = '';
+  if (components) {
+    const bits = [];
+    if (components.sdgeElectric != null) bits.push(`SDG&amp;E electric $${money(components.sdgeElectric)}`);
+    if (components.ccaGeneration != null) bits.push(`CCA generation $${money(components.ccaGeneration)}`);
+    if (components.gas && components.gas[1] > 0) bits.push(`gas $${money(components.gas[0])}–${money(components.gas[1])}`);
+    if (components.climateCredit) bits.push(`Climate Credit −$${Number(components.climateCredit).toFixed(2)}`);
+    if (bits.length) componentLine = bits.join(' · ') + '. ';
+  }
 
   html += `
     <div class="bb-page-h">
@@ -217,8 +241,8 @@ function renderResults(report, household, actionPlan, bills) {
     <div class="bb-receipt">
       <div class="bb-receipt__row">
         <span class="bb-receipt__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span>
-        <div class="bb-receipt__l"><b>Paying today</b><span>${planLabel || 'Current plan'}${payingTodayDetail ? ` · ${payingTodayDetail}` : ''}</span></div>
-        <span class="bb-receipt__v num">$${money(annualNow)}/yr</span>
+        <div class="bb-receipt__l"><b>Paying today</b><span>${planLabel || 'Current plan'}${payingTodayDetail ? ` · ${payingTodayDetail}` : ''}${annualLow !== annualHigh ? ' · range from one bill' : ''}</span></div>
+        <span class="bb-receipt__v num">${annualNowLabel}</span>
       </div>
       <div class="bb-receipt__row">
         <span class="bb-receipt__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12l5 5L20 6"/></svg></span>
@@ -227,10 +251,10 @@ function renderResults(report, household, actionPlan, bills) {
       </div>
       <div class="bb-receipt__row bb-receipt__row--total">
         <span class="bb-receipt__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 14l-4-4 4-4"/><path d="M5 10h9a5 5 0 010 10h-2"/></svg></span>
-        <div class="bb-receipt__l"><b>You get back</b><span>Estimated annual range</span></div>
+        <div class="bb-receipt__l"><b>You get back</b><span>Estimated annual range from the cost above</span></div>
         <span class="bb-receipt__v num">${savingsRange}</span>
       </div>
-      <p class="bb-receipt__foot">${withPeriod(report.currentPlan.basis || 'From the uploaded bill and published 2026 rates')}<br>Last checked Oct 28, 2026.</p>
+      <p class="bb-receipt__foot">${componentLine}${withPeriod(report.currentPlan.basis || 'From the uploaded bill and published 2026 rates')}<br>Last checked Oct 28, 2026.</p>
     </div>
   `;
 

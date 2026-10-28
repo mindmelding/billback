@@ -92,6 +92,7 @@ body.bb { margin: 0; }
 .bb-link { color: var(--bb-accent-strong); text-decoration: none; }
 .bb-link:hover { text-decoration: underline; }
 .privacy-banner { display: flex; align-items: flex-start; gap: 10px; }
+.bb-page-h .bb-chip { white-space: normal; max-width: 100%; }
 @media (max-width: 560px) {
   .bb-shell { padding: 16px 14px 48px; gap: 16px; }
   .bb-brand__mark { width: 22px; height: 22px; }

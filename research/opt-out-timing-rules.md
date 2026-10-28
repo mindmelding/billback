@@ -217,15 +217,15 @@ This document tracks the specific timing requirements, deadlines, and cost impli
 ## 6. True-Up Bill Amount (For Solar/NEM Customers)
 
 **Monthly Payment Detection:**
-- **IMPORTANT:** If customer pays monthly (not banking credits), the true-up bill is only the unbilled final period charges, NOT the cumulative balance shown on the bill
-- **Example (Cycle 19 fixture):** Bill shows NEM YTD balance $445.71, but customer paid $354.22 on 8/21/26. True-up bill will be approximately the unpaid Sep 28–Oct 28 charges (~$90), not the full $445.71
-- The printed "NEM Year-to-Date Balance" is cumulative; paid amounts reduce what's actually owed
-- **Source:** a sample customer bill; SDG&E billing practices
+- **IMPORTANT:** A payment equal to the previous NEM YTD balance paid off the *prior* balance. It does not reduce the printed current YTD. Subtracting that payment from the current balance double-counts it.
+- **Example (Cycle 19 fixture, checked against real bill text 2026-10-28):** Previous NEM YTD $354.22, Payment 8/21 −$354.22, Excess Credit Transfer −$16.28, Current Charges +$461.99 (SDG&E $217.97 + CEA $244.02) = NEM YTD $445.71. The $445.71 is entirely this cycle's unpaid charges.
+- **If they keep paying each statement in full,** the true-up is about the size of a normal monthly bill (≈ last cycle's charges, $461.99), not $445.71 − $354.22 = $91.
+- Model: true-up ≈ current unpaid NEM YTD carried forward + remaining cycles until true-up − payments after this statement.
+- **Source:** a sample customer bill; SDG&E billing practices. Updated 2026-10-28.
 
 **Detection Method:**
-- Check bill history for payments
-- If payments roughly equal monthly charges → customer pays monthly → true-up is small
-- If no payments until true-up → customer banks credits → true-up is full balance
+- Monthly payer: a payment equal to the previous NEM YTD balance
+- If no payments until true-up → customer banks credits → true-up is full printed balance plus remaining cycles
 
 ---
 

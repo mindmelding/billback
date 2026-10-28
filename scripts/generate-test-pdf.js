@@ -82,7 +82,7 @@ export function generateTestPdf(outputPath) {
 
     y += 10;
     line('Net Metering Account Summary');
-    // Real PDF.js y-reconstructed line — no "NEM Year-to-Date Balance"
+    // Real PDF.js y-reconstructed payment line — no "NEM Year-to-Date Balance"
     writeSameY(doc, y, [
       [50, 'Previous NEM YTD Balance'],
       [220, '$354.22'],
@@ -93,6 +93,10 @@ export function generateTestPdf(outputPath) {
     ]);
     y += 14;
     line('(Continued on next page)');
+    line('Excess Credit Transfer                       -16.28');
+    line('Current Charges                              + 461.99');
+    line('CCA Electric Generation                      244.02');
+    line('California Climate Credit                    -49.36');
 
     y += 10;
     line('Net Energy Metering');
@@ -142,7 +146,9 @@ export function generateTestPdf(outputPath) {
     }
 
     y += 10;
+    line('YTD Totals                                   575.24');
     line('YTD Net Metering Charges/Credits              $    267.40');
+    line('Non-Bypassable Charges                        $    318.89');
     line('Current Account Balance                       $    445.71');
 
     doc.end();

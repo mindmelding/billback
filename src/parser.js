@@ -21,7 +21,15 @@ export function parseSDGEBillText(text) {
     nemStatus: null,
     nemTrueUpDate: null,
     nemBalance: null,
+    previousNemYtd: null,
+    excessCreditTransfer: null,
+    currentNemCharges: null, // This cycle: SDG&E delivery + CCA generation
+    ccaGeneration: null, // This cycle's CCA/CEA generation charges
+    climateCredit: null, // California Climate Credit on this bill (positive dollars)
+    ytdNetMetering: null, // Printed YTD net NEM charges after applied credits
+    ytdNbc: null, // YTD Non-Bypassable Charges (includes base services)
     nemPaymentHistory: [], // Array of { date, amount } for NEM payments
+    thermHistory: [], // Array of { date, therms } if a usage chart is present
     systemSize: null,
     totalKwh: null,
     climateZone: null,
@@ -149,11 +157,37 @@ export function parseSDGEBillText(text) {
       result.nemBalance = parseFloat(balanceMatch[1].replace(/,/g, ''));
     }
     
-    // Parse NEM payment history from the account-summary window.
-    // Real PDF.js layout (one reconstructed line, no "NEM Year-to-Date Balance"):
-    //   "Previous NEM YTD Balance $354.22 Payment Received 8/21/26 THANK YOU - 354.22 (Continued on next page)"
-    result.nemPaymentHistory = parseNemPaymentHistory(text);
+    // NEM account summary: previous YTD, payment, excess credit transfer, current charges.
+    // Real bills continue onto the next page after "(Continued on next page)".
+    const nemSummary = parseNemAccountSummary(text);
+    result.nemPaymentHistory = nemSummary.payments;
+    if (nemSummary.previousNemYtd != null) result.previousNemYtd = nemSummary.previousNemYtd;
+    if (nemSummary.excessCreditTransfer != null) result.excessCreditTransfer = nemSummary.excessCreditTransfer;
+    if (nemSummary.currentNemCharges != null) result.currentNemCharges = nemSummary.currentNemCharges;
   }
+
+  const climateMatch = text.match(/California Climate Credit\s+[-−]?\s*\$?\s*([\d,]+\.?\d*)/i);
+  if (climateMatch) {
+    result.climateCredit = parseFloat(climateMatch[1].replace(/,/g, ''));
+  }
+
+  const ccaGenMatch = text.match(/Total CCA Electric Generation Charges\s+\$?\s*([\d,]+\.?\d*)/i)
+    || text.match(/CCA Electric Generation\s+\$?\s*([\d,]+\.?\d*)/i);
+  if (ccaGenMatch) {
+    result.ccaGeneration = parseFloat(ccaGenMatch[1].replace(/,/g, ''));
+  }
+
+  const ytdNetMatch = text.match(/YTD Net Metering Charges\/Credits\s+\$?\s*([\d,]+\.?\d*)/i);
+  if (ytdNetMatch) {
+    result.ytdNetMetering = parseFloat(ytdNetMatch[1].replace(/,/g, ''));
+  }
+
+  const ytdNbcMatch = text.match(/Non-Bypassable Charges\s+\$?\s*([\d,]+\.?\d*)/i);
+  if (ytdNbcMatch) {
+    result.ytdNbc = parseFloat(ytdNbcMatch[1].replace(/,/g, ''));
+  }
+
+  result.thermHistory = parseThermHistory(text);
 
   // Total kWh (from usage history or summary)
   const kwhMatch = text.match(/(\d+)\s+kWh used/) || text.match(/Total Usage:\s*(\d+)/);
@@ -282,33 +316,109 @@ export function parseSDGEBillText(text) {
 }
 
 /**
- * Extract NEM "Payment Received" rows from the account-summary window.
- * Real bills do not contain "NEM Year-to-Date Balance"; they continue onto the
- * next page. Bound the window by "Continued", "Gas Usage", or "Current Account Balance".
+ * Parse the Net Metering Account Summary, including the page-2 continuation.
+ * Real wording:
+ *   Previous NEM YTD Balance $354.22
+ *   Payment 8/21 −$354.22   (PDF.js often reconstructs "Payment Received 8/21/26 THANK YOU - 354.22")
+ *   Excess Credit Transfer −$16.28
+ *   Current Charges +$461.99
+ *   Current Account Balance $445.71
+ * Do not bound the window at "Continued" — Excess Credit Transfer and Current Charges
+ * sit on the next page.
+ * @param {string} text
+ * @returns {{payments: Array<{date: string, amount: number}>, previousNemYtd: number|null, excessCreditTransfer: number|null, currentNemCharges: number|null}}
+ */
+function parseNemAccountSummary(text) {
+  const empty = {
+    payments: [],
+    previousNemYtd: null,
+    excessCreditTransfer: null,
+    currentNemCharges: null
+  };
+  const startMatch = text.match(/Net Metering Account Summary|Previous NEM YTD Balance/i);
+  if (!startMatch) return empty;
+
+  let window = text.slice(startMatch.index, startMatch.index + 2500);
+  const endMatch = window.match(
+    /\n(?:Summary of Current Charges|Your Electricity Dashboard|Net Energy Metering Summary|Detail of Current Charges|Time of Use\s*[-–—])/i
+  );
+  if (endMatch && endMatch.index > 80) {
+    window = window.slice(0, endMatch.index);
+  }
+
+  const previousMatch = window.match(/Previous NEM YTD Balance\s+\$?\s*([\d,]+\.?\d*)/i);
+  const previousNemYtd = previousMatch ? parseFloat(previousMatch[1].replace(/,/g, '')) : null;
+
+  const ectMatch = window.match(/Excess Credit Transfer\s+[-−]?\s*\$?\s*([\d,]+\.?\d*)/i);
+  const excessCreditTransfer = ectMatch ? parseFloat(ectMatch[1].replace(/,/g, '')) : null;
+
+  const chargesMatch = window.match(/Current Charges\s+[+]?\s*\$?\s*([\d,]+\.?\d*)/i);
+  const currentNemCharges = chargesMatch ? parseFloat(chargesMatch[1].replace(/,/g, '')) : null;
+
+  const payments = [];
+  const seen = new Set();
+  const pushPayment = (dateRaw, amountRaw) => {
+    const date = normalizeDate(dateRaw);
+    const amount = parseFloat(String(amountRaw).replace(/,/g, ''));
+    if (!date || !Number.isFinite(amount)) return;
+    const key = `${date}:${amount.toFixed(2)}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    payments.push({ date, amount });
+  };
+
+  // Invented/PDF.js phrase: "Payment Received 8/21/26 THANK YOU - 354.22"
+  const receivedRegex = /Payment Received\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\s+[A-Z\s]+\s+[-−]?\s*\$?\s*([\d,]+\.?\d*)/g;
+  let paymentMatch;
+  while ((paymentMatch = receivedRegex.exec(window)) !== null) {
+    pushPayment(paymentMatch[1], paymentMatch[2]);
+  }
+
+  // Real printed wording: "Payment 8/21 −$354.22" (year optional)
+  const shortRegex = /Payment\s+(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)\s+[-−]\s*\$?\s*([\d,]+\.?\d*)/g;
+  while ((paymentMatch = shortRegex.exec(window)) !== null) {
+    let dateRaw = paymentMatch[1];
+    if (!dateRaw.includes('/', dateRaw.indexOf('/') + 1)) {
+      const yearMatch = text.match(/DATE MAILED\s+\w+\s+\d{1,2},\s+(\d{4})/i)
+        || text.match(/Bill Date:\s*\w+\s+\d{1,2},\s+(\d{4})/i)
+        || text.match(/True-Up Date:\s*\d{1,2}\/\d{1,2}\/(\d{4})/);
+      const year = yearMatch ? yearMatch[1].slice(-2) : '26';
+      dateRaw = `${dateRaw}/${year}`;
+    }
+    pushPayment(dateRaw, paymentMatch[2]);
+  }
+
+  return { payments, previousNemYtd, excessCreditTransfer, currentNemCharges };
+}
+
+/**
+ * Extract NEM payments from the account-summary window.
  * @param {string} text
  * @returns {Array<{date: string, amount: number}>}
  */
 function parseNemPaymentHistory(text) {
-  const payments = [];
-  const startMatch = text.match(/Net Metering Account Summary|Previous NEM YTD Balance/i);
-  if (!startMatch) return payments;
+  return parseNemAccountSummary(text).payments;
+}
 
-  const startIdx = startMatch.index;
-  let window = text.slice(startIdx, startIdx + 300);
-  const endMatch = window.match(/Continued|Gas Usage|Current Account Balance/i);
-  if (endMatch && endMatch.index > 0) {
-    window = window.slice(0, endMatch.index);
-  }
-
-  const paymentRegex = /Payment Received\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\s+[A-Z\s]+\s+[-−]?\s*\$?\s*([\d,]+\.?\d*)/g;
-  let paymentMatch;
-  while ((paymentMatch = paymentRegex.exec(window)) !== null) {
-    payments.push({
-      date: normalizeDate(paymentMatch[1]),
-      amount: parseFloat(paymentMatch[2].replace(/,/g, ''))
+/**
+ * Parse a gas therm history chart when present (13-month usage).
+ * @param {string} text
+ * @returns {Array<{date: string|null, therms: number}>}
+ */
+function parseThermHistory(text) {
+  const history = [];
+  const sectionMatch = text.match(/Gas Usage(?: History| Chart)?[\s\S]{0,2000}/i);
+  if (!sectionMatch) return history;
+  const section = sectionMatch[0];
+  const rowPattern = /(\d{1,2}\/\d{1,2}\/\d{2,4})\s+(\d+(?:\.\d+)?)\s*Therms/gi;
+  let match;
+  while ((match = rowPattern.exec(section)) !== null) {
+    history.push({
+      date: normalizeDate(match[1]),
+      therms: parseFloat(match[2])
     });
   }
-  return payments;
+  return history;
 }
 
 /**
@@ -396,78 +506,129 @@ export function stripPersonalInfo(text) {
   return cleaned;
 }
 
+function amountsMatch(a, b, tolerance = 0.51) {
+  if (a == null || b == null) return false;
+  const n = Number(a);
+  const m = Number(b);
+  if (!Number.isFinite(n) || !Number.isFinite(m)) return false;
+  return Math.abs(n - m) <= tolerance;
+}
+
 /**
- * Detect if customer pays NEM charges monthly vs banking credits
+ * Detect if customer pays NEM charges monthly vs banking credits.
+ * Monthly-payer pattern: a payment equal to the previous NEM YTD balance
+ * (they paid off last cycle's YTD, so the printed balance is this cycle only).
  * @param {Object} parsedData - Parsed bill data with nemPaymentHistory
  * @returns {Object} { paysMonthly: boolean, confidence: 'high'|'medium'|'low'|'unknown', reasoning: string }
  */
 export function detectNEMPaymentPattern(parsedData) {
-  if (!parsedData.hasSolar || !parsedData.nemPaymentHistory || parsedData.nemPaymentHistory.length === 0) {
+  if (!parsedData.hasSolar) {
+    return {
+      paysMonthly: null,
+      confidence: 'unknown',
+      reasoning: 'Not a solar/NEM account'
+    };
+  }
+
+  const payments = parsedData.nemPaymentHistory || [];
+  const previous = parsedData.previousNemYtd;
+
+  if (payments.length === 0) {
     return {
       paysMonthly: null,
       confidence: 'unknown',
       reasoning: 'No payment history available'
     };
   }
-  
-  // If there are recent NEM payments, customer likely pays monthly
-  const payments = parsedData.nemPaymentHistory;
-  
-  if (payments.length >= 1) {
-    // Check if payments are roughly equal to or close to charges
-    // If customer pays monthly, payments should be regular
+
+  const matching = payments.find((p) => amountsMatch(p.amount, previous));
+  if (matching) {
     return {
       paysMonthly: true,
       confidence: 'high',
-      reasoning: `Found ${payments.length} NEM payment(s) in history. Customer appears to pay monthly rather than banking credits until true-up.`
+      reasoning: `Payment of $${matching.amount.toFixed(2)} equals the previous NEM YTD balance of $${Number(previous).toFixed(2)}. This paid off the prior balance; the printed YTD is this cycle's unpaid charges.`
     };
   }
-  
+
   return {
-    paysMonthly: null,
-    confidence: 'unknown',
-    reasoning: 'Unable to determine payment pattern'
+    paysMonthly: true,
+    confidence: 'medium',
+    reasoning: `Found ${payments.length} NEM payment(s), but none equal the previous NEM YTD balance${previous != null ? ` ($${Number(previous).toFixed(2)})` : ''}. Treating as a monthly payer with lower confidence.`
   };
 }
 
 /**
- * Calculate estimated true-up bill amount
+ * Last-cycle NEM charges for a monthly payer (SDG&E delivery + CCA generation).
+ * Prefers the printed "Current Charges" line; otherwise the unpaid YTD (which is
+ * this cycle when they just paid off the previous balance).
+ */
+function lastCycleCharges(parsedData) {
+  if (parsedData.currentNemCharges != null && Number.isFinite(Number(parsedData.currentNemCharges))) {
+    return Number(parsedData.currentNemCharges);
+  }
+  if (parsedData.nemBalance != null && Number.isFinite(Number(parsedData.nemBalance))) {
+    return Number(parsedData.nemBalance);
+  }
+  return null;
+}
+
+/**
+ * Calculate estimated true-up bill amount.
+ * Monthly payers: true-up ≈ current unpaid NEM YTD carried forward
+ * + remaining cycles until true-up − payments after this statement.
+ * If they keep paying each statement in full, that collapses to about
+ * the final cycle's charges ≈ last cycle's charges.
+ * Do NOT subtract the payment that zeroed the previous YTD from the
+ * current printed balance (that double-counts a payment already applied).
  * @param {Object} parsedData - Parsed bill data
  * @param {boolean} paysMonthly - Whether customer pays monthly (from detectNEMPaymentPattern or user input)
  * @returns {Object} { estimatedAmount: number, reasoning: string }
  */
 export function calculateTrueUpAmount(parsedData, paysMonthly) {
-  if (!parsedData.hasSolar || !parsedData.nemBalance) {
+  if (!parsedData.hasSolar || parsedData.nemBalance == null) {
     return {
       estimatedAmount: null,
       reasoning: 'Not a solar/NEM account'
     };
   }
-  
+
+  const cycleCharges = lastCycleCharges(parsedData);
+  const previous = parsedData.previousNemYtd;
+  const payment = (parsedData.nemPaymentHistory || [])[0];
+
   if (paysMonthly === true) {
-    // Customer pays monthly - true-up is only unbilled charges since last bill
-    // Estimate: current month's charges, which is roughly (current balance - sum of recent payments)
-    const currentBalance = parsedData.nemBalance;
-    const recentPayments = parsedData.nemPaymentHistory.reduce((sum, p) => sum + p.amount, 0);
-    const unbilledAmount = currentBalance - recentPayments;
-    
+    const amount = cycleCharges != null ? Math.max(0, cycleCharges) : null;
+    const cycleLabel = amount != null ? `$${amount.toFixed(2)}` : 'a normal monthly bill';
+    let paidBit = '';
+    if (previous != null && payment) {
+      const paidDate = formatPaymentShortDate(payment.date);
+      paidBit = ` Previous balance $${Number(previous).toFixed(2)} paid ${paidDate}; this cycle's charges ${cycleLabel}.`;
+    }
     return {
-      estimatedAmount: Math.max(0, unbilledAmount),
-      reasoning: `Customer pays monthly. True-up bill is only unbilled charges (~$${Math.round(unbilledAmount)}), not the full printed balance of $${Math.round(currentBalance)}.`
+      estimatedAmount: amount,
+      lastCycleCharges: amount,
+      previousNemYtd: previous,
+      currentNemCharges: parsedData.currentNemCharges,
+      reasoning: `About the size of a normal monthly bill (≈ your last cycle's charges, ${cycleLabel}) if you keep paying each statement in full.${paidBit}`
     };
   } else if (paysMonthly === false) {
-    // Customer banks credits - true-up is the full balance
     return {
       estimatedAmount: parsedData.nemBalance,
       reasoning: `Customer banks credits. True-up bill is the full printed balance of $${Math.round(parsedData.nemBalance)}.`
     };
   } else {
-    // Unknown - show both scenarios
+    const monthlyGuess = cycleCharges != null ? cycleCharges : parsedData.nemBalance * 0.2;
     return {
       estimatedAmount: null,
-      reasoning: `Unable to determine payment pattern. True-up bill could be either the full balance ($${Math.round(parsedData.nemBalance)}) if you bank credits, or only the unbilled final period charges (~$${Math.round(parsedData.nemBalance * 0.2)}) if you pay monthly.`
+      reasoning: `Unable to determine payment pattern. True-up bill could be either the full balance ($${Math.round(parsedData.nemBalance)}) if you bank credits, or about the size of a normal monthly bill (≈ $${Math.round(monthlyGuess)}) if you pay each statement in full.`
     };
   }
+}
+
+function formatPaymentShortDate(isoDate) {
+  if (!isoDate || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return isoDate || '';
+  const [, month, day] = isoDate.split('-');
+  return `${Number(month)}/${Number(day)}`;
 }
 
 /**
