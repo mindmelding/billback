@@ -4,6 +4,23 @@ Cut your SDG&E bill, with the paperwork done for you. Upload your SDG&E bills, g
 
 **Status:** MVP development (Oct 2026). Client-side processing, savings engine, opt-out timing, and calendar export complete. Nothing is live yet.
 
+## 🚀 Quick Start (Use Today!)
+
+The ready-to-use static build is in `dist/`. To use it right now:
+
+```bash
+cd dist
+python3 -m http.server 8000
+# Open http://localhost:8000 in your browser
+```
+
+See `dist/README.md` for full instructions and deployment options.
+
+**Raw file URL (for download, not direct use):**
+```
+https://raw.githubusercontent.com/mindmelding/billback/cursor/single-file-build-e2e-67c4/dist/index.html
+```
+
 ## Core Architecture: 100% Client-Side
 
 **Your bill data never leaves your device.** Everything runs in your browser:
