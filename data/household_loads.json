@@ -1,0 +1,82 @@
+[
+ {
+  "load": "Central AC (3\u20134 ton)",
+  "energy": "2\u20133 kWh per hot hour",
+  "best_window": "Pre-cool before 4 pm",
+  "shiftable": "Partly",
+  "saved_per_use": 1.32,
+  "uses_per_month": 25
+ },
+ {
+  "load": "Electric dryer",
+  "energy": "3 kWh a load",
+  "best_window": "Before 2 pm or after midnight",
+  "shiftable": "Yes",
+  "saved_per_use": 1.53,
+  "uses_per_month": 17
+ },
+ {
+  "load": "Dishwasher",
+  "energy": "1.2 kWh a cycle",
+  "best_window": "After midnight",
+  "shiftable": "Yes",
+  "saved_per_use": 0.61,
+  "uses_per_month": 22
+ },
+ {
+  "load": "Washer (cold)",
+  "energy": "0.25 kWh a load",
+  "best_window": "Off-peak",
+  "shiftable": "Yes",
+  "saved_per_use": 0.13,
+  "uses_per_month": 17
+ },
+ {
+  "load": "Electric oven",
+  "energy": "2\u20132.5 kWh an hour",
+  "best_window": "Microwave or air fryer at 4\u20139 pm",
+  "shiftable": "Swap",
+  "saved_per_use": 1.34,
+  "uses_per_month": 8
+ },
+ {
+  "load": "Dehumidifier",
+  "energy": "0.5 kWh an hour",
+  "best_window": "Super off-peak",
+  "shiftable": "Yes",
+  "saved_per_use": 0.77,
+  "uses_per_month": 15
+ },
+ {
+  "load": "Fridge",
+  "energy": "1\u20131.5 kWh a day",
+  "best_window": "Can't shift (battery only)",
+  "shiftable": "No",
+  "saved_per_use": 0,
+  "uses_per_month": 0
+ },
+ {
+  "load": "Gaming PC + TV",
+  "energy": "0.5\u20130.8 kWh an hour",
+  "best_window": "Battery only",
+  "shiftable": "No",
+  "saved_per_use": 0,
+  "uses_per_month": 0
+ },
+ {
+  "load": "EV charging (Level 2)",
+  "energy": "7.2 kWh an hour",
+  "best_window": "Midnight\u20136 am",
+  "shiftable": "Yes",
+  "saved_per_use": 5.1,
+  "uses_per_month": 30
+ },
+ {
+  "load": "Pool pump",
+  "energy": "1.2 kWh an hour",
+  "best_window": "10 am\u20132 pm",
+  "shiftable": "Yes",
+  "saved_per_use": 1.02,
+  "uses_per_month": 30
+ }
+]

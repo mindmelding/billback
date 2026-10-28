@@ -1,0 +1,26 @@
+[
+ {
+  "option": "SDG&E power (what the bill says SDG&E would charge)",
+  "key": "sdge",
+  "generation": 156.01,
+  "exit_fee": 0.0,
+  "total": 156.01,
+  "basis": "bill"
+ },
+ {
+  "option": "CEA Clean Impact Plus (what you paid)",
+  "key": "cea_plus",
+  "generation": 243.83,
+  "exit_fee": 16.44,
+  "total": 260.27,
+  "basis": "bill"
+ },
+ {
+  "option": "CEA Clean Impact (opt-down, with 2026 relief credit)",
+  "key": "cea_basic",
+  "generation": 219.05,
+  "exit_fee": 16.44,
+  "total": 235.49,
+  "basis": "estimate"
+ }
+]

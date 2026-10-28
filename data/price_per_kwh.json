@@ -1,0 +1,50 @@
+[
+ {
+  "id": "Su-On-peak",
+  "season": "Summer",
+  "period": "On-peak",
+  "hours": "4\u20139 pm daily",
+  "cea": 0.891,
+  "sdge": 0.67
+ },
+ {
+  "id": "Su-Off-peak",
+  "season": "Summer",
+  "period": "Off-peak",
+  "hours": "Most other hours",
+  "cea": 0.56,
+  "sdge": 0.443
+ },
+ {
+  "id": "Su-Super off-peak",
+  "season": "Summer",
+  "period": "Super off-peak",
+  "hours": "Weekdays 12\u20136 am & 10 am\u20132 pm; weekends 12 am\u20132 pm",
+  "cea": 0.386,
+  "sdge": 0.353
+ },
+ {
+  "id": "Wi-On-peak",
+  "season": "Winter",
+  "period": "On-peak",
+  "hours": "4\u20139 pm daily",
+  "cea": 0.537,
+  "sdge": 0.594
+ },
+ {
+  "id": "Wi-Off-peak",
+  "season": "Winter",
+  "period": "Off-peak",
+  "hours": "Most other hours",
+  "cea": 0.422,
+  "sdge": 0.51
+ },
+ {
+  "id": "Wi-Super off-peak",
+  "season": "Winter",
+  "period": "Super off-peak",
+  "hours": "Weekdays 12\u20136 am & 10 am\u20132 pm; weekends 12 am\u20132 pm",
+  "cea": 0.389,
+  "sdge": 0.416
+ }
+]

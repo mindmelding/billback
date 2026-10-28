@@ -1,0 +1,65 @@
+[
+ {
+  "id": "Weekdays-12:30 pm",
+  "days": "Weekdays",
+  "time": "12:30 pm",
+  "setpoint_f": 73,
+  "price_window": "Super off-peak"
+ },
+ {
+  "id": "Weekdays-2:00 pm",
+  "days": "Weekdays",
+  "time": "2:00 pm",
+  "setpoint_f": 72,
+  "price_window": "Off-peak"
+ },
+ {
+  "id": "Weekdays-4:00 pm",
+  "days": "Weekdays",
+  "time": "4:00 pm",
+  "setpoint_f": 78,
+  "price_window": "On-peak"
+ },
+ {
+  "id": "Weekdays-6:00 pm",
+  "days": "Weekdays",
+  "time": "6:00 pm",
+  "setpoint_f": 80,
+  "price_window": "On-peak"
+ },
+ {
+  "id": "Weekdays-9:00 pm",
+  "days": "Weekdays",
+  "time": "9:00 pm",
+  "setpoint_f": 76,
+  "price_window": "Off-peak"
+ },
+ {
+  "id": "Weekends-12:30 pm",
+  "days": "Weekends",
+  "time": "12:30 pm",
+  "setpoint_f": 72,
+  "price_window": "Super off-peak"
+ },
+ {
+  "id": "Weekends-4:00 pm",
+  "days": "Weekends",
+  "time": "4:00 pm",
+  "setpoint_f": 78,
+  "price_window": "On-peak"
+ },
+ {
+  "id": "Weekends-6:00 pm",
+  "days": "Weekends",
+  "time": "6:00 pm",
+  "setpoint_f": 80,
+  "price_window": "On-peak"
+ },
+ {
+  "id": "Weekends-9:00 pm",
+  "days": "Weekends",
+  "time": "9:00 pm",
+  "setpoint_f": 76,
+  "price_window": "Off-peak"
+ }
+]

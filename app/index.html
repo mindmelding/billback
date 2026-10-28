@@ -1,0 +1,655 @@
+<title>Power Bill Action Pack</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: Linear-style app shell. Sidebar nav, header, metric strip, issue list on the left, detail pane on the right. White, single light theme. */
+:root {
+  --bg: #ffffff;
+  --panel: #fbfbfc;
+  --line: #e9e9ee;
+  --line-strong: #dcdce3;
+  --fg: #1b1b22;
+  --fg-2: #5d5d6c;
+  --fg-3: #8b8b99;
+  --accent: #5e6ad2;
+  --accent-soft: #eef0fb;
+  --ok: #2f8a4f;
+  --ok-soft: #e9f6ee;
+  --warn: #b26a00;
+  --warn-soft: #fdf3e2;
+  --bad: #c2413a;
+  --bad-soft: #fcecea;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --r: 6px;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 13px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.app { display: grid; grid-template-columns: 216px minmax(0, 1fr); min-height: 100vh; }
+.side { border-right: 1px solid var(--line); background: var(--panel); padding-block: 14px; padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: 12px; display: flex; flex-direction: column; gap: 18px; }
+.ws { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; padding: 4px 6px; }
+.ws-logo { width: 20px; height: 20px; border-radius: 5px; background: var(--accent); display: grid; place-items: center; color: var(--bg); font-size: 11px; font-weight: 600; }
+.nav { display: flex; flex-direction: column; gap: 1px; }
+.nav-h { font-size: 11px; color: var(--fg-3); padding: 0 6px 4px; font-weight: 500; }
+.nav a { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 6px; border-radius: 5px; color: var(--fg-2); text-decoration: none; }
+.nav a:hover { background: var(--line); color: var(--fg); }
+.nav a.on { background: var(--line); color: var(--fg); font-weight: 500; }
+.nav .ct { font-size: 11px; color: var(--fg-3); font-variant-numeric: tabular-nums; }
+.side-foot { margin-top: auto; font-size: 11px; color: var(--fg-3); padding: 0 6px; }
+
+.main { min-width: 0; display: flex; flex-direction: column; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); padding-block: 10px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); flex-wrap: wrap; }
+.crumbs { display: flex; align-items: center; gap: 6px; color: var(--fg-2); min-width: 0; flex-wrap: wrap; }
+.crumbs b { color: var(--fg); font-weight: 500; }
+.crumbs .sep { color: var(--fg-3); }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { border: 1px solid var(--line-strong); border-radius: 999px; padding: 1px 8px; font-size: 11.5px; color: var(--fg-2); white-space: nowrap; }
+
+.body { padding-block: 20px 40px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 22px; }
+.hd h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; }
+.hd p { margin: 4px 0 0; color: var(--fg-2); max-width: 70ch; }
+
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: var(--r); }
+.metric { padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.metric + .metric { border-left: 1px solid var(--line); }
+.metric .k { font-size: 11.5px; color: var(--fg-3); }
+.metric .v { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.metric .s { font-size: 11.5px; color: var(--fg-2); }
+.v.ok { color: var(--ok); } .v.bad { color: var(--bad); }
+
+.ba { border: 1px solid var(--line); border-radius: var(--r); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sec-h h2 { margin: 0; font-size: 13px; font-weight: 600; }
+.sec-h span { font-size: 11.5px; color: var(--fg-3); }
+.bar-row { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) 6.5rem; gap: 12px; align-items: center; }
+.bar-row .lbl { color: var(--fg-2); min-width: 0; }
+.bar-row .lbl b { color: var(--fg); font-weight: 500; }
+.track { height: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 3px; position: relative; overflow: hidden; }
+.fill { position: absolute; inset: 0 auto 0 0; border-radius: 2px; }
+.fill.range { background: repeating-linear-gradient(90deg, var(--ok) 0 3px, transparent 3px 6px); opacity: .55; }
+.bar-row .amt { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; white-space: nowrap; }
+
+.work { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); border: 1px solid var(--line); border-radius: var(--r); min-height: 560px; }
+.list { border-right: 1px solid var(--line); min-width: 0; }
+.list-h { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--panel); font-size: 11.5px; color: var(--fg-2); gap: 8px; flex-wrap: wrap; border-top-left-radius: var(--r); }
+.filters { display: flex; gap: 4px; flex-wrap: wrap; }
+.filters button { font: inherit; font-size: 11.5px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--fg-2); border-radius: 5px; padding: 2px 8px; cursor: pointer; }
+.filters button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.grp { font-size: 11.5px; color: var(--fg-2); padding: 8px 12px 4px; display: flex; gap: 6px; align-items: center; font-weight: 500; }
+.row { width: 100%; text-align: left; font: inherit; color: inherit; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 9px 12px; display: grid; grid-template-columns: 3.4rem 14px minmax(0, 1fr) auto; gap: 10px; align-items: center; cursor: pointer; }
+.row:hover { background: var(--panel); }
+.row[aria-selected="true"] { background: var(--accent-soft); }
+.row:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.row .id { color: var(--fg-3); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.row .t { min-width: 0; }
+.row .t b { display: block; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .t span { color: var(--fg-3); font-size: 11.5px; }
+.row .sv { font-variant-numeric: tabular-nums; color: var(--ok); font-weight: 500; white-space: nowrap; font-size: 12px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--fg-3); }
+.dot.ready { border-color: var(--accent); background: conic-gradient(var(--accent) 0 75%, transparent 0); }
+.dot.you { border-color: var(--warn); background: conic-gradient(var(--warn) 0 50%, transparent 0); }
+.dot.opt { border-style: dashed; }
+.dot.done { border-color: var(--ok); background: var(--ok); }
+
+.detail { min-width: 0; display: flex; flex-direction: column; }
+.d-h { padding: 14px 18px 12px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
+.d-id { color: var(--fg-3); font-size: 11.5px; }
+.d-h h3 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; }
+.props { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line-strong); border-radius: 5px; padding: 1px 7px; font-size: 11.5px; color: var(--fg-2); white-space: nowrap; }
+.pill.ready { color: var(--accent); border-color: #cdd1f3; background: var(--accent-soft); }
+.pill.you { color: var(--warn); border-color: #f1d9ad; background: var(--warn-soft); }
+.pill.ok { color: var(--ok); border-color: #c4e5cf; background: var(--ok-soft); }
+.d-b { padding: 16px 18px 20px; display: flex; flex-direction: column; gap: 16px; }
+.d-b h4 { margin: 0 0 6px; font-size: 11.5px; font-weight: 600; color: var(--fg-2); text-transform: uppercase; letter-spacing: .04em; }
+.d-b p { margin: 0; color: var(--fg-2); max-width: 64ch; }
+.checks { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.checks li { display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 8px; color: var(--fg); }
+.checks li::before { content: ""; width: 12px; height: 12px; margin-top: 3px; border-radius: 3px; background: var(--accent-soft); border: 1px solid #cdd1f3; }
+.checks.you li::before { background: var(--warn-soft); border-color: #f1d9ad; }
+.form { border: 1px solid var(--line); border-radius: var(--r); background: var(--panel); }
+.form-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--line); font-size: 11.5px; color: var(--fg-2); flex-wrap: wrap; }
+.field { display: grid; grid-template-columns: minmax(0, 10rem) minmax(0, 1fr); gap: 10px; padding: 7px 10px; border-bottom: 1px solid var(--line); align-items: center; }
+.field:last-child { border-bottom: 0; }
+.field label, .field .fl { color: var(--fg-3); font-size: 12px; }
+.field .fv { color: var(--fg); font-variant-numeric: tabular-nums; min-width: 0; overflow-wrap: anywhere; }
+.field .fv .auto { font-size: 10.5px; color: var(--accent); margin-left: 6px; }
+select, input[type=number], input[type=text], textarea { font: inherit; font-size: 12.5px; color: var(--fg); background: var(--bg); border: 1px solid var(--line-strong); border-radius: 5px; padding: 4px 8px; width: 100%; max-width: 20rem; }
+textarea { max-width: none; min-height: 9.5rem; resize: vertical; line-height: 1.5; }
+.script { white-space: pre-wrap; padding: 10px 12px; font-size: 12.5px; color: var(--fg); margin: 0; font-family: var(--font); }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.btn { font: inherit; font-size: 12.5px; font-weight: 500; border-radius: 6px; padding: 5px 12px; cursor: pointer; border: 1px solid var(--line-strong); background: var(--bg); color: var(--fg); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.btn:hover { filter: brightness(0.97); }
+.copied { font-size: 11.5px; color: var(--ok); }
+.warn { border: 1px solid #f1d9ad; background: var(--warn-soft); color: #6d4300; border-radius: var(--r); padding: 8px 10px; font-size: 12px; }
+.result { border-radius: var(--r); padding: 8px 10px; font-size: 12.5px; border: 1px solid var(--line); }
+.result.ok { background: var(--ok-soft); border-color: #c4e5cf; color: #1f5e36; }
+.result.no { background: var(--panel); color: var(--fg-2); }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tabs button { font: inherit; font-size: 12px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--fg-2); border-radius: 5px; padding: 3px 10px; cursor: pointer; }
+.tabs button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.sched { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.sched th, .sched td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+.sched th { color: var(--fg-3); font-weight: 500; font-size: 11.5px; }
+.foot { color: var(--fg-3); font-size: 11.5px; max-width: 80ch; }
+
+@media (max-width: 980px) {
+  .work { grid-template-columns: minmax(0, 1fr); }
+  .list { border-right: 0; border-bottom: 1px solid var(--line); }
+  .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .metric:nth-child(3) { border-left: 0; }
+  .metric:nth-child(n+3) { border-top: 1px solid var(--line); }
+}
+@media (max-width: 760px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .side { display: none; }
+  .bar-row { grid-template-columns: minmax(0, 1fr) 5.5rem; }
+  .bar-row .track { grid-column: 1 / -1; grid-row: 2; }
+  .field { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+@media (max-width: 420px) {
+  .metrics { grid-template-columns: minmax(0, 1fr); }
+  .metric + .metric { border-left: 0; border-top: 1px solid var(--line); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fill { transition: width .5s cubic-bezier(.2,.7,.2,1); }
+}
+
+.viz { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); border: 1px solid var(--line); border-radius: var(--r); }
+.viz-main { padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.viz-side { padding: 16px; border-left: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.wf, .yr, .mo { position: relative; width: 100%; }
+.wf svg, .yr svg, .mo svg { display: block; width: 100%; height: auto; overflow: visible; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--fg-2); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.legend i.hatch { background: repeating-linear-gradient(135deg, var(--ok) 0 2px, transparent 2px 4px); border: 1px solid var(--ok); }
+.yr-big { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; color: var(--ok); font-variant-numeric: tabular-nums; }
+.vtip { position: absolute; pointer-events: none; background: var(--bg); border: 1px solid var(--line-strong); border-radius: 6px; padding: 4px 8px; font-size: 11.5px; box-shadow: 0 4px 14px rgba(20,20,40,.08); white-space: nowrap; opacity: 0; transition: opacity .12s; }
+.vtip b { font-weight: 600; }
+.builder { display: grid; gap: 8px; }
+@media (max-width: 980px) { .viz { grid-template-columns: minmax(0, 1fr); } .viz-side { border-left: 0; border-top: 1px solid var(--line); } }
+</style>
+
+<div class="app">
+  <aside class="side" aria-label="Navigation">
+    <div class="ws"><span class="ws-logo">B</span>Bill Savings</div>
+    <nav class="nav">
+      <div class="nav-h">Household</div>
+      <a href="#overview" class="on">Overview</a>
+      <a href="#actions">Action pack <span class="ct" id="nav-count">9</span></a>
+    </nav>
+    <nav class="nav">
+      <div class="nav-h">Views</div>
+      <a href="#actions" data-filter-link="ready">Ready for you <span class="ct" id="nav-ready">–</span></a>
+      <a href="#actions" data-filter-link="you">Needs a call or signature <span class="ct" id="nav-you">–</span></a>
+      <a href="#actions" data-filter-link="opt">Optional <span class="ct" id="nav-opt">–</span></a>
+    </nav>
+    <div class="side-foot">From the Sep 2, 2026 SDG&amp;E bill and published 2026 rates. Estimates are marked.</div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <div class="crumbs"><span>Bill Savings</span><span class="sep">/</span><b>Oceanside household</b></div>
+      <div class="tags"><span class="tag">Renters</span><span class="tag">Solar, NEM 2.0</span><span class="tag">TOU-DR1</span><span class="tag">Clean Energy Alliance</span></div>
+    </div>
+
+    <div class="body">
+      <section class="hd" id="overview">
+        <h1>You could cut about $595–870 a year</h1>
+        <p>Most of it comes from leaving Clean Energy Alliance, which cost you $420–460 more this solar year than SDG&amp;E's own power would have. We filled in everything we can. Each action below needs one tap, one signature or one short call from you.</p>
+      </section>
+
+      <section class="viz" aria-labelledby="viz-h">
+        <div class="viz-main">
+          <div class="sec-h"><h2 id="viz-h">Your peak-summer bill, step by step</h2><span>August 2026 · 624 kWh · electric only</span></div>
+          <div class="wf" id="wf" role="img" aria-label="Waterfall chart: today's bill $462, leaving CEA saves $104, thermostat saves $16 to $36, dryer and dishwasher save $13 to $25, fans and plugs save $10 to $24, leaving $273 to $319."></div>
+          <div class="legend"><span><i style="background:var(--bad)"></i>Today</span><span><i style="background:var(--accent)"></i>Provider switch</span><span><i style="background:var(--ok)"></i>Habits</span><span><i class="hatch"></i>Range (estimate)</span></div>
+        </div>
+        <div class="viz-side">
+          <div class="sec-h"><h2>Saved per year</h2><span>Before CARE or FERA</span></div>
+          <div class="yr-big">$595–870</div>
+          <div class="yr" id="yr" role="img" aria-label="Yearly savings: leaving CEA $420 to $460, habits $175 to $410."></div>
+          <div class="sec-h" style="margin-top:14px"><h2>Extra paid to CEA, by month</h2><span>$420–460 this solar year</span></div>
+          <div class="mo" id="mo" role="img" aria-label="Monthly extra paid to CEA: small from November to June, about $100 a month in July and August, September and October estimated."></div>
+        </div>
+      </section>
+
+      <section id="actions" aria-label="Action pack">
+        <div class="work">
+          <div class="list">
+            <div class="list-h">
+              <span>Action pack</span>
+              <div class="filters" role="group" aria-label="Filter actions">
+                <button type="button" data-f="all" aria-pressed="true">All</button>
+                <button type="button" data-f="ready" aria-pressed="false">Ready</button>
+                <button type="button" data-f="you" aria-pressed="false">Needs you</button>
+                <button type="button" data-f="opt" aria-pressed="false">Optional</button>
+              </div>
+            </div>
+            <div id="rows" role="listbox" aria-label="Actions"></div>
+          </div>
+          <div class="detail" id="detail" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <p class="foot">Savings are estimates from one bill and published rates; rates change several times a year. We never switch your provider or sign for you: the final click, call or signature is always yours. Account details stay off this page.</p>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  function sv(tag, attrs, parent) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  function txt(parent, x, y, str, attrs) { var t = sv('text', Object.assign({ x: x, y: y, 'font-size': 11.5, fill: 'var(--fg-2)', 'font-family': 'Inter, sans-serif' }, attrs || {}), parent); t.textContent = str; return t; }
+  function tipFor(box) { var t = box.querySelector('.vtip'); if (!t) { t = document.createElement('div'); t.className = 'vtip'; box.appendChild(t); } return t; }
+  function hover(box, node, html) {
+    var t = tipFor(box);
+    node.addEventListener('mousemove', function (ev) {
+      t.replaceChildren(); html.forEach(function (line, i) { var d = document.createElement('div'); if (i === 0) { var bb = document.createElement('b'); bb.textContent = line; d.appendChild(bb); } else d.textContent = line; t.appendChild(d); });
+      var r = box.getBoundingClientRect(); var x = ev.clientX - r.left + 12, y = ev.clientY - r.top - 36;
+      t.style.left = Math.max(0, Math.min(x, box.clientWidth - t.offsetWidth)) + 'px'; t.style.top = Math.max(0, y) + 'px'; t.style.opacity = 1;
+    });
+    node.addEventListener('mouseleave', function () { t.style.opacity = 0; });
+  }
+  function hatchDefs(svg) {
+    var d = sv('defs', {}, svg);
+    var p = sv('pattern', { id: 'hatch', width: 5, height: 5, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, d);
+    sv('rect', { width: 5, height: 5, fill: 'var(--ok-soft)' }, p);
+    sv('line', { x1: 0, y1: 0, x2: 0, y2: 5, stroke: 'var(--ok)', 'stroke-width': 2 }, p);
+  }
+  var money = function (v) { return '$' + Math.round(v); };
+  var range = function (lo, hi) { return lo === hi ? money(lo) : money(lo) + '–' + Math.round(hi); };
+
+  // Waterfall: each step is [label, low saving, high saving, kind]
+  var STEPS = [
+    { label: 'Today', sub: 'CEA Plus', total: 462, kind: 'bad' },
+    { label: 'Leave CEA', sub: 'SDG&E power', lo: 104, hi: 104, kind: 'accent' },
+    { label: 'Thermostat', sub: 'Pre-cool', lo: 16, hi: 36, kind: 'ok' },
+    { label: 'Dryer & dishes', sub: 'Off-peak', lo: 13, hi: 25, kind: 'ok' },
+    { label: 'Fans & plugs', sub: 'Blinds, LEDs', lo: 10, hi: 24, kind: 'ok' },
+    { label: 'After', sub: 'Same usage', totalLo: 273, totalHi: 319, kind: 'after' }
+  ];
+  function drawWaterfall() {
+    var box = document.getElementById('wf'); var old = box.querySelector('svg'); if (old) old.remove();
+    var W = Math.max(300, box.clientWidth), H = 260, m = { t: 22, r: 8, b: 40, l: 38 };
+    var svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, width: '100%' }); box.insertBefore(svg, box.firstChild); hatchDefs(svg);
+    var y = function (v) { return m.t + (1 - v / 500) * (H - m.t - m.b); };
+    [0, 100, 200, 300, 400, 500].forEach(function (v) { sv('line', { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: 'var(--line)', 'stroke-width': 1 }, svg); txt(svg, m.l - 6, y(v) + 4, '$' + v, { 'text-anchor': 'end', fill: 'var(--fg-3)', 'font-size': 10.5 }); });
+    var n = STEPS.length, step = (W - m.l - m.r) / n, bw = Math.min(56, step * 0.56);
+    var mid = 462, small = W < 520;
+    STEPS.forEach(function (s, i) {
+      var cx = m.l + step * i + step / 2, x = cx - bw / 2, g = sv('g', {}, svg), tipLines;
+      if (s.kind === 'bad') {
+        sv('rect', { x: x, y: y(s.total), width: bw, height: y(0) - y(s.total), rx: 3, fill: 'var(--bad)' }, g);
+        txt(g, cx, y(s.total) - 7, money(s.total), { 'text-anchor': 'middle', fill: 'var(--fg)', 'font-weight': 600, 'font-size': 12.5 });
+        tipLines = ['Today: $462', 'August electric on CEA Clean Impact Plus'];
+      } else if (s.kind === 'after') {
+        sv('rect', { x: x, y: y(s.totalLo), width: bw, height: y(0) - y(s.totalLo), rx: 3, fill: 'var(--ok)' }, g);
+        sv('rect', { x: x, y: y(s.totalHi), width: bw, height: y(s.totalLo) - y(s.totalHi), fill: 'url(#hatch)', stroke: 'var(--ok)', 'stroke-width': 1 }, g);
+        txt(g, cx, y(s.totalHi) - 7, range(s.totalLo, s.totalHi), { 'text-anchor': 'middle', fill: 'var(--ok)', 'font-weight': 600, 'font-size': 12.5 });
+        tipLines = ['After: $273–319', 'Same month, same usage'];
+      } else {
+        var top = mid, m2 = (s.lo + s.hi) / 2, botHi = mid - s.hi, botLo = mid - s.lo;
+        var color = s.kind === 'accent' ? 'var(--accent)' : 'var(--ok)';
+        sv('rect', { x: x, y: y(top), width: bw, height: Math.max(2, y(botLo) - y(top)), rx: 2, fill: color }, g);
+        if (s.hi > s.lo) sv('rect', { x: x, y: y(botLo), width: bw, height: y(botHi) - y(botLo), fill: 'url(#hatch)', stroke: 'var(--ok)', 'stroke-width': 1 }, g);
+        txt(g, cx, y(botHi) + 14, '−' + range(s.lo, s.hi), { 'text-anchor': 'middle', fill: color, 'font-weight': 600, 'font-size': 11.5 });
+        tipLines = [s.label + ': saves ' + range(s.lo, s.hi), s.kind === 'accent' ? 'From the bill: SDG&E power $156 vs CEA $260' : 'Estimate at SDG&E prices'];
+        mid = mid - m2;
+      }
+      // connector to next bar
+      if (i < n - 1) { var lvl = s.kind === 'bad' ? 462 : mid; sv('line', { x1: x + bw, x2: x + step, y1: y(lvl), y2: y(lvl), stroke: 'var(--fg-3)', 'stroke-dasharray': '2 3', 'stroke-width': 1 }, svg); }
+      txt(g, cx, H - m.b + 16, s.label, { 'text-anchor': 'middle', fill: 'var(--fg)', 'font-weight': 500, 'font-size': small ? 10 : 11.5 });
+      if (!small) txt(g, cx, H - m.b + 30, s.sub, { 'text-anchor': 'middle', fill: 'var(--fg-3)', 'font-size': 10.5 });
+      var hit = sv('rect', { x: m.l + step * i, y: m.t, width: step, height: H - m.t - m.b, fill: 'transparent' }, g);
+      hover(box, hit, tipLines);
+    });
+  }
+  function drawYear() {
+    var box = document.getElementById('yr'); var old = box.querySelector('svg'); if (old) old.remove();
+    var W = Math.max(240, box.clientWidth), H = 64;
+    var svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, width: '100%' }); box.insertBefore(svg, box.firstChild); hatchDefs(svg);
+    var x = function (v) { return v / 900 * W; };
+    sv('rect', { x: 0, y: 8, width: x(440), height: 22, rx: 3, fill: 'var(--accent)' }, svg);
+    sv('rect', { x: x(440), y: 8, width: x(175), height: 22, fill: 'var(--ok)' }, svg);
+    sv('rect', { x: x(615), y: 8, width: x(235), height: 22, fill: 'url(#hatch)', stroke: 'var(--ok)', 'stroke-width': 1 }, svg);
+    txt(svg, 0, 48, 'Leave CEA $420–460', { fill: 'var(--accent)', 'font-weight': 600 });
+    txt(svg, W, 48, 'Habits $175–410', { fill: 'var(--ok)', 'font-weight': 600, 'text-anchor': 'end' });
+    hover(box, svg, ['$595–870 a year', 'Leave CEA $420–460 + habits $175–410']);
+  }
+  var MONTHS = [['N', 3.9], ['D', 4.1], ['J', -0.6], ['F', 7.4], ['M', 5.0], ['A', 11.5], ['M', 9.3], ['J', 17.3], ['J', 101.5], ['A', 104.3], ['S', 99, 1], ['O', 78, 1]];
+  var MNAME = ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
+  function drawMonths() {
+    var box = document.getElementById('mo'); var old = box.querySelector('svg'); if (old) old.remove();
+    var W = Math.max(240, box.clientWidth), H = 110, m = { t: 6, b: 18 };
+    var svg = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, width: '100%' }); box.insertBefore(svg, box.firstChild); hatchDefs(svg);
+    var y = function (v) { return m.t + (1 - v / 110) * (H - m.t - m.b); };
+    var st = W / 12, bw = st * 0.62;
+    sv('line', { x1: 0, x2: W, y1: y(0), y2: y(0), stroke: 'var(--line-strong)' }, svg);
+    MONTHS.forEach(function (d, i) {
+      var x = st * i + (st - bw) / 2, v = Math.max(0, d[1]);
+      var r = sv('rect', { x: x, y: y(v), width: bw, height: Math.max(1.5, y(0) - y(v)), rx: 2, fill: d[2] ? 'url(#hatch)' : (v > 50 ? 'var(--bad)' : 'var(--line-strong)'), stroke: d[2] ? 'var(--bad)' : 'none', 'stroke-width': 1 }, svg);
+      if (d[2]) r.setAttribute('fill', 'var(--bad-soft)');
+      txt(svg, x + bw / 2, H - 4, d[0], { 'text-anchor': 'middle', fill: 'var(--fg-3)', 'font-size': 10 });
+      var hit = sv('rect', { x: st * i, y: 0, width: st, height: H, fill: 'transparent' }, svg);
+      hover(box, hit, [MNAME[i] + (d[2] ? ' (estimate)' : ''), (d[1] < 0 ? '−$' + Math.abs(d[1]).toFixed(0) : '$' + d[1].toFixed(0)) + ' extra on CEA']);
+    });
+  }
+  function drawViz() { drawWaterfall(); drawYear(); drawMonths(); }
+  drawViz();
+  var rz; window.addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(drawViz, 120); });
+
+  var STATUS = { ready: { label: 'Ready: we filled it in', cls: 'ready' }, you: { label: 'Needs your call or signature', cls: 'you' }, opt: { label: 'Optional', cls: 'opt' } };
+  var MASK = '•••• •••• •••• (from your bill)';
+
+  var A = [
+    {
+      id: 'SAV-1', st: 'ready', title: 'Opt down to CEA Clean Impact', sub: 'Prefilled link · 3 taps', save: '$20–25/mo', saveLong: 'About $20–25 per summer month while you stay with CEA',
+      why: 'Clean Impact gets a 3.9¢/kWh relief credit through Dec 31, 2026. Clean Impact Plus, your current tier, does not. It is free and you can switch back any time.',
+      we: ['Your 12-digit SDG&E account number, from your bill', 'Last name as it appears on the bill', 'Service ZIP 92056', 'A link that opens CEA’s form past the first screen'],
+      you: ['Open the prefilled link', 'Pick Clean Impact', 'Tick “I am the account holder” and press Submit'],
+      form: [['Screen 1: SDG&E account number', '12 digits (the bill’s 13-digit number without its last digit; also shown as “CCA Account Number” on page 5)'], ['Screen 1: Last name or business name', 'As printed on the bill'], ['Screen 1: Service ZIP', '92056'], ['Screen 2: Option', 'Clean Impact'], ['Screen 2: Reason', 'Cost (optional)'], ['Screen 2: Email / phone', 'Optional, for the confirmation'], ['Screen 2: Confirm', 'Account-holder checkbox (required, you tick it)']],
+      builder: 'all',
+      link: ['Open CEA opt-down page instead', 'https://thecleanenergyalliance.org/opt-down/']
+    },
+    {
+      id: 'SAV-2', st: 'you', title: 'Return to SDG&E power on May 1, 2027', sub: 'Phone call · 3 minutes', save: '$420–460/yr', saveLong: '$420–460 a year, based on this past year',
+      why: 'CEA charges 55¢/kWh for summer 4–9 pm power vs SDG&E’s 36¢. A solar home buys most of its power then. Giving 6 months’ notice avoids SDG&E’s temporary market rate.',
+      we: ['Call script with your return date', 'Your account number, from your bill', 'The questions to get answered in writing'],
+      you: ['Call CEA at 1-833-232-3110 (Mon–Fri, 8 am–5 pm)', 'Read the script and ask for an email confirmation'],
+      script: 'Hi, I’d like to opt out of Clean Energy Alliance and return to SDG&E bundled service.\n\nAccount number: [from your bill]\nService ZIP: 92056\n\nI’m giving six months’ advance notice, so please set the return for my first meter read on or after May 1, 2027, at SDG&E’s standard bundled rate (not the transitional rate).\n\nPlease confirm by email:\n1. The effective date\n2. That I keep NEM 2.0 and when my new true-up date will be\n3. Any opt-out or re-entry fee\n\nThank you.',
+      warn: 'You commit to 12 months on SDG&E power after the switch, and the switch triggers a solar true-up bill. Moving out ends the account, so the 12 months don’t follow you. CEA’s online opt-out form works too, but it takes effect at the next meter read, which puts you on SDG&E’s temporary rate for 6 months; the call lets you set the May date.'
+    },
+    {
+      id: 'SAV-3', st: 'ready', title: 'Set the summer thermostat schedule', sub: 'Your thermostat app · 5 minutes', save: '$25–55/mo', saveLong: '$25–55 per summer month (estimate)',
+      why: 'Cool the home while power is cheaper, then coast through 4–9 pm when it costs you 89¢/kWh. Close west blinds by 1 pm and run fans in the evening.',
+      we: ['A schedule matched to SDG&E’s price windows', 'Steps for your thermostat brand'],
+      you: ['Pick your thermostat and enter the schedule once'],
+      thermo: true
+    },
+    {
+      id: 'SAV-4', st: 'ready', title: 'Run the dryer and dishwasher off-peak', sub: 'Habit · no setup', save: '$20–39/mo', saveLong: '$20–39 per summer month (estimate)',
+      why: 'A dryer load is about 3 kWh. Moving it from 4–9 pm to before 2 pm or after midnight saves about $1.50 a load at your current prices.',
+      we: ['Best windows for each appliance'],
+      you: ['Use delay start on the dishwasher (after midnight)', 'Dry clothes before 2 pm on weekends or after 9 pm on weekdays'],
+      form: [['Dryer', 'Weekends before 2 pm · weekdays after 9 pm'], ['Dishwasher', 'Delay start to 12 am, air dry'], ['Washer', 'Cold water, any time but 4–9 pm'], ['Avoid', 'Oven, dryer and space heater 4–9 pm']]
+    },
+    {
+      id: 'SAV-5', st: 'you', title: 'Check CARE or FERA', sub: 'Online form · 2 minutes', save: '18–35% off', saveLong: '18–35% off the electric bill if eligible',
+      why: 'Both are SDG&E discounts based on household size and income. FERA also halves the $24 monthly base charge; CARE cuts it to about $6.',
+      we: ['Your eligibility from two answers', 'The form answers, ready to paste'],
+      you: ['Confirm your household income yourself (SDG&E may ask for proof later)'],
+      care: true,
+      link: ['Open SDG&E CARE/FERA form', 'https://www.sdge.com/care']
+    },
+    {
+      id: 'SAV-6', st: 'opt', title: 'Medical Baseline, if anyone needs it', sub: 'Doctor’s signature · 1 visit', save: 'More low-price kWh', saveLong: 'Extra kWh at the lowest price each month',
+      why: 'For households where someone uses medical equipment at home or has certain conditions (for example, needs extra cooling or heating).',
+      we: ['The SDG&E form with your household details filled in'],
+      you: ['Sign it, and have a licensed practitioner sign and send it'],
+      link: ['Open SDG&E Medical Baseline page', 'https://www.sdge.com/medical']
+    },
+    {
+      id: 'SAV-7', st: 'ready', title: 'Comment on SDG&E’s 2028 rate hike', sub: 'CPUC comment page · 2 minutes', save: 'Your say', saveLong: 'Proposal: +8.1% in 2028, about $14/mo on a typical electric bill',
+      why: 'The CPUC takes public comments on application A.26-06-015. Hearings: Nov 10 in Santee; Dec 9–10 by phone and webcast. Comments with your own numbers carry more weight.',
+      we: ['A comment written from your bill’s numbers'],
+      you: ['Edit it so it’s in your words, then submit it under your name'],
+      comment: true,
+      link: ['Open CPUC comment page', 'https://apps.cpuc.ca.gov/c/A2606015']
+    },
+    {
+      id: 'SAV-8', st: 'opt', title: 'Share hourly usage for an exact plan check', sub: 'SDG&E login · 1 minute', save: 'Sharper numbers', saveLong: 'Replaces estimates with your real hourly data',
+      why: 'With 12 months of hourly data we can price every plan exactly and keep watching each bill for errors.',
+      we: ['The analysis and a monthly bill check'],
+      you: ['Log in to SDG&E and approve data sharing (Green Button)'],
+      form: [['What we see', 'Hourly kWh and bills for 12 months'], ['What we can’t do', 'Change your account or pay bills'], ['Stop any time', 'In SDG&E My Account']]
+    },
+    {
+      id: 'SAV-9', st: 'opt', title: 'Ask the landlord to clean the solar panels', sub: 'Email · 1 minute', save: '$3–9/mo', saveLong: '$3–9 per summer month (estimate)',
+      why: 'Dirty panels lose about 3–5% of their output, and you pay for the gap at 4–9 pm prices.',
+      we: ['The email, ready to send'],
+      you: ['Copy it into an email to your landlord'],
+      script: 'Hi,\n\nCould the rooftop solar panels be cleaned and the inverter checked before next summer? Our bills show more power bought from the grid than expected, and dirty panels typically lose 3–5% of output.\n\nHappy to give access whenever works for you.\n\nThanks!'
+    }
+  ];
+
+  var counts = { ready: 0, you: 0, opt: 0 };
+  A.forEach(function (a) { counts[a.st]++; });
+  document.getElementById('nav-ready').textContent = counts.ready;
+  document.getElementById('nav-you').textContent = counts.you;
+  document.getElementById('nav-opt').textContent = counts.opt;
+  document.getElementById('nav-count').textContent = A.length;
+
+  var rowsEl = document.getElementById('rows');
+  var detailEl = document.getElementById('detail');
+  var filter = 'all';
+  var selected = 'SAV-1';
+  var thermoBrand = 'Nest';
+
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  function copyBtn(getText) {
+    var wrap = el('span', 'btns');
+    var b = el('button', 'btn', 'Copy'); b.type = 'button';
+    var msg = el('span', 'copied', '');
+    b.addEventListener('click', function () {
+      var text = getText();
+      var done = function () { msg.textContent = 'Copied'; setTimeout(function () { msg.textContent = ''; }, 1600); };
+      try {
+        navigator.clipboard.writeText(text).then(done, function () { msg.textContent = 'Select the text and copy it'; });
+      } catch (e) { msg.textContent = 'Select the text and copy it'; }
+    });
+    wrap.appendChild(b); wrap.appendChild(msg);
+    return wrap;
+  }
+
+  function renderRows() {
+    rowsEl.replaceChildren();
+    ['ready', 'you', 'opt'].forEach(function (st) {
+      if (filter !== 'all' && filter !== st) return;
+      var items = A.filter(function (a) { return a.st === st; });
+      if (!items.length) return;
+      var g = el('div', 'grp');
+      g.appendChild(el('span', 'dot ' + STATUS[st].cls));
+      g.appendChild(document.createTextNode(STATUS[st].label + ' · ' + items.length));
+      rowsEl.appendChild(g);
+      items.forEach(function (a) {
+        var r = el('button', 'row'); r.type = 'button'; r.setAttribute('role', 'option');
+        r.setAttribute('aria-selected', a.id === selected ? 'true' : 'false');
+        r.appendChild(el('span', 'id', a.id));
+        r.appendChild(el('span', 'dot ' + STATUS[a.st].cls));
+        var t = el('span', 't'); t.appendChild(el('b', null, a.title)); t.appendChild(el('span', null, a.sub)); r.appendChild(t);
+        r.appendChild(el('span', 'sv', a.save));
+        r.addEventListener('click', function () { selected = a.id; renderRows(); renderDetail(); });
+        rowsEl.appendChild(r);
+      });
+    });
+  }
+
+  function section(title) { var s = el('div'); s.appendChild(el('h4', null, title)); return s; }
+
+  function formBlock(head, rows, textFor) {
+    var f = el('div', 'form');
+    var h = el('div', 'form-h'); h.appendChild(el('span', null, head));
+    if (textFor) h.appendChild(copyBtn(textFor));
+    f.appendChild(h);
+    rows.forEach(function (kv) {
+      var fr = el('div', 'field');
+      fr.appendChild(el('span', 'fl', kv[0]));
+      var v = el('span', 'fv', kv[1]);
+      v.appendChild(el('span', 'auto', 'filled in'));
+      fr.appendChild(v); f.appendChild(fr);
+    });
+    return f;
+  }
+
+  var SCHED = [['12:30 pm', '73°F', 'Start cooling'], ['2:00 pm', '72°F', 'Pre-cool'], ['4:00 pm', '78°F', 'Peak starts: coast'], ['6:00 pm', '80°F', 'Fans on'], ['9:00 pm', '76°F', 'Peak over']];
+  var BRAND = {
+    Nest: ['Open the Google Home app and pick the thermostat', 'Tap Settings, then Schedule (or Temperature schedule)', 'Choose Cool, then add the five set points below for every day', 'Turn off Auto-Schedule so it doesn’t learn over your plan'],
+    Ecobee: ['Open the ecobee app and pick the thermostat', 'Main menu, then Schedule', 'Add comfort settings: Pre-cool 72°F, Peak 78–80°F, Evening 76°F', 'Assign them to the times below for every day'],
+    Honeywell: ['Open the Resideo / Honeywell Home app', 'Pick the thermostat, then Schedule', 'Set Cool set points at the times below, Mon–Sun', 'Save, and turn on Adaptive Intelligent Recovery if offered'],
+    'Other / dial': ['Find the Program or Schedule button', 'Set up to four periods: 2 pm 72°F, 4 pm 78°F, 6 pm 80°F, 9 pm 76°F', 'Copy the same program to every day', 'No program? Change it by hand at 2, 4 and 9 pm']
+  };
+
+  function careBlock(container) {
+    var LIM = { 1: [43280, 54100], 2: [43280, 54100], 3: [54640, 68300], 4: [66000, 82500], 5: [77360, 96700], 6: [88720, 110900] };
+    var f = el('div', 'form');
+    f.appendChild(el('div', 'form-h', 'Two answers'));
+    var r1 = el('div', 'field'); var l1 = el('label', null, 'People in home'); l1.htmlFor = 'care-size';
+    var s1 = document.createElement('select'); s1.id = 'care-size';
+    [1, 2, 3, 4, 5, 6].forEach(function (n) { var o = document.createElement('option'); o.value = n; o.textContent = n + (n === 6 ? '+' : ''); if (n === 2) o.selected = true; s1.appendChild(o); });
+    r1.appendChild(l1); r1.appendChild(s1); f.appendChild(r1);
+    var r2 = el('div', 'field'); var l2 = el('label', null, 'Yearly income before tax'); l2.htmlFor = 'care-inc';
+    var i2 = document.createElement('input'); i2.type = 'number'; i2.id = 'care-inc'; i2.min = 0; i2.step = 1000; i2.placeholder = 'e.g. 50000';
+    r2.appendChild(l2); r2.appendChild(i2); f.appendChild(r2);
+    var r3 = el('div', 'field'); var l3 = el('label', null, 'Anyone on Medi-Cal, CalFresh, WIC, SSI?'); l3.htmlFor = 'care-ben';
+    var s3 = document.createElement('select'); s3.id = 'care-ben';
+    [['no', 'No'], ['yes', 'Yes']].forEach(function (p) { var o = document.createElement('option'); o.value = p[0]; o.textContent = p[1]; s3.appendChild(o); });
+    r3.appendChild(l3); r3.appendChild(s3); f.appendChild(r3);
+    container.appendChild(f);
+    var out = el('div', 'result no', 'Enter your income to see which discount fits.');
+    container.appendChild(out);
+    function calc() {
+      var n = Number(s1.value), inc = Number(i2.value), lim = LIM[n];
+      if (s3.value === 'yes') { out.className = 'result ok'; out.textContent = 'Likely CARE: 30–35% off electric and a ~$6 base charge. On the form, pick the program your household is on; no documents needed to apply.'; return; }
+      if (!i2.value) { out.className = 'result no'; out.textContent = 'Enter your income to see which discount fits.'; return; }
+      if (inc <= lim[0]) { out.className = 'result ok'; out.textContent = 'Likely CARE (limit $' + lim[0].toLocaleString('en-US') + ' for ' + n + '): 30–35% off electric and a ~$6 base charge. Form answers: household ' + n + ', income $' + inc.toLocaleString('en-US') + '.'; }
+      else if (inc <= lim[1]) { out.className = 'result ok'; out.textContent = 'Likely FERA (limit $' + lim[1].toLocaleString('en-US') + ' for ' + n + '): 18% off electric and a ~$12 base charge. Form answers: household ' + n + ', income $' + inc.toLocaleString('en-US') + '.'; }
+      else { out.className = 'result no'; out.textContent = 'Above both limits ($' + lim[1].toLocaleString('en-US') + ' for ' + n + '). Skip this one.'; }
+    }
+    s1.addEventListener('change', calc); i2.addEventListener('input', calc); s3.addEventListener('change', calc);
+  }
+
+  function commentText() {
+    return 'I am an SDG&E customer in Oceanside (application A.26-06-015).\n\nOur August 2026 electric bill was $462 for 624 kWh, more than 70 cents per kWh. We rent and already have rooftop solar. SDG&E’s average residential rate has nearly doubled in ten years.\n\nAn 8.1% increase in 2028, followed by 5.5–8.7% more each year through 2031, would add about $14 a month to a typical electric bill. I ask the Commission to reject the multi-year increases, cap the 2028 increase, and require SDG&E to show cost savings before any rate increase is approved.\n\nThank you.';
+  }
+
+  function renderDetail() {
+    var a = A.filter(function (x) { return x.id === selected; })[0] || A[0];
+    detailEl.replaceChildren();
+    var h = el('div', 'd-h');
+    h.appendChild(el('span', 'd-id', a.id + ' · ' + a.sub));
+    h.appendChild(el('h3', null, a.title));
+    var props = el('div', 'props');
+    props.appendChild(el('span', 'pill ' + STATUS[a.st].cls, STATUS[a.st].label));
+    props.appendChild(el('span', 'pill ok', a.saveLong));
+    props.appendChild(el('span', 'pill', 'Renters can do it'));
+    h.appendChild(props);
+    detailEl.appendChild(h);
+
+    var b = el('div', 'd-b');
+    var w = section('Why'); w.appendChild(el('p', null, a.why)); b.appendChild(w);
+
+    var cols = el('div'); cols.style.display = 'grid'; cols.style.gridTemplateColumns = 'repeat(auto-fit, minmax(min(100%, 14rem), 1fr))'; cols.style.gap = '14px';
+    var s1 = section('We fill in'); var u1 = el('ul', 'checks'); a.we.forEach(function (t) { u1.appendChild(el('li', null, t)); }); s1.appendChild(u1); cols.appendChild(s1);
+    var s2 = section('You do'); var u2 = el('ul', 'checks you'); a.you.forEach(function (t) { u2.appendChild(el('li', null, t)); }); s2.appendChild(u2); cols.appendChild(s2);
+    b.appendChild(cols);
+
+    if (a.form) {
+      var s = section('Prefilled');
+      s.appendChild(formBlock(a.id === 'SAV-4' ? 'Your appliance windows' : (a.id === 'SAV-8' ? 'What sharing covers' : 'Form answers'), a.form, function () { return a.form.map(function (kv) { return kv[0] + ': ' + kv[1]; }).join('\n'); }));
+      b.appendChild(s);
+    }
+    if (a.script) {
+      var s = section(a.id === 'SAV-9' ? 'Email' : 'Call script');
+      var f = el('div', 'form'); var fh = el('div', 'form-h'); fh.appendChild(el('span', null, a.id === 'SAV-9' ? 'Ready to send' : 'Read this on the call'));
+      fh.appendChild(copyBtn(function () { return a.script; })); f.appendChild(fh);
+      f.appendChild(el('pre', 'script', a.script)); s.appendChild(f); b.appendChild(s);
+    }
+    if (a.thermo) {
+      var s = section('Your thermostat');
+      var tabs = el('div', 'tabs'); tabs.setAttribute('role', 'group'); tabs.setAttribute('aria-label', 'Thermostat brand');
+      Object.keys(BRAND).forEach(function (k) {
+        var bt = el('button', null, k); bt.type = 'button'; bt.setAttribute('aria-pressed', k === thermoBrand ? 'true' : 'false');
+        bt.addEventListener('click', function () { thermoBrand = k; renderDetail(); });
+        tabs.appendChild(bt);
+      });
+      s.appendChild(tabs);
+      var ol = el('ol', 'checks you'); ol.style.marginTop = '10px';
+      BRAND[thermoBrand].forEach(function (t) { ol.appendChild(el('li', null, t)); });
+      s.appendChild(ol);
+      var f = el('div', 'form'); f.style.marginTop = '10px';
+      var fh = el('div', 'form-h'); fh.appendChild(el('span', null, 'Every day, Jun 1 to Oct 31'));
+      fh.appendChild(copyBtn(function () { return SCHED.map(function (r) { return r[0] + '  ' + r[1] + '  (' + r[2] + ')'; }).join('\n'); }));
+      f.appendChild(fh);
+      var wrap = el('div'); wrap.style.overflowX = 'auto';
+      var tb = el('table', 'sched'); var th = el('tr'); ['Time', 'Set to', 'Why'].forEach(function (c) { th.appendChild(el('th', null, c)); }); tb.appendChild(th);
+      SCHED.forEach(function (r) { var tr = el('tr'); r.forEach(function (c) { tr.appendChild(el('td', null, c)); }); tb.appendChild(tr); });
+      wrap.appendChild(tb); f.appendChild(wrap); s.appendChild(f);
+      b.appendChild(s);
+    }
+    if (a.care) { var s = section('Eligibility check'); careBlock(s); b.appendChild(s); }
+    if (a.comment) {
+      var s = section('Your comment');
+      var lab = el('label', null, 'Edit before you submit'); lab.htmlFor = 'comment-text'; lab.style.display = 'block'; lab.style.color = 'var(--fg-3)'; lab.style.fontSize = '12px'; lab.style.marginBottom = '4px';
+      var ta = document.createElement('textarea'); ta.id = 'comment-text'; ta.value = commentText();
+      s.appendChild(lab); s.appendChild(ta);
+      var cb = copyBtn(function () { return ta.value; }); cb.style.marginTop = '8px'; s.appendChild(cb);
+      b.appendChild(s);
+    }
+    if (a.builder) {
+      var s = section('Skip the first screen');
+      var f = el('div', 'form');
+      f.appendChild(el('div', 'form-h', 'Typed here, kept only in this tab'));
+      var mk = function (id, label, ph, val, mode) {
+        var r = el('div', 'field'); var l = el('label', null, label); l.htmlFor = id;
+        var i = document.createElement('input'); i.type = 'text'; i.id = id; i.placeholder = ph; i.value = val || ''; i.autocomplete = 'off'; if (mode) i.inputMode = mode;
+        r.appendChild(l); r.appendChild(i); f.appendChild(r); return i;
+      };
+      var ia = mk('b-acct', 'SDG&E account number', '12 digits', '', 'numeric');
+      var inm = mk('b-name', 'Last name on the bill', 'e.g. SMITH', '');
+      var iz = mk('b-zip', 'Service ZIP', '92056', '92056', 'numeric');
+      s.appendChild(f);
+      var note = el('div', 'result no', 'Enter the 12-digit number and last name to build the link.');
+      var go = el('a', 'btn primary', 'Open CEA form, filled in'); go.target = '_blank'; go.rel = 'noopener'; go.setAttribute('aria-disabled', 'true'); go.style.opacity = .5; go.style.pointerEvents = 'none';
+      var upd = function () {
+        var acct = ia.value.replace(/\D/g, ''); if (acct.length === 13) acct = acct.slice(0, 12);
+        var nm = inm.value.trim(), zp = iz.value.replace(/\D/g, '').slice(0, 5);
+        var ok = acct.length === 12 && nm.length > 0 && zp.length === 5;
+        if (ok) {
+          go.href = 'https://optcea.communityenergysolutions.com/ui/opt/' + a.builder + '/en-US/' + acct + '/' + encodeURIComponent(nm.toUpperCase()) + '/' + zp;
+          go.style.opacity = 1; go.style.pointerEvents = 'auto'; go.removeAttribute('aria-disabled');
+          note.className = 'result ok'; note.textContent = 'Ready. The link opens CEA’s choice screen with your account looked up. Pick Clean Impact, tick the account-holder box, Submit.';
+        } else {
+          go.removeAttribute('href'); go.style.opacity = .5; go.style.pointerEvents = 'none'; go.setAttribute('aria-disabled', 'true');
+          note.className = 'result no'; note.textContent = acct.length && acct.length !== 12 ? 'The account number needs 12 digits (drop the last digit of the 13-digit number).' : 'Enter the 12-digit number and last name to build the link.';
+        }
+      };
+      [ia, inm, iz].forEach(function (i) { i.addEventListener('input', upd); });
+      var bw = el('div', 'btns'); bw.style.marginTop = '8px'; bw.appendChild(go);
+      s.appendChild(note); s.appendChild(bw);
+      b.appendChild(s);
+    }
+    if (a.warn) b.appendChild(el('div', 'warn', a.warn));
+    if (a.link) {
+      var bt = el('div', 'btns');
+      var l = el('a', a.builder ? 'btn' : 'btn primary', a.link[0]); l.href = a.link[1]; l.target = '_blank'; l.rel = 'noopener';
+      bt.appendChild(l); b.appendChild(bt);
+    }
+    detailEl.appendChild(b);
+  }
+
+  document.querySelectorAll('.filters button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      filter = btn.getAttribute('data-f');
+      document.querySelectorAll('.filters button').forEach(function (x) { x.setAttribute('aria-pressed', x === btn ? 'true' : 'false'); });
+      var first = A.filter(function (a) { return filter === 'all' || a.st === filter; })[0];
+      if (first && !A.some(function (a) { return a.id === selected && (filter === 'all' || a.st === filter); })) selected = first.id;
+      renderRows(); renderDetail();
+    });
+  });
+  document.querySelectorAll('[data-filter-link]').forEach(function (lnk) {
+    lnk.addEventListener('click', function () {
+      var f = lnk.getAttribute('data-filter-link');
+      var btn = document.querySelector('.filters button[data-f="' + f + '"]');
+      if (btn) btn.click();
+    });
+  });
+
+  renderRows();
+  renderDetail();
+})();
+</script>

@@ -1,0 +1,42 @@
+[
+ {
+  "step": 1,
+  "stage": "Today",
+  "detail": "CEA Clean Impact Plus, current habits",
+  "bill_low": 461.99,
+  "bill_high": 461.99,
+  "year_save_low": 0,
+  "year_save_high": 0,
+  "basis": "bill"
+ },
+ {
+  "step": 2,
+  "stage": "Opt down to Clean Impact",
+  "detail": "Now until you leave CEA; relief credit runs through Dec 31, 2026",
+  "bill_low": 437.21,
+  "bill_high": 437.21,
+  "year_save_low": 5,
+  "year_save_high": 15,
+  "basis": "estimate"
+ },
+ {
+  "step": 3,
+  "stage": "Back on SDG&E power",
+  "detail": "From about May 2027, with 6 months' notice",
+  "bill_low": 357.73,
+  "bill_high": 357.73,
+  "year_save_low": 420,
+  "year_save_high": 460,
+  "basis": "bill + rate tables"
+ },
+ {
+  "step": 4,
+  "stage": "Plus pre-cooling and shifted chores",
+  "detail": "Thermostat schedule, dryer, dishwasher, fans; savings at SDG&E prices",
+  "bill_low": 273.0,
+  "bill_high": 319.0,
+  "year_save_low": 595,
+  "year_save_high": 870,
+  "basis": "estimate"
+ }
+]

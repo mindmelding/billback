@@ -1,0 +1,12 @@
+[
+ {
+  "metric": "Everyday habits, per summer month",
+  "low": 60,
+  "high": 130
+ },
+ {
+  "metric": "Everyday habits, per year",
+  "low": 270,
+  "high": 630
+ }
+]

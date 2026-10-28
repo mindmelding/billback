@@ -1,0 +1,86 @@
+[
+ {
+  "month": "2025-11",
+  "label": "Nov",
+  "extra_low": 3.9,
+  "extra_high": 3.9,
+  "basis": "billed"
+ },
+ {
+  "month": "2025-12",
+  "label": "Dec",
+  "extra_low": 4.1,
+  "extra_high": 4.1,
+  "basis": "billed"
+ },
+ {
+  "month": "2026-01",
+  "label": "Jan",
+  "extra_low": -0.6,
+  "extra_high": -0.6,
+  "basis": "billed"
+ },
+ {
+  "month": "2026-02",
+  "label": "Feb",
+  "extra_low": 7.4,
+  "extra_high": 7.4,
+  "basis": "billed"
+ },
+ {
+  "month": "2026-03",
+  "label": "Mar",
+  "extra_low": 5.0,
+  "extra_high": 5.0,
+  "basis": "billed"
+ },
+ {
+  "month": "2026-04",
+  "label": "Apr",
+  "extra_low": 11.5,
+  "extra_high": 11.5,
+  "basis": "billed"
+ },
+ {
+  "month": "2026-05",
+  "label": "May",
+  "extra_low": 9.3,
+  "extra_high": 9.3,
+  "basis": "billed"
+ },
+ {
+  "month": "2026-06",
+  "label": "Jun",
+  "extra_low": 17.3,
+  "extra_high": 17.3,
+  "basis": "billed"
+ },
+ {
+  "month": "2026-07",
+  "label": "Jul",
+  "extra_low": 101.5,
+  "extra_high": 101.5,
+  "basis": "billed"
+ },
+ {
+  "month": "2026-08",
+  "label": "Aug",
+  "extra_low": 104.3,
+  "extra_high": 104.3,
+  "basis": "billed"
+ },
+ {
+  "month": "2026-09",
+  "label": "Sep",
+  "extra_low": 93.8,
+  "extra_high": 104.3,
+  "basis": "estimate"
+ },
+ {
+  "month": "2026-10",
+  "label": "Oct",
+  "extra_low": 62.6,
+  "extra_high": 93.8,
+  "basis": "estimate"
+ }
+]
