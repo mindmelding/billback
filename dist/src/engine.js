@@ -395,6 +395,10 @@ export function calculateNEMTrueUpProjection(nemData, nemYearToDate, ratePlan) {
   for (let i = 0; i < monthsRemaining; i++) {
     const futureDate = new Date(latestBillDate);
     futureDate.setMonth(futureDate.getMonth() + i + 1);
+    // Never project months that fall after the true-up date (e.g. November after an Oct 28 true-up).
+    if (futureDate > trueUpDate) {
+      break;
+    }
     const monthNum = futureDate.getMonth();
     
     if (monthlyAverages[monthNum]) {
@@ -427,14 +431,14 @@ export function calculateNEMTrueUpProjection(nemData, nemYearToDate, ratePlan) {
     currentBalance: nemData.balance,
     latestBillDate: sortedHistory[0].date,
     projectedBalance: [Math.max(0, projectedMin), projectedMax],
-    monthsRemaining,
+    monthsRemaining: projectionDetails.length,
     projectionDetails,
     isUrgent,
     isPast: false,
     message: isUrgent
       ? `Your solar true-up is ${daysUntil} days away (${nemData.trueUpDate}). Projected amount: $${Math.round(projectedMin)}–${Math.round(projectedMax)} (currently $${nemData.balance.toFixed(2)} so far).`
       : `Your solar true-up is on ${nemData.trueUpDate}. Projected amount: $${Math.round(projectedMin)}–${Math.round(projectedMax)} (currently $${nemData.balance.toFixed(2)} so far).`,
-    basis: `${nemData.balance.toFixed(2)} through ${sortedHistory[0].date} + ${monthsRemaining} month(s) projected from prior-year averages`,
+    basis: `${nemData.balance.toFixed(2)} through ${sortedHistory[0].date} + ${projectionDetails.length} month(s) projected from prior-year averages`,
     tips: isUrgent ? [
       `Set aside $${Math.round(projectedMax)} for the true-up bill`,
       'Consider switching providers AFTER true-up to avoid double charges',
