@@ -219,6 +219,35 @@ describe('Deterministic Parser', () => {
       assert.strictEqual(payment.date, '2026-08-21', 'Should parse payment date');
       assert.strictEqual(payment.amount, 354.22, 'Should parse payment amount');
     });
+
+    it('should parse Payment Received after Previous NEM YTD Balance without NEM Year-to-Date Balance', () => {
+      // Real SDG&E PDF.js layout: the summary never contains "NEM Year-to-Date Balance"
+      const billText = `
+ACCOUNT NUMBER 1234 5678 9012 3
+CCA Account Number: 123456789012
+Billing Period: 7/30/26 - 8/27/26
+Cycle: 19
+CLEAN ENERGY ALLIANCE
+Clean Impact Plus 624 kWh
+Rate: Time of Use - TOU-DR1-Residential
+Net Energy Metering
+Version: 2.0
+System Size: 3.44 kW
+True-Up Date: 10/28/2026
+Current Account Balance $445.71
+Total Usage: 624
+Total Current Charges $445.71
+Net Metering Account Summary
+Previous NEM YTD Balance $354.22 Payment Received 8/21/26 THANK YOU - 354.22 (Continued on next page)
+Gas Usage
+`;
+      const parsed = parseSDGEBillText(billText);
+      assert.ok(!billText.includes('NEM Year-to-Date Balance'));
+      assert.strictEqual(parsed.nemBalance, 445.71);
+      assert.strictEqual(parsed.nemPaymentHistory.length, 1);
+      assert.strictEqual(parsed.nemPaymentHistory[0].date, '2026-08-21');
+      assert.strictEqual(parsed.nemPaymentHistory[0].amount, 354.22);
+    });
   });
 
   describe('PDF.js y-coordinate reconstructed layout', () => {
@@ -249,9 +278,8 @@ Generation Off-Peak Summer 193 kWh X $0.22298
 Generation Super Off-Peak Summer 76 kWh X $0.04914
 Total CCA
 Baseline Adjustment Credit $0.00
-Net Metering Account Summary
-Payment Received   8/21/26    THANK YOU    - 354.22
-NEM Year-to-Date Balance $445.71
+        Net Metering Account Summary
+Previous NEM YTD Balance $354.22 Payment Received 8/21/26 THANK YOU - 354.22 (Continued on next page)
 Net Energy Metering Summary
 11/26/2025 83 − 139 28 − 28 28.27
 12/29/2025 161 − 97 50 114 56.33

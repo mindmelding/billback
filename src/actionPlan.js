@@ -182,9 +182,6 @@ export function generateDatedActionPlan(report, bills, household = {}) {
             '9:00 pm: 76°F (peak ends)',
             'Close west-facing blinds by 1 pm',
             'Run fans in evening for comfort'
-          ],
-          links: [
-            { text: 'Full schedule details', url: '/app/index.html#actions' }
           ]
         },
         completionTime: '5 minutes'
