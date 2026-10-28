@@ -139,7 +139,6 @@ function splitCountdown(title) {
 function urgencyChip(urgency) {
   if (urgency === 'urgent') return '<span class="bb-chip bb-chip--over">Urgent</span>';
   if (urgency === 'high') return '<span class="bb-chip bb-chip--you">Needs you</span>';
-  if (urgency === 'medium') return '<span class="bb-chip bb-chip--ready">Ready</span>';
   return '';
 }
 
@@ -273,10 +272,10 @@ function renderResults(report, household, actionPlan, bills) {
         : '';
       html += `
         <li class="bb-step" onclick="showStepDetails(${i})">
-          <span class="bb-step__n">${date.getDate()}</span>
+          <span class="bb-step__n">${i + 1}</span>
           <span class="bb-step__t">
             <b>${split.title}</b>
-            <span>${dateStr} · ${truncate(stripHTML(step.description || ''), 120)}</span>
+            <span>${dateStr} · ${truncate(plainPreview(step.description || ''), 120)}</span>
           </span>
           <span class="bb-step__chips">
             ${countdownChip}
@@ -324,6 +323,13 @@ function stripHTML(html) {
   const tmp = document.createElement('DIV');
   tmp.innerHTML = html;
   return tmp.textContent || tmp.innerText || '';
+}
+
+function plainPreview(html) {
+  return stripHTML(html)
+    .replace(/\*\*/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 window.showStepDetails = function(index) {
