@@ -3673,7 +3673,7 @@ window.generatePlainTextTodoList = function(actionPlan) {
  * @param {string} text
  * @returns {Promise<boolean>} Success status
  */
-export async function copyToClipboard(text) {
+window.copyToClipboard = async function(text) {
   try {
     await navigator.clipboard.writeText(text);
     return true;

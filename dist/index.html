@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Upload Your SDG&E Bills - Billback</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<title>Billback - SDG&E Bill Savings</title>
 <style>
+
 :root {
   --bg: #ffffff;
   --panel: #fbfbfc;
@@ -266,42 +265,369 @@ h1 {
   font-size: 11px;
   color: var(--fg-3);
 }
+
+
+/* Results page styles */
+
+:root {
+  --bg: #ffffff;
+  --panel: #fbfbfc;
+  --line: #e9e9ee;
+  --line-strong: #dcdce3;
+  --fg: #1b1b22;
+  --fg-2: #5d5d6c;
+  --fg-3: #8b8b99;
+  --accent: #5e6ad2;
+  --accent-soft: #eef0fb;
+  --ok: #2f8a4f;
+  --ok-soft: #e9f6ee;
+  --warn: #b26a00;
+  --warn-soft: #fdf3e2;
+  --bad: #c2413a;
+  --bad-soft: #fcecea;
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --r: 6px;
+}
+* { box-sizing: border-box; }
+body { 
+  background: var(--bg); 
+  color: var(--fg); 
+  font-family: var(--font); 
+  font-size: 13px; 
+  line-height: 1.5; 
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+  padding: 20px;
+}
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--accent);
+  display: grid;
+  place-items: center;
+  color: var(--bg);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+h1 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.subtitle {
+  color: var(--fg-2);
+  font-size: 15px;
+  margin: 0 0 30px;
+  max-width: 70ch;
+}
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 17px;
+  font-weight: 600;
+}
+.card p {
+  margin: 0 0 16px;
+  color: var(--fg-2);
+  font-size: 13px;
+}
+.alert {
+  padding: 12px 14px;
+  border-radius: var(--r);
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+.alert.urgent {
+  background: var(--warn-soft);
+  border: 1px solid #f1d9ad;
+  color: #6d4300;
+}
+.alert strong {
+  font-weight: 600;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.metric {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--panel);
+}
+.metric .label {
+  font-size: 12px;
+  color: var(--fg-3);
+  margin-bottom: 6px;
+}
+.metric .value {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ok);
+  font-variant-numeric: tabular-nums;
+}
+.metric .detail {
+  font-size: 11px;
+  color: var(--fg-3);
+  margin-top: 4px;
+}
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.timeline-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg);
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.timeline-item:hover {
+  background: var(--panel);
+  border-color: var(--line-strong);
+}
+.timeline-item.urgent {
+  border-color: var(--bad);
+  background: var(--bad-soft);
+}
+.timeline-item.high {
+  border-color: var(--warn);
+  background: var(--warn-soft);
+}
+.timeline-date {
+  flex-shrink: 0;
+  width: 80px;
+  padding-top: 4px;
+}
+.timeline-date-day {
+  font-size: 11px;
+  color: var(--fg-3);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.timeline-date-num {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
+  margin-top: 4px;
+}
+.timeline-content {
+  flex: 1;
+}
+.timeline-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--fg);
+}
+.timeline-desc {
+  font-size: 12px;
+  color: var(--fg-2);
+  margin-bottom: 8px;
+}
+.timeline-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 500;
+}
+.badge.urgent {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+.badge.high {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.badge.medium {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.badge.verified {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.badge.unverified {
+  background: var(--fg-3);
+  color: var(--bg);
+}
+.badge.savings {
+  background: var(--ok-soft);
+  color: var(--ok);
+  font-weight: 600;
+}
+.export-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.btn {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  color: var(--fg);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+.btn:hover {
+  filter: brightness(0.97);
+}
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+.btn.danger {
+  background: var(--bad);
+  border-color: var(--bad);
+  color: var(--bg);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--fg-3);
+}
+.delete-section {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 16px;
+  margin-top: 30px;
+}
+.delete-section h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.delete-section p {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--fg-2);
+}
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal.show {
+  display: flex;
+}
+.modal-content {
+  background: var(--bg);
+  border-radius: var(--r);
+  padding: 24px;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.modal-content h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.modal-content pre {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 12px;
+  font-size: 11px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+
+/* Tab navigation */
+.tabs {
+  display: none; /* Hidden initially, shown after upload */
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+.tab-button {
+  background: none;
+  border: none;
+  padding: 12px 16px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.tab-button.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
+}
 </style>
 </head>
 <body>
 
-<script type="module">
-// PostHog initialization with privacy-first configuration
-const POSTHOG_KEY = 'YOUR_POSTHOG_KEY'; // TODO: Set from environment config
-const IS_PRODUCTION = window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1');
+<!-- Upload tab -->
+<div id="upload-tab" class="tab-content active">
 
-if (POSTHOG_KEY && POSTHOG_KEY !== 'YOUR_POSTHOG_KEY') {
-  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-  posthog.init(POSTHOG_KEY, {
-    api_host: 'https://app.posthog.com',
-    autocapture: false,  // Privacy: no automatic event capture
-    disable_session_recording: true,  // Privacy: no session recordings
-    disable_persistence: false,  // Allow anonymous device ID for deduplication
-    respect_dnt: true  // Honor Do Not Track browser setting
-  });
-}
 
-function trackEvent(eventName, props = {}) {
-  if (window.posthog) {
-    // Only send anonymous, non-identifying properties
-    // No PII, no exact dollar amounts, no account numbers, no addresses
-    posthog.capture(eventName, {
-      ...props,
-      site: 'billback',
-      llc: 'mindmelding',
-      is_test: !IS_PRODUCTION
-    });
-  }
-}
 
-// Make trackEvent available globally for other script modules
-window.trackEvent = trackEvent;
-</script>
 
 <div class="container">
   <div class="logo">B</div>
@@ -387,318 +713,3058 @@ window.trackEvent = trackEvent;
   </div>
 </div>
 
+
+
+
+</div>
+
+<!-- Results tab -->
+<div id="results-tab" class="tab-content">
+
+<div class="container">
+  <div class="logo">B</div>
+  
+  <div id="loading" style="text-align: center; padding: 60px 0;">
+    <p style="color: var(--fg-3);">Loading your savings report...</p>
+  </div>
+
+  <div id="results" style="display: none;"></div>
+
+  <div class="footer">
+    <p><strong>Privacy:</strong> Your bill data is stored only in your browser's session storage. It's never sent to any server. You can delete everything with the button above.</p>
+    <p>Savings are estimates from uploaded bills and published rates (last updated 2026-10-28). Rates change several times a year. Behavioral savings are estimates based on research.</p>
+    <p>Per CA PU Code 366.5 and CARE rules, you give the final click, call or signature for provider switches, discounts and plan changes. We never switch providers or sign forms for you.</p>
+  </div>
+</div>
+
+<!-- Modal for step details -->
+<div id="stepModal" class="modal">
+  <div class="modal-content">
+    <h3 id="modalTitle"></h3>
+    <div id="modalBody"></div>
+    <div class="modal-buttons">
+      <button class="btn primary" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+<!-- PDF.js (inline version) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script type="module">
-// Set up PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+<script>
+// Initialize PDF.js worker
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+</script>
 
-// Import client-side modules
-import { parseSDGEBillText, validateBillingPeriod } from '../src/parser.js';
-import { generateSavingsReport } from '../src/engine.js';
-import * as rates from '../src/rates.js';
+<!-- Bundled application code -->
+<script>
+// ===== BUNDLED MODULES =====
 
-const uploadArea = document.getElementById('uploadArea');
-const fileInput = document.getElementById('fileInput');
-const filesList = document.getElementById('filesList');
-const analyzeBtn = document.getElementById('analyzeBtn');
-const statusDiv = document.getElementById('status');
-const progressDiv = document.getElementById('progress');
+// ----- rates.js -----
+/**
+ * SDG&E, CEA, and SDCP rate tables
+ * Every rate needs a date and source per CLAUDE.md
+ * 
+ * Rates change several times a year - update this file when they change.
+ * Last updated: 2026-10-28
+ */
 
-const files = [];
+// SDG&E TOU-DR1 rates (typical NEM 2.0 solar plan)
+// Source: SDG&E Schedule TOU-DR1, effective 2026-06-01
+// https://www.sdge.com/residential/pricing-plans/about-our-pricing-plans/time-use-residential
+window.SDGE_TOU_DR1 = {
+  provider: 'SDG&E',
+  plan: 'TOU-DR1',
+  effectiveDate: '2026-06-01',
+  source: 'SDG&E Schedule TOU-DR1',
+  baseFee: 24.12, // $/month
+  summer: { // Jun 1 - Oct 31
+    onPeak: 0.67, // 4-9 pm daily ($/kWh)
+    offPeak: 0.443, // most other hours
+    superOffPeak: 0.353 // weekdays 12-6 am & 10 am-2 pm; weekends 12 am-2 pm
+  },
+  winter: { // Nov 1 - May 31
+    onPeak: 0.594, // 4-9 pm daily
+    offPeak: 0.51,
+    superOffPeak: 0.416
+  },
+  nbcCharge: 0.04587 // Non-bypassable charges ($/kWh), all hours
+};
 
-// Upload area interactions
-uploadArea.addEventListener('click', () => fileInput.click());
+// Clean Energy Alliance (CEA) rates - VERSIONED
+// CEA rates changed mid-2026; version by effective date and bill period
+// When bill's printed rates differ from table, prefer bill rates and flag table as stale
 
-uploadArea.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  uploadArea.classList.add('dragging');
-});
-
-uploadArea.addEventListener('dragleave', () => {
-  uploadArea.classList.remove('dragging');
-});
-
-uploadArea.addEventListener('drop', (e) => {
-  e.preventDefault();
-  uploadArea.classList.remove('dragging');
-  handleFiles(e.dataTransfer.files);
-});
-
-fileInput.addEventListener('change', (e) => {
-  handleFiles(e.target.files);
-});
-
-function handleFiles(newFiles) {
-  for (const file of newFiles) {
-    if (file.type === 'application/pdf') {
-      files.push(file);
+// CEA rates effective Feb 1, 2026 (from published rate schedule)
+// Source: CEA Rate Schedule effective 2026-02-01
+// https://thecleanenergyalliance.org/wp-content/uploads/2026/03/CEA-Adopted-Rate-Schedule-Effective-2026_02_01-Residential.pdf
+window.CEA_CLEAN_IMPACT_PLUS_FEB_2026 = {
+  provider: 'CEA',
+  plan: 'Clean Impact Plus',
+  effectiveDate: '2026-02-01',
+  validThrough: '2026-07-31', // Approximate - actual change date mid-year
+  source: 'CEA Rate Schedule effective 2026-02-01',
+  baseFee: 24.12,
+  generation: {
+    summer: {
+      onPeak: 0.55922, // From Feb 1, 2026 schedule
+      offPeak: 0.22619,
+      superOffPeak: 0.03324
+    },
+    winter: {
+      onPeak: 0.20291,
+      offPeak: 0.10855,
+      superOffPeak: 0.07628
     }
+  },
+  // Total rates (SDG&E delivery + CEA generation + NBC)
+  summer: {
+    onPeak: 0.891,
+    offPeak: 0.56,
+    superOffPeak: 0.386
+  },
+  winter: {
+    onPeak: 0.537,
+    offPeak: 0.422,
+    superOffPeak: 0.389
+  },
+  nbcCharge: 0.04587,
+  plusPremium: 0.001
+};
+
+// CEA rates as shown on Aug 2026 bill (actual billed rates differ from published schedule)
+// Source: Actual SDG&E bill dated Sept 2, 2026 for billing period Jul 30 - Aug 27, 2026
+window.CEA_CLEAN_IMPACT_PLUS_AUG_2026 = {
+  provider: 'CEA',
+  plan: 'Clean Impact Plus',
+  effectiveDate: '2026-07-30', // Start of bill period showing these rates
+  validThrough: null, // Unknown when next change occurs
+  source: 'Actual Aug 2026 bill dated Sept 2, 2026 (billing period Jul 30 - Aug 27, 2026)',
+  baseFee: 24.12,
+  generation: {
+    summer: {
+      onPeak: 0.55397, // Actual rate on Aug 2026 bill (differs from Feb schedule: 0.55922)
+      offPeak: 0.22298,
+      superOffPeak: 0.03224
+    },
+    winter: { // Use Feb 2026 schedule for winter (not shown on summer bill)
+      onPeak: 0.20291,
+      offPeak: 0.10855,
+      superOffPeak: 0.07628
+    }
+  },
+  // Total rates (calculated from bill: SDG&E delivery + CEA generation + NBC)
+  summer: {
+    onPeak: 0.891, // Approximate total
+    offPeak: 0.56,
+    superOffPeak: 0.386
+  },
+  winter: { // Use Feb 2026 schedule totals for winter
+    onPeak: 0.537,
+    offPeak: 0.422,
+    superOffPeak: 0.389
+  },
+  nbcCharge: 0.04587,
+  plusPremium: 0.001,
+  note: 'Rates from actual bill differ from published Feb 1, 2026 schedule. CEA adjusted rates mid-year per board memo.'
+};
+
+// CEA Clean Impact Plus - current best estimate
+// Use Aug 2026 actual rates when available
+window.CEA_CLEAN_IMPACT_PLUS = CEA_CLEAN_IMPACT_PLUS_AUG_2026;
+
+window.CEA_CLEAN_IMPACT_FEB_2026 = {
+  provider: 'CEA',
+  plan: 'Clean Impact',
+  effectiveDate: '2026-02-01',
+  validThrough: '2026-12-31', // Relief credit expires
+  source: 'CEA Rate Schedule effective 2026-02-01 + relief credit',
+  reliefCredit: 0.03871, // $/kWh residential, through 2026-12-31
+  reliefCreditExpires: '2026-12-31',
+  baseFee: 24.12,
+  generation: {
+    summer: {
+      onPeak: 0.55922 - 0.03871,
+      offPeak: 0.22619 - 0.03871,
+      superOffPeak: 0.03324 - 0.03871 // Negative after credit
+    },
+    winter: {
+      onPeak: 0.20291 - 0.03871,
+      offPeak: 0.10855 - 0.03871,
+      superOffPeak: 0.07628 - 0.03871
+    }
+  },
+  summer: {
+    onPeak: 0.891 - 0.03871,
+    offPeak: 0.56 - 0.03871,
+    superOffPeak: 0.386 - 0.03871
+  },
+  winter: {
+    onPeak: 0.537 - 0.03871,
+    offPeak: 0.422 - 0.03871,
+    superOffPeak: 0.389 - 0.03871
+  },
+  nbcCharge: 0.04587,
+  note: 'Relief credit ends Dec 31, 2026. CEA board says credit "has been adjusted for specific rate classes" since Feb.'
+};
+
+window.CEA_CLEAN_IMPACT = CEA_CLEAN_IMPACT_FEB_2026;
+
+/**
+ * Get CEA rates for a specific bill period
+ * @param {string} plan - 'Clean Impact Plus' or 'Clean Impact'
+ * @param {string} billPeriodStart - Start date of bill period (YYYY-MM-DD)
+ * @returns {Object} Rate table + metadata { rates, source, possiblyStale }
+ */
+window.getCEARatesForPeriod = function(plan, billPeriodStart) {
+  const periodDate = new Date(billPeriodStart);
+  
+  if (plan === 'Clean Impact Plus') {
+    // If bill period is Aug 2026 or later, use Aug 2026 rates
+    if (periodDate >= new Date('2026-07-30')) {
+      return {
+        rates: CEA_CLEAN_IMPACT_PLUS_AUG_2026,
+        source: CEA_CLEAN_IMPACT_PLUS_AUG_2026.source,
+        possiblyStale: false
+      };
+    } else {
+      // Earlier bills use Feb 2026 schedule
+      return {
+        rates: CEA_CLEAN_IMPACT_PLUS_FEB_2026,
+        source: CEA_CLEAN_IMPACT_PLUS_FEB_2026.source,
+        possiblyStale: periodDate >= new Date('2026-06-01') // May be stale if mid-year
+      };
+    }
+  } else if (plan === 'Clean Impact') {
+    return {
+      rates: CEA_CLEAN_IMPACT_FEB_2026,
+      source: CEA_CLEAN_IMPACT_FEB_2026.source,
+      possiblyStale: periodDate >= new Date('2026-06-01') // May have adjusted like Plus
+    };
   }
-  renderFilesList();
-  updateAnalyzeButton();
+  
+  return null;
 }
 
-function renderFilesList() {
-  if (files.length === 0) {
-    filesList.innerHTML = '';
-    return;
+/**
+ * Check if bill's printed CEA rates differ from rate table
+ * @param {Object} billRates - Rates extracted from bill { onPeak, offPeak, superOffPeak }
+ * @param {Object} tableRates - Rates from rate table
+ * @returns {Object} { matches: boolean, differences: [], recommendation: string }
+ */
+window.compareCEARates = function(billRates, tableRates) {
+  const differences = [];
+  const tolerance = 0.001; // Allow small rounding differences
+  
+  if (billRates.onPeak && tableRates.generation?.summer?.onPeak) {
+    const diff = Math.abs(billRates.onPeak - tableRates.generation.summer.onPeak);
+    if (diff > tolerance) {
+      differences.push({
+        type: 'onPeak',
+        bill: billRates.onPeak,
+        table: tableRates.generation.summer.onPeak,
+        difference: diff
+      });
+    }
   }
+  
+  if (billRates.offPeak && tableRates.generation?.summer?.offPeak) {
+    const diff = Math.abs(billRates.offPeak - tableRates.generation.summer.offPeak);
+    if (diff > tolerance) {
+      differences.push({
+        type: 'offPeak',
+        bill: billRates.offPeak,
+        table: tableRates.generation.summer.offPeak,
+        difference: diff
+      });
+    }
+  }
+  
+  const matches = differences.length === 0;
+  
+  let recommendation = '';
+  if (!matches) {
+    recommendation = `Bill's printed rates differ from rate table. Use bill rates for this period. Rate table may be stale (CEA adjusted rates mid-2026 per board memo).`;
+  }
+  
+  return {
+    matches,
+    differences,
+    recommendation
+  };
+}
 
-  filesList.innerHTML = files.map((file, index) => `
-    <div class="file-item">
-      <div>
-        <span class="file-name">${file.name}</span>
-        <span class="file-size">${(file.size / 1024).toFixed(1)} KB</span>
-      </div>
-      <button type="button" class="file-remove" data-index="${index}">×</button>
-    </div>
-  `).join('');
+// San Diego Community Power (SDCP) rates
+// Source: SDCP Rate Schedule, effective 2026-01-01
+// https://sdcommunitypower.org/rates/
+window.SDCP_POWER_ON = {
+  provider: 'SDCP',
+  plan: 'Power On',
+  effectiveDate: '2026-01-01',
+  source: 'SDCP Rate Schedule',
+  baseFee: 24.12,
+  // SDCP generation rates are ~4% cheaper than SDG&E bundled
+  generationDiscount: 0.04,
+  summer: {
+    onPeak: 0.67 * 0.96,
+    offPeak: 0.443 * 0.96,
+    superOffPeak: 0.353 * 0.96
+  },
+  winter: {
+    onPeak: 0.594 * 0.96,
+    offPeak: 0.51 * 0.96,
+    superOffPeak: 0.416 * 0.96
+  },
+  nbcCharge: 0.04587
+};
 
-  // Attach remove handlers
-  document.querySelectorAll('.file-remove').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const index = parseInt(e.target.dataset.index);
-      files.splice(index, 1);
-      renderFilesList();
-      updateAnalyzeButton();
+window.SDCP_POWER_BASE = {
+  provider: 'SDCP',
+  plan: 'Power Base',
+  effectiveDate: '2026-01-01',
+  source: 'SDCP Rate Schedule',
+  baseFee: 24.12,
+  // PowerBase saves ~$5.56/mo on generation vs SDG&E
+  monthlySavings: 5.56,
+  summer: {
+    onPeak: 0.67 * 0.96, // approximate
+    offPeak: 0.443 * 0.96,
+    superOffPeak: 0.353 * 0.96
+  },
+  winter: {
+    onPeak: 0.594 * 0.96,
+    offPeak: 0.51 * 0.96,
+    superOffPeak: 0.416 * 0.96
+  },
+  nbcCharge: 0.04587
+};
+
+// CARE discount program
+// Source: CPUC CARE/FERA Income Guidelines 2026-27
+// https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/electric-costs/care-fera-program
+window.CARE_DISCOUNT = {
+  program: 'CARE',
+  effectiveDate: '2026-06-01',
+  source: 'CPUC CARE/FERA Income Guidelines 2026-27',
+  electricDiscount: 0.35, // 30-35% off electric
+  gasDiscount: 0.20, // 20% off gas
+  baseFee: 6.00, // reduced base charge ($/month)
+  incomeLimits: {
+    1: 43280,
+    2: 43280,
+    3: 54640,
+    4: 66000,
+    5: 77360,
+    6: 88720
+  }
+};
+
+// FERA discount program
+// Source: CPUC CARE/FERA Income Guidelines 2026-27
+window.FERA_DISCOUNT = {
+  program: 'FERA',
+  effectiveDate: '2026-06-01',
+  source: 'CPUC CARE/FERA Income Guidelines 2026-27',
+  electricDiscount: 0.18, // 18% off electric
+  baseFee: 12.00, // reduced base charge ($/month)
+  incomeLimits: {
+    1: 54100,
+    2: 54100,
+    3: 68300,
+    4: 82500,
+    5: 96700,
+    6: 110900
+  }
+};
+
+// Medical Baseline allowance
+// Source: SDG&E Medical Baseline program
+// https://www.sdge.com/medical
+window.MEDICAL_BASELINE = {
+  program: 'Medical Baseline',
+  effectiveDate: '2026-06-01',
+  source: 'SDG&E Medical Baseline program',
+  extraKwh: 500, // extra kWh per month at lowest rate
+  monthlySavingsEstimate: [10, 30] // estimated range
+};
+
+window.ALL_RATES = {
+  SDGE_TOU_DR1,
+  CEA_CLEAN_IMPACT_PLUS,
+  CEA_CLEAN_IMPACT,
+  SDCP_POWER_ON,
+  SDCP_POWER_BASE,
+  CARE_DISCOUNT,
+  FERA_DISCOUNT,
+  MEDICAL_BASELINE
+};
+
+
+// ----- meterReadSchedule.js -----
+/**
+ * SDG&E Meter Read Schedule
+ * Published billing cycle calendars for computing opt-out notice deadlines
+ * 
+ * Source: https://www.sdge.com/billing-cycle-schedule
+ * - 2026: https://www.sdge.com/sites/default/files/Calendar%20-%202026%20%28Approved%29-3%201.pdf
+ * - 2027: https://www.sdge.com/sites/default/files/Calendar%20-%202027%20%28Approved%29.pdf
+ * 
+ * Last updated: 2026-10-28
+ * 
+ * @module meterReadSchedule
+ */
+
+/**
+ * Meter read dates by billing cycle
+ * Format: 'YYYY-MM-DD' strings
+ * 
+ * SDG&E has ~38 billing cycles. Customers are assigned to one cycle.
+ * Read dates are published ~2 years in advance.
+ */
+window.METER_READ_SCHEDULE = {
+  // Cycle 19 (fixture household's cycle)
+  19: [
+    // 2026
+    '2026-01-28',
+    '2026-02-26',
+    '2026-03-27',
+    '2026-04-28',
+    '2026-05-28',
+    '2026-06-29',
+    '2026-07-29',
+    '2026-08-27',
+    '2026-09-28',
+    '2026-10-28',  // Fixture true-up date
+    '2026-11-27',
+    '2026-12-29',
+    // 2027
+    '2027-01-28',
+    '2027-03-01',
+    '2027-03-30',
+    '2027-04-29',
+    '2027-05-28',
+    '2027-06-29',
+    '2027-07-29',
+    '2027-08-27',
+    '2027-09-28',
+    '2027-10-28',
+    '2027-11-29',
+    '2027-12-29'
+  ],
+  
+  // Add other cycles as needed for broader support
+  // For MVP, cycle 19 is sufficient for fixture testing
+};
+
+/**
+ * Parse a date string as local date (not UTC)
+ * @param {string} dateStr - Date string in 'YYYY-MM-DD' format
+ * @returns {Date} Local date object
+ */
+function parseLocalDate(dateStr) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+/**
+ * Get meter read dates for a specific cycle
+ * @param {number} cycle - Billing cycle number (e.g., 19)
+ * @param {Date} startDate - Start date to filter from
+ * @param {Date} endDate - End date to filter to
+ * @returns {Date[]} Array of meter read dates
+ */
+window.getMeterReadDates = function(cycle, startDate = null, endDate = null) {
+  const dates = METER_READ_SCHEDULE[cycle];
+  if (!dates) {
+    throw new Error(`Meter read schedule not available for cycle ${cycle}`);
+  }
+  
+  let result = dates.map(d => parseLocalDate(d));
+  
+  if (startDate) {
+    result = result.filter(d => d >= startDate);
+  }
+  
+  if (endDate) {
+    result = result.filter(d => d <= endDate);
+  }
+  
+  return result;
+}
+
+/**
+ * Get the next meter read date after a given date
+ * @param {number} cycle - Billing cycle number
+ * @param {Date} afterDate - Date to find next read after
+ * @returns {Date|null} Next meter read date, or null if none found
+ */
+window.getNextMeterRead = function(cycle, afterDate) {
+  const dates = getMeterReadDates(cycle, afterDate);
+  return dates.length > 0 ? dates[0] : null;
+}
+
+/**
+ * Get the previous meter read date before a given date
+ * @param {number} cycle - Billing cycle number
+ * @param {Date} beforeDate - Date to find previous read before
+ * @returns {Date|null} Previous meter read date, or null if none found
+ */
+window.getPreviousMeterRead = function(cycle, beforeDate) {
+  const dates = getMeterReadDates(cycle, null, beforeDate);
+  return dates.length > 0 ? dates[dates.length - 1] : null;
+}
+
+/**
+ * Calculate CCA opt-out notice deadline
+ * For returning to SDG&E bundled service without transitional rate
+ * 
+ * @param {number} cycle - Billing cycle number
+ * @param {Date} targetSwitchDate - Desired switch date (meter read)
+ * @returns {Object} { noticeDeadline, switchDate, reasoning }
+ */
+window.calculateCCAOptOutDeadline = function(cycle, targetSwitchDate) {
+  // SDG&E must receive notice 6 months before the switch date
+  const sixMonthsBefore = new Date(targetSwitchDate);
+  sixMonthsBefore.setMonth(sixMonthsBefore.getMonth() - 6);
+  
+  // Find the meter read date on or before sixMonthsBefore
+  const noticeDeadline = getPreviousMeterRead(cycle, sixMonthsBefore);
+  
+  if (!noticeDeadline) {
+    throw new Error(`Cannot calculate notice deadline: no meter read found before ${sixMonthsBefore.toISOString()}`);
+  }
+  
+  // Find the actual switch date (first read after 6 months from notice)
+  const sixMonthsAfterNotice = new Date(noticeDeadline);
+  sixMonthsAfterNotice.setMonth(sixMonthsAfterNotice.getMonth() + 6);
+  const actualSwitchDate = getNextMeterRead(cycle, sixMonthsAfterNotice);
+  
+  if (!actualSwitchDate) {
+    throw new Error(`Cannot calculate switch date: no meter read found after ${sixMonthsAfterNotice.toISOString()}`);
+  }
+  
+  return {
+    noticeDeadline,
+    switchDate: actualSwitchDate,
+    reasoning: `SDG&E must receive notice by ${noticeDeadline.toLocaleDateString()} to switch on ${actualSwitchDate.toLocaleDateString()} (first read after 6 months from notice)`
+  };
+}
+
+/**
+ * Calculate CEA tier change (opt-down) deadline
+ * Request must arrive ≥5 business days before meter read
+ * 
+ * @param {number} cycle - Billing cycle number
+ * @param {Date} today - Current date
+ * @returns {Object} { requestDeadline, effectiveDate, reasoning }
+ */
+window.calculateCEATierChangeDeadline = function(cycle, today) {
+  // Find next meter read after today
+  const nextRead = getNextMeterRead(cycle, today);
+  
+  if (!nextRead) {
+    throw new Error(`No upcoming meter read found for cycle ${cycle}`);
+  }
+  
+  // Calculate 5 business days before the read
+  // Use subtractBusinessDays helper
+  const requestDeadline = subtractBusinessDays(nextRead, 5);
+  
+  // If today is past the deadline, find the next read
+  if (today > requestDeadline) {
+    const readAfterNext = getNextMeterRead(cycle, new Date(nextRead.getTime() + 86400000)); // +1 day
+    if (!readAfterNext) {
+      throw new Error(`No meter read found after ${nextRead.toISOString()}`);
+    }
+    
+    const newDeadline = subtractBusinessDays(readAfterNext, 5);
+    
+    return {
+      requestDeadline: newDeadline,
+      effectiveDate: readAfterNext,
+      reasoning: `Request must arrive ≥5 business days before meter read. Too late for ${nextRead.toLocaleDateString()}; request by ${newDeadline.toLocaleDateString()} for ${readAfterNext.toLocaleDateString()} effective date`
+    };
+  }
+  
+  return {
+    requestDeadline,
+    effectiveDate: nextRead,
+    reasoning: `Request must arrive ≥5 business days before meter read. Request by ${requestDeadline.toLocaleDateString()} for ${nextRead.toLocaleDateString()} effective date`
+  };
+}
+
+/**
+ * Check if a date is a major US holiday that affects SDG&E/CEA business days
+ * @param {Date} date
+ * @returns {boolean}
+ */
+function isHoliday(date) {
+  const month = date.getMonth();
+  const dayOfMonth = date.getDate();
+  const year = date.getFullYear();
+  
+  // Thanksgiving: 4th Thursday of November
+  if (month === 10) { // November
+    const firstDay = new Date(year, 10, 1);
+    const firstThursday = (11 - firstDay.getDay()) % 7 || 7;
+    const fourthThursday = firstThursday + 21;
+    if (dayOfMonth === fourthThursday) return true;
+  }
+  
+  // Christmas
+  if (month === 11 && dayOfMonth === 25) return true;
+  
+  // New Year's Day
+  if (month === 0 && dayOfMonth === 1) return true;
+  
+  // Independence Day
+  if (month === 6 && dayOfMonth === 4) return true;
+  
+  // Memorial Day: last Monday of May
+  // Labor Day: first Monday of September
+  // etc. - can expand as needed
+  
+  return false;
+}
+
+/**
+ * Subtract business days from a date (skip weekends and major holidays)
+ * @param {Date} date - Starting date
+ * @param {number} businessDays - Number of business days to subtract
+ * @returns {Date} Result date
+ */
+function subtractBusinessDays(date, businessDays) {
+  const result = new Date(date);
+  let daysSubtracted = 0;
+  
+  while (daysSubtracted < businessDays) {
+    result.setDate(result.getDate() - 1);
+    const dayOfWeek = result.getDay();
+    
+    // Skip weekends (0 = Sunday, 6 = Saturday) and holidays
+    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isHoliday(result)) {
+      daysSubtracted++;
+    }
+  }
+  
+  return result;
+}
+
+/**
+ * Add business days to a date (skip weekends and major holidays)
+ * @param {Date} date - Starting date
+ * @param {number} businessDays - Number of business days to add
+ * @returns {Date} Result date
+ */
+window.addBusinessDays = function(date, businessDays) {
+  const result = new Date(date);
+  let daysAdded = 0;
+  
+  while (daysAdded < businessDays) {
+    result.setDate(result.getDate() + 1);
+    const dayOfWeek = result.getDay();
+    
+    // Skip weekends (0 = Sunday, 6 = Saturday) and holidays
+    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isHoliday(result)) {
+      daysAdded++;
+    }
+  }
+  
+  return result;
+}
+
+
+// ----- optOutTiming.js -----
+/**
+ * Opt-Out and Switch Timing Module (CORRECTED)
+ * Generates specific action dates, deadlines, and cost implications for provider/plan switches
+ * All rules are dated and sourced - unverified rules are labeled explicitly
+ * 
+ * Research source: /workspace/research/opt-out-timing-rules.md
+ * Last updated: 2026-10-28 (corrected per independent research against official tariffs)
+ * 
+ * @module optOutTiming
+ */
+
+
+
+/**
+ * Parse a date string as local date (not UTC)
+ * @param {string} dateStr - Date string in 'YYYY-MM-DD' format
+ * @returns {Date} Local date object
+ */
+function parseLocalDate(dateStr) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+/**
+ * Timing rule with verification status
+ * @typedef {Object} TimingRule
+ * @property {string} action - What to do
+ * @property {string|Date} recommendedDate - When to do it (or "immediate")
+ * @property {string|Date|null} deadline - Hard deadline (null if none)
+ * @property {string|null} avoidWindow - Time period to avoid
+ * @property {string} reason - Why this timing matters
+ * @property {string} costOfEarly - What happens if done too early
+ * @property {string} costOfLate - What happens if done too late
+ * @property {string} source - Source of this rule (with date)
+ * @property {boolean} verified - Whether this rule is verified
+ * @property {number} estimatedSavings - Annual savings if action is taken (dollars)
+ * @property {string} urgency - "high", "medium", "low"
+ */
+
+/**
+ * Calculate opt-out and switch timing recommendations for a household
+ * @param {Object} currentPlan - Current provider and plan info
+ * @param {Array} bills - Parsed bill data
+ * @param {Object} savingsReport - Output from engine.js
+ * @param {Object} household - Household info
+ * @returns {Array<TimingRule>} List of timing recommendations
+ */
+window.calculateOptOutTiming = function(currentPlan, bills, savingsReport, household) {
+  const rules = [];
+  const today = new Date();
+  
+  // Extract key data from bills
+  const latestBill = bills[0];
+  const cycle = latestBill?.cycle || 19; // Billing cycle number
+  const nemTrueUpDate = latestBill?.nemTrueUpDate ? new Date(latestBill.nemTrueUpDate) : null;
+  const hasSolar = household?.hasSolar || latestBill?.hasSolar || false;
+  
+  // 1. CEA tier downgrade (Clean Impact Plus → Clean Impact)
+  if (currentPlan.provider === 'CEA' && currentPlan.plan === 'Clean Impact Plus') {
+    const cleanImpactAlternative = savingsReport.providerAlternatives?.find(
+      alt => alt.provider === 'CEA' && alt.plan === 'Clean Impact'
+    );
+    
+    // Always show timing for CCA customers, even if savings <= 0
+    if (cleanImpactAlternative) {
+      try {
+        const tierChange = calculateCEATierChangeDeadline(cycle, today);
+        const reliefCreditDeadline = parseLocalDate('2026-12-31');
+        
+        // Calculate value: only one billing cycle (Nov 27 - Dec 29 for cycle 19)
+        // Not $10-30/month - credit expires Dec 31, 2026
+        const estimatedValue = 6; // ~$3-6 for one winter cycle
+        
+        const daysUntilDeadline = Math.ceil((tierChange.requestDeadline - today) / (1000 * 60 * 60 * 24));
+        
+        rules.push({
+          action: 'Switch from CEA Clean Impact Plus to Clean Impact',
+          recommendedDate: tierChange.requestDeadline,
+          deadline: tierChange.requestDeadline,
+          avoidWindow: null,
+          reason: `Clean Impact relief credit ends Dec 31, 2026. ${tierChange.reasoning}. The credit covers only about one winter cycle (${tierChange.effectiveDate.toLocaleDateString()}–Dec 29), worth about $3–6 total. Free and reversible, so no downside to opting down now.`,
+          costOfEarly: 'None - you can opt down now and switch back to Plus anytime at no cost.',
+          costOfLate: `Missing the ${tierChange.requestDeadline.toLocaleDateString()} deadline pushes effective date to the next meter read, reducing or eliminating relief credit benefit before Dec 31 expiration.`,
+          source: 'CEA Oceanside/Vista notice letter (5-business-day rule), CEA rate schedule eff. 2/1/2026, CEA 10/29/2026 board packet (verified 2026-10-28)',
+          verified: true, // 5-day rule verified for opt-outs, likely applies to opt-downs
+          estimatedSavings: estimatedValue,
+          urgency: daysUntilDeadline <= 7 ? 'high' : 'medium',
+          daysUntil: Math.max(0, daysUntilDeadline),
+          daysUntilDeadline: Math.max(0, daysUntilDeadline)
+        });
+      } catch (error) {
+        console.error('Error calculating CEA tier change deadline:', error);
+      }
+    }
+  }
+  
+  // 2. CCA opt-out back to SDG&E (with proper notice deadline calculation)
+  if ((currentPlan.provider === 'CEA' || currentPlan.provider === 'SDCP') && hasSolar) {
+    const sdgeAlternative = savingsReport.providerAlternatives?.find(
+      alt => alt.provider === 'SDG&E'
+    );
+    
+    // Always show timing for CCA customers with solar, even if savings <= 0
+    if (sdgeAlternative) {
+      try {
+        // Target: return before June 1 summer pricing starts
+        // For cycle 19: May 28, 2027 read
+        const targetSwitchDate = parseLocalDate('2027-05-28');
+        const optOutInfo = calculateCCAOptOutDeadline(cycle, targetSwitchDate);
+        
+        // Calculate credit forfeiture
+        // Switching forces interim true-up at May 28, 2027
+        // Leftover spring credits (Oct 29, 2026 - May 28, 2027) are forfeited
+        // Estimate: ~$50-90 based on prior year Apr-May credits
+        const estimatedCreditForfeit = 70; // midpoint of $50-90
+        const netSavings = Math.round(sdgeAlternative.savings - estimatedCreditForfeit);
+        
+        // CEA forwarding time is unverified; recommend 2-week buffer
+        const recommendedSubmitDate = new Date(optOutInfo.noticeDeadline);
+        recommendedSubmitDate.setDate(recommendedSubmitDate.getDate() - 14);
+        
+        const daysUntilDeadline = Math.ceil((optOutInfo.noticeDeadline - today) / (1000 * 60 * 60 * 24));
+        const daysUntilRecommended = Math.ceil((recommendedSubmitDate - today) / (1000 * 60 * 60 * 24));
+        
+        let urgency = 'medium';
+        let recommendedDate = recommendedSubmitDate;
+        
+        if (today > optOutInfo.noticeDeadline) {
+          // Missed the May deadline; next is June
+          const juneSwitch = getNextMeterRead(cycle, optOutInfo.switchDate);
+          const juneOptOut = calculateCCAOptOutDeadline(cycle, juneSwitch);
+          const juneRecommended = new Date(juneOptOut.noticeDeadline);
+          juneRecommended.setDate(juneRecommended.getDate() - 14);
+          
+          recommendedDate = juneRecommended;
+          urgency = 'low';
+          
+          rules.push({
+            action: `Opt out of ${currentPlan.provider} and return to SDG&E`,
+            recommendedDate: recommendedDate,
+            deadline: juneOptOut.noticeDeadline,
+            avoidWindow: null,
+            reason: `Missed the ${optOutInfo.noticeDeadline.toLocaleDateString()} deadline for May return. Next opportunity: submit via CEA by ~${juneRecommended.toLocaleDateString()}; SDG&E must receive by ${juneOptOut.noticeDeadline.toLocaleDateString()} to switch on ${juneOptOut.switchDate.toLocaleDateString()}. 6-month advance notice required (SDG&E Rule 27). Switch happens at first meter read after 6 months from SDG&E's receipt.`,
+            costOfEarly: 'CEA forwarding time to SDG&E is unverified (~2 weeks estimated). Submitting too early may require resubmission.',
+            costOfLate: `Missing ${juneOptOut.noticeDeadline.toLocaleDateString()} pushes switch to next cycle. 12-month minimum stay on SDG&E starts from switch date. Cancellation allowed only within 3 business days after SDG&E receives notice.`,
+            source: 'SDG&E Rule 27 §L.1, L.2.b, L.3.b(1) (verified 2026-10-28); SDG&E 2026/2027 meter-read calendars (derived)',
+            verified: true,
+            estimatedSavings: netSavings,
+            urgency: urgency,
+            daysUntil: Math.max(0, Math.ceil((recommendedDate - today) / (1000 * 60 * 60 * 24))),
+            daysUntilDeadline: Math.max(0, Math.ceil((juneOptOut.noticeDeadline - today) / (1000 * 60 * 60 * 24)))
+          });
+        } else if (daysUntilRecommended <= 14) {
+          urgency = 'high';
+          
+          rules.push({
+            action: `Opt out of ${currentPlan.provider} and return to SDG&E`,
+            recommendedDate: 'immediate',
+            deadline: optOutInfo.noticeDeadline,
+            avoidWindow: null,
+            reason: `Submit notice this week via CEA. SDG&E must receive by ${optOutInfo.noticeDeadline.toLocaleDateString()} to switch on ${optOutInfo.switchDate.toLocaleDateString()} (before June 1 summer pricing). 6-month advance notice required (SDG&E Rule 27). Switch forces interim NEM true-up at ${optOutInfo.switchDate.toLocaleDateString()} and resets anniversary. Leftover spring credits (~$${estimatedCreditForfeit}) forfeited. Net savings: ~$${netSavings}/year after credit forfeit.`,
+            costOfEarly: 'Notice is binding after 3 business days from SDG&E receipt. 2027 PCIA decision comes after this deadline.',
+            costOfLate: `Missing ${optOutInfo.noticeDeadline.toLocaleDateString()} deadline pushes switch from May 28 to Jun 29, adding one expensive summer cycle on CEA (~$80-105 extra).`,
+            source: 'SDG&E Rule 27 §L.1, L.2.b, L.3.b, L.3.d; Schedule NEM-ST SC 3, 3(f), 3(h); CEA NEM T&C §H (verified 2026-10-28)',
+            verified: true,
+            estimatedSavings: netSavings,
+            urgency: urgency,
+            daysUntil: 0,
+            daysUntilDeadline: Math.max(0, daysUntilDeadline)
+          });
+        } else {
+          urgency = daysUntilRecommended <= 30 ? 'high' : 'medium';
+          
+          // Main opt-out action: submit to CCA
+          rules.push({
+            action: `Submit CCA opt-out via ${currentPlan.provider}`,
+            recommendedDate: recommendedSubmitDate,
+            deadline: null, // This is the recommended submit date, not a hard deadline
+            avoidWindow: null,
+            reason: `Submit your CCA return notice through ${currentPlan.provider} website by ~${recommendedSubmitDate.toLocaleDateString()} to ensure SDG&E receives by ${optOutInfo.noticeDeadline.toLocaleDateString()}. ${currentPlan.provider} forwarding time is unverified (~2 weeks estimated). Switch on ${optOutInfo.switchDate.toLocaleDateString()} before June 1 summer pricing. Switch forces interim NEM true-up and resets anniversary. Leftover spring credits (~$${estimatedCreditForfeit}) forfeited. Net savings: ~$${netSavings}/year after credit forfeit.`,
+            costOfEarly: 'Notice is binding after 3 business days from SDG&E receipt.',
+            costOfLate: `Missing the submit window risks missing SDG&E's ${optOutInfo.noticeDeadline.toLocaleDateString()} deadline.`,
+            source: 'SDG&E Rule 27 §L.1, L.2.b, L.3.b(1); ${currentPlan.provider} forwarding time unverified (estimated)',
+            verified: true,
+            estimatedSavings: netSavings,
+            urgency: urgency,
+            daysUntil: Math.max(0, daysUntilRecommended),
+            daysUntilDeadline: Math.max(0, daysUntilRecommended)
+          });
+          
+          // Notice deadline: when SDG&E must receive
+          rules.push({
+            action: `SDG&E must receive your CCA return notice`,
+            recommendedDate: optOutInfo.noticeDeadline,
+            deadline: optOutInfo.noticeDeadline,
+            avoidWindow: null,
+            reason: `Hard deadline: SDG&E must receive your notice by ${optOutInfo.noticeDeadline.toLocaleDateString()} for switch on ${optOutInfo.switchDate.toLocaleDateString()}. 6-month advance notice required (SDG&E Rule 27 §L.1). Submit via ${currentPlan.provider} by ~${recommendedSubmitDate.toLocaleDateString()} to account for forwarding time. Missing this deadline pushes switch from May 28 to Jun 29 (~$80-105 extra in summer costs).`,
+            costOfEarly: 'None - this is the deadline.',
+            costOfLate: `Switch delayed from ${optOutInfo.switchDate.toLocaleDateString()} to next cycle (Jun 29), adding one expensive summer cycle on ${currentPlan.provider}.`,
+            source: 'SDG&E Rule 27 §L.1, L.2.b, L.3.b(1) (verified 2026-10-28); SDG&E 2026/2027 meter-read calendars',
+            verified: true,
+            estimatedSavings: 0, // This is a deadline, not an action
+            urgency: 'high',
+            daysUntil: Math.max(0, daysUntilDeadline),
+            daysUntilDeadline: Math.max(0, daysUntilDeadline)
+          });
+          
+          // Switch date: when you actually return to SDG&E
+          rules.push({
+            action: `You switch back to SDG&E`,
+            recommendedDate: optOutInfo.switchDate,
+            deadline: null,
+            avoidWindow: null,
+            reason: `Your billing switches from ${currentPlan.provider} to SDG&E bundled on ${optOutInfo.switchDate.toLocaleDateString()} (first meter read after 6-month notice period). This is when the savings begin. Interim NEM true-up occurs on this date. 12-month minimum stay on SDG&E starts from this date. If you missed the ${optOutInfo.noticeDeadline.toLocaleDateString()} deadline, next switch would be Jun 29, 2027.`,
+            costOfEarly: 'N/A - date is determined by notice deadline and meter read schedule.',
+            costOfLate: 'N/A - this is when the switch happens, not an action.',
+            source: 'SDG&E Rule 27 §L.2.b, L.3.a (verified 2026-10-28); Schedule NEM-ST SC 3(f)',
+            verified: true,
+            estimatedSavings: netSavings, // This is when savings begin
+            urgency: 'medium',
+            daysUntil: Math.max(0, Math.ceil((optOutInfo.switchDate - today) / (1000 * 60 * 60 * 24))),
+            daysUntilDeadline: null
+          });
+        }
+        
+        // Additional warning about rate plan changes
+        rules.push({
+          action: 'Do NOT change SDG&E rate plan now',
+          recommendedDate: parseLocalDate('2027-05-15'), // About 2 weeks before May 28 switch
+          deadline: null,
+          avoidWindow: `${today.toLocaleDateString()} - ${optOutInfo.switchDate.toLocaleDateString()}`,
+          reason: `Rate plan changes allowed once per 12 months and lock you in. Best plan on CEA (e.g., DR-SES has lower CEA generation rates in summer than TOU-DR1) differs from best plan on SDG&E bundled. Save your one change per year for just before the ${optOutInfo.switchDate.toLocaleDateString()} switch to SDG&E.`,
+          costOfEarly: 'Wrong rate plan for your provider. Locked in for 12 months.',
+          costOfLate: 'None - wait until ~2 weeks before switch to SDG&E, then choose best bundled plan.',
+          source: 'SDG&E Rule 12 §D (verified 2026-10-28)',
+          verified: true, // Rule verified; analysis is derived
+          estimatedSavings: 0, // Prevents bad decision, not direct savings
+          urgency: 'medium',
+          daysUntil: Math.max(0, Math.ceil((parseLocalDate('2027-05-15') - today) / (1000 * 60 * 60 * 24))),
+          daysUntilDeadline: null
+        });
+        
+      } catch (error) {
+        console.error('Error calculating CCA opt-out deadline:', error);
+      }
+    }
+  }
+  
+  // 3. CCA opt-out for non-solar customers (simpler, no true-up interaction)
+  if ((currentPlan.provider === 'CEA' || currentPlan.provider === 'SDCP') && !hasSolar) {
+    const sdgeAlternative = savingsReport.providerAlternatives?.find(
+      alt => alt.provider === 'SDG&E'
+    );
+    
+    if (sdgeAlternative && sdgeAlternative.savings > 0) {
+      try {
+        const targetSwitchDate = parseLocalDate('2027-05-28'); // Before summer
+        const optOutInfo = calculateCCAOptOutDeadline(cycle, targetSwitchDate);
+        const recommendedSubmitDate = new Date(optOutInfo.noticeDeadline);
+        recommendedSubmitDate.setDate(recommendedSubmitDate.getDate() - 14);
+        
+        const daysUntilRecommended = Math.ceil((recommendedSubmitDate - today) / (1000 * 60 * 60 * 24));
+        const urgency = daysUntilRecommended <= 30 ? 'high' : 'medium';
+        
+        rules.push({
+          action: `Opt out of ${currentPlan.provider} and return to SDG&E`,
+          recommendedDate: daysUntilRecommended <= 14 ? 'immediate' : recommendedSubmitDate,
+          deadline: optOutInfo.noticeDeadline,
+          avoidWindow: null,
+          reason: `Submit via ${currentPlan.provider} by ~${recommendedSubmitDate.toLocaleDateString()} to ensure SDG&E receives by ${optOutInfo.noticeDeadline.toLocaleDateString()} (6-month advance notice required). Switch on ${optOutInfo.switchDate.toLocaleDateString()} before June 1 summer pricing. 12-month minimum stay on SDG&E starts from switch date.`,
+          costOfEarly: 'Notice is binding after 3 business days from SDG&E receipt.',
+          costOfLate: `Each summer month on ${currentPlan.provider} costs more than SDG&E. Missing ${optOutInfo.noticeDeadline.toLocaleDateString()} pushes switch to next cycle.`,
+          source: 'SDG&E Rule 27 §L.1, L.2.b, L.3.b(1), L.3.a; SDG&E 2026/2027 meter-read calendars (verified 2026-10-28)',
+          verified: true,
+          estimatedSavings: Math.round(sdgeAlternative.savings),
+          urgency: urgency,
+          daysUntil: Math.max(0, daysUntilRecommended),
+          daysUntilDeadline: Math.max(0, Math.ceil((optOutInfo.noticeDeadline - today) / (1000 * 60 * 60 * 24)))
+        });
+      } catch (error) {
+        console.error('Error calculating CCA opt-out deadline for non-solar:', error);
+      }
+    }
+  }
+  
+  // 4. CARE/FERA enrollment (immediate if eligible)
+  if (savingsReport.discountPrograms && savingsReport.discountPrograms.length > 0) {
+    savingsReport.discountPrograms.forEach(program => {
+      const estimatedMonthlySavings = 50;
+      const annualSavings = estimatedMonthlySavings * 12;
+      
+      rules.push({
+        action: `Enroll in ${program.program}`,
+        recommendedDate: 'immediate',
+        deadline: null,
+        avoidWindow: null,
+        reason: `${program.eligibility}. Takes 2-3 billing cycles to process, but discounts are applied retroactively to application date. Each month you wait costs ~$${estimatedMonthlySavings}.`,
+        costOfEarly: 'None - apply immediately if eligible. Self-attestation allowed.',
+        costOfLate: `~$${estimatedMonthlySavings} per month in lost discounts for each month you delay.`,
+        source: 'SDG&E CARE/FERA page, CA PUC D.20-07-032 (verified 2026-10-28)',
+        verified: true,
+        estimatedSavings: annualSavings,
+        urgency: 'high',
+        daysUntil: 0,
+        daysUntilDeadline: null
+      });
     });
+  }
+  
+  return rules.sort((a, b) => {
+    // Sort by urgency, then by days until action
+    const urgencyOrder = { high: 0, medium: 1, low: 2 };
+    if (urgencyOrder[a.urgency] !== urgencyOrder[b.urgency]) {
+      return urgencyOrder[a.urgency] - urgencyOrder[b.urgency];
+    }
+    
+    const aDays = a.daysUntil === null ? Infinity : a.daysUntil;
+    const bDays = b.daysUntil === null ? Infinity : b.daysUntil;
+    return aDays - bDays;
   });
 }
 
-function updateAnalyzeButton() {
-  analyzeBtn.disabled = files.length === 0;
-}
-
-// Extract text from PDF
-async function extractTextFromPDF(file) {
-  const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  
-  let fullText = '';
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const textContent = await page.getTextContent();
-    
-    // Reconstruct lines based on y-position (vertical position)
-    // Group items by similar y-coordinate (within 2 units)
-    const lines = [];
-    let currentLine = [];
-    let currentY = null;
-    
-    for (const item of textContent.items) {
-      if (!item.str.trim()) continue; // Skip empty items
-      
-      const itemY = Math.round(item.transform[5]); // Y-coordinate
-      
-      if (currentY === null || Math.abs(itemY - currentY) < 2) {
-        // Same line
-        currentLine.push(item);
-        currentY = itemY;
-      } else {
-        // New line
-        if (currentLine.length > 0) {
-          // Sort current line by X position and join
-          currentLine.sort((a, b) => a.transform[4] - b.transform[4]);
-          lines.push(currentLine.map(it => it.str).join(' '));
-        }
-        currentLine = [item];
-        currentY = itemY;
-      }
-    }
-    
-    // Add last line
-    if (currentLine.length > 0) {
-      currentLine.sort((a, b) => a.transform[4] - b.transform[4]);
-      lines.push(currentLine.map(it => it.str).join(' '));
-    }
-    
-    // Join lines with newlines
-    fullText += lines.join('\n') + '\n';
+/**
+ * Format a timing rule as a human-readable action step
+ * @param {TimingRule} rule
+ * @returns {Object} Formatted action step for actionPlan.js
+ */
+window.formatTimingRuleAsAction = function(rule) {
+  let dateDisplay;
+  if (rule.recommendedDate === 'immediate') {
+    dateDisplay = 'As soon as possible';
+  } else if (rule.recommendedDate instanceof Date) {
+    dateDisplay = rule.recommendedDate.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  } else {
+    dateDisplay = rule.recommendedDate;
   }
   
-  return fullText;
+  let title = rule.action;
+  if (rule.daysUntil === 0) {
+    title += ' (NOW)';
+  } else if (rule.daysUntil && rule.daysUntil <= 30) {
+    title += ` (in ${rule.daysUntil} days)`;
+  }
+  
+  let description = `**When:** ${dateDisplay}\n\n`;
+  description += `**Why:** ${rule.reason}\n\n`;
+  
+  if (rule.deadline) {
+    const deadlineStr = rule.deadline instanceof Date 
+      ? rule.deadline.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+      : rule.deadline;
+    description += `**Deadline:** ${deadlineStr}\n\n`;
+  }
+  
+  if (rule.avoidWindow) {
+    description += `**Avoid:** ${rule.avoidWindow}\n\n`;
+  }
+  
+  description += `**Cost if too late:** ${rule.costOfLate}\n\n`;
+  description += `**Cost if too early:** ${rule.costOfEarly}\n\n`;
+  
+  if (!rule.verified) {
+    description += `⚠️ **UNVERIFIED RULE** - This timing recommendation needs confirmation from your provider.\n\n`;
+  }
+  
+  description += `**Source:** ${rule.source}`;
+  
+  return {
+    id: `opt_out_${rule.action.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`,
+    what: title,
+    how: description,
+    date: rule.recommendedDate === 'immediate' ? new Date() : rule.recommendedDate,
+    deadline: rule.deadline,
+    estimatedSavings: rule.estimatedSavings,
+    urgency: rule.urgency,
+    verified: rule.verified,
+    source: rule.source,
+    category: 'opt-out',
+    recurring: null
+  };
 }
 
-function showStatus(type, message) {
-  statusDiv.className = `status ${type}`;
-  statusDiv.textContent = message;
-  statusDiv.style.display = 'block';
+/**
+ * Get countdown text for a timing rule
+ * @param {TimingRule} rule
+ * @returns {string} Human-readable countdown
+ */
+window.getCountdownText = function(rule) {
+  if (rule.daysUntil === 0) {
+    return 'Act now';
+  }
+  
+  if (rule.daysUntil === null) {
+    return 'No deadline';
+  }
+  
+  if (rule.daysUntil <= 7) {
+    return `${rule.daysUntil} days`;
+  }
+  
+  if (rule.daysUntil <= 30) {
+    const weeks = Math.ceil(rule.daysUntil / 7);
+    return `${weeks} week${weeks > 1 ? 's' : ''}`;
+  }
+  
+  if (rule.daysUntil <= 365) {
+    const months = Math.ceil(rule.daysUntil / 30);
+    return `${months} month${months > 1 ? 's' : ''}`;
+  }
+  
+  const years = Math.floor(rule.daysUntil / 365);
+  return `${years} year${years > 1 ? 's' : ''}`;
 }
 
-function showProgress(message) {
-  progressDiv.textContent = message;
-  progressDiv.style.display = 'block';
+/**
+ * Check if action is time-sensitive (needs attention soon)
+ * @param {TimingRule} rule
+ * @returns {boolean}
+ */
+window.isTimeSensitive = function(rule) {
+  if (rule.urgency === 'high') return true;
+  if (rule.daysUntil !== null && rule.daysUntil <= 30) return true;
+  if (rule.daysUntilDeadline !== null && rule.daysUntilDeadline <= 60) return true;
+  return false;
 }
 
-function hideProgress() {
-  progressDiv.style.display = 'none';
-}
 
-// Analyze bills (100% client-side)
-analyzeBtn.addEventListener('click', async () => {
-  try {
-    analyzeBtn.disabled = true;
-    showStatus('info', 'Processing bills in your browser...');
+// ----- parser.js -----
+/**
+ * Deterministic Bill Parser for SDG&E Text Bills
+ * Extracts data using regex patterns on pdftotext -layout output
+ * Per CLAUDE.md: Cheaper and more private than LLM. Use LLM only as fallback.
+ */
+
+/**
+ * Parse SDG&E bill from text (pdftotext -layout output)
+ * @param {string} text - Raw bill text
+ * @returns {Object} Parsed bill data with confidence scores
+ */
+window.parseSDGEBillText = function(text) {
+  const result = {
+    accountNumber: null,
+    billingPeriod: { start: null, end: null },
+    cycle: null, // Billing cycle number (e.g., 19)
+    provider: 'SDG&E', // default
+    providerTier: null,
+    ratePlan: null,
+    hasSolar: false,
+    nemStatus: null,
+    nemTrueUpDate: null,
+    nemBalance: null,
+    nemPaymentHistory: [], // Array of { date, amount } for NEM payments
+    systemSize: null,
+    totalKwh: null,
+    climateZone: null,
+    usage: {
+      onPeak: 0,
+      offPeak: 0,
+      superOffPeak: 0,
+      season: null
+    },
+    gas: null,
+    billedRates: null, // CEA/CCA generation rates printed on bill
+    charges: [],
+    totalAmount: null,
+    serviceAddress: { zip: null },
+    nemYearToDate: [], // Array of monthly usage from NEM table
+    confidence: {},
+    warnings: []
+  };
+
+  // Account number (12 digits from CCA Account Number, or 13-digit with last dropped)
+  const ccaAcctMatch = text.match(/CCA Account Number:\s*(\d+)/);
+  if (ccaAcctMatch) {
+    result.accountNumber = ccaAcctMatch[1].slice(0, 12);
+    result.confidence.accountNumber = 'high';
+  } else {
+    const acctMatch = text.match(/ACCOUNT NUMBER\s+([\d\s]+)/);
+    if (acctMatch) {
+      const digits = acctMatch[1].replace(/\s/g, '');
+      result.accountNumber = digits.length === 13 ? digits.slice(0, 12) : digits;
+      result.confidence.accountNumber = 'medium';
+    }
+  }
+
+  // Billing period
+  const periodMatch = text.match(/Billing Period[:\s]+(\d{1,2}\/\d{1,2}\/\d{2,4})\s*-\s*(\d{1,2}\/\d{1,2}\/\d{2,4})/);
+  if (periodMatch) {
+    result.billingPeriod.start = normalizeDate(periodMatch[1]);
+    result.billingPeriod.end = normalizeDate(periodMatch[2]);
+    result.confidence.billingPeriod = 'high';
     
-    // Track upload started (anonymous only)
-    trackEvent('bill_upload_started', {
-      bill_count: files.length
-    });
+    // Determine season from start date
+    const month = new Date(result.billingPeriod.start).getMonth();
+    result.usage.season = (month >= 5 && month <= 9) ? 'summer' : 'winter';
+  }
+  
+  // Billing cycle
+  const cycleMatch = text.match(/Cycle:\s*(\d+)/i);
+  if (cycleMatch) {
+    result.cycle = parseInt(cycleMatch[1]);
+  }
+
+  // Provider detection (CCA section)
+  if (text.includes('CLEAN ENERGY ALLIANCE')) {
+    result.provider = 'CEA';
+    result.confidence.provider = 'high';
     
-    // Extract text from PDFs
-    showProgress('Extracting text from PDFs...');
-    const extractedBills = [];
-    
-    for (let i = 0; i < files.length; i++) {
-      showProgress(`Extracting text from bill ${i + 1}/${files.length}...`);
-      const text = await extractTextFromPDF(files[i]);
-      extractedBills.push({ filename: files[i].name, text });
+    // Detect tier (Clean Impact vs Clean Impact Plus)
+    const tierMatch = text.match(/Clean Impact (Plus)?\s+\d+\s*kWh/i);
+    if (tierMatch) {
+      result.providerTier = tierMatch[1] ? 'Clean Impact Plus' : 'Clean Impact';
     }
     
-    // Parse bills (client-side deterministic parser)
-    showProgress('Parsing bill data...');
-    const parsedBills = [];
-    const rejectedBills = [];
-    
-    for (let i = 0; i < extractedBills.length; i++) {
-      try {
-        const billData = parseSDGEBillText(extractedBills[i].text);
-        
-        // Validate billing period
-        const validation = validateBillingPeriod(billData);
-        if (validation && !validation.valid) {
-          rejectedBills.push({
-            filename: extractedBills[i].filename,
-            reason: validation.reason,
-            message: validation.message
-          });
-          
-          // Track rejection (anonymous - just the reason)
-          trackEvent('bill_upload_rejected', {
-            reason: validation.reason
-          });
-          
-          continue;
-        }
-        
-        parsedBills.push(billData);
-      } catch (error) {
-        console.error(`Error parsing bill ${i + 1}:`, error);
-        showStatus('error', `Error parsing ${extractedBills[i].filename}. Please ensure it's a complete monthly SDG&E bill.`);
-        analyzeBtn.disabled = false;
-        hideProgress();
-        return;
-      }
-    }
-    
-    // Show rejection messages
-    if (rejectedBills.length > 0) {
-      const messages = rejectedBills.map(r => `• ${r.message}`).join('\n\n');
-      showStatus('error', `Some bills were set aside:\n\n${messages}\n\nPlease upload complete monthly bills instead.`);
+    // Extract CEA generation rates from bill
+    // Pattern: "Generation On-Peak Summer 355 kWh X $0.55397"
+    const ceaRateSection = text.match(/Community Choice Aggregation[\s\S]{0,800}(?:Total CCA|Tax|NBC)/);
+    if (ceaRateSection) {
+      const section = ceaRateSection[0];
+      const onPeakMatch = section.match(/Generation On-Peak Summer\s+\d+\s*kWh\s+X\s+\$?([\d.]+)/i);
+      const offPeakMatch = section.match(/Generation Off-Peak Summer\s+\d+\s*kWh\s+X\s+\$?([\d.]+)/i);
+      const superOffPeakMatch = section.match(/Generation Super Off-Peak Summer\s+\d+\s*kWh\s+X\s+\$?([\d.]+)/i);
       
-      if (parsedBills.length === 0) {
-        analyzeBtn.disabled = false;
-        hideProgress();
-        return;
+      if (onPeakMatch || offPeakMatch || superOffPeakMatch) {
+        result.billedRates = {
+          season: 'summer',
+          onPeak: onPeakMatch ? parseFloat(onPeakMatch[1]) : null,
+          offPeak: offPeakMatch ? parseFloat(offPeakMatch[1]) : null,
+          superOffPeak: superOffPeakMatch ? parseFloat(superOffPeakMatch[1]) : null
+        };
       }
     }
+  } else if (text.match(/San Diego Community Power|SDCP/i)) {
+    result.provider = 'SDCP';
+    result.confidence.provider = 'high';
+  }
+
+  // Rate plan
+  const rateMatch = text.match(/Rate:\s*(?:Time of Use\s*-\s*)?(TOU-[A-Z0-9-]+?)(?:-Residential|-Commercial|Residential|\s)/i);
+  if (rateMatch) {
+    result.ratePlan = rateMatch[1];
+    result.confidence.ratePlan = 'high';
+  }
+
+  // Climate zone
+  const zoneMatch = text.match(/Climate Zone:\s*(\w+)/);
+  if (zoneMatch) {
+    result.climateZone = zoneMatch[1];
+  }
+
+  // Solar / NEM detection
+  if (text.includes('Net Energy Metering') || text.includes('NEM')) {
+    result.hasSolar = true;
     
-    // Track successful parsing (anonymous - just counts and booleans)
-    trackEvent('bill_parsed_success', {
-      bill_count: parsedBills.length,
-      has_solar: parsedBills.some(b => b.hasSolar),
-      has_gas: parsedBills.some(b => b.gas && b.gas.therms > 0),
-      provider: parsedBills[0].provider  // Provider name is OK (not PII)
+    // NEM version
+    const versionMatch = text.match(/Version:\s*(\d+\.\d+)/);
+    if (versionMatch) {
+      result.nemStatus = `NEM ${versionMatch[1]}`;
+    }
+    
+    // System size
+    const sizeMatch = text.match(/System Size:\s*([\d.]+)\s*kW/);
+    if (sizeMatch) {
+      result.systemSize = parseFloat(sizeMatch[1]);
+    }
+    
+    // True-up date
+    const trueUpMatch = text.match(/True-Up Date:\s*(\d{1,2}\/\d{1,2}\/\d{2,4})/);
+    if (trueUpMatch) {
+      result.nemTrueUpDate = normalizeDate(trueUpMatch[1]);
+    }
+    
+    // Current NEM balance
+    const balanceMatch = text.match(/(?:NEM Year-to-Date Balance|Current Account Balance)\s+\$?([\d,]+\.?\d*)/);
+    if (balanceMatch) {
+      result.nemBalance = parseFloat(balanceMatch[1].replace(/,/g, ''));
+    }
+    
+    // Parse NEM payment history
+    // Pattern: "Payment Received   8/21/26    THANK YOU    - 354.22"
+    // Look in Net Metering Account Summary section
+    const nemSectionMatch = text.match(/Net Metering Account Summary[\s\S]{0,500}NEM Year-to-Date Balance/);
+    if (nemSectionMatch) {
+      const nemSection = nemSectionMatch[0];
+      const paymentRegex = /Payment Received\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\s+[A-Z\s]+\s+-?\s*\$?\s*([\d,]+\.?\d*)/g;
+      let paymentMatch;
+      while ((paymentMatch = paymentRegex.exec(nemSection)) !== null) {
+        result.nemPaymentHistory.push({
+          date: normalizeDate(paymentMatch[1]),
+          amount: parseFloat(paymentMatch[2].replace(/,/g, ''))
+        });
+      }
+    }
+  }
+
+  // Total kWh (from usage history or summary)
+  const kwhMatch = text.match(/(\d+)\s+kWh used/) || text.match(/Total Usage:\s*(\d+)/);
+  if (kwhMatch) {
+    result.totalKwh = parseInt(kwhMatch[1]);
+    result.confidence.totalKwh = 'high';
+  }
+
+  // TOU usage (current month) - handle rate changes by summing all periods
+  // Look for pattern like: SUMMER USAGE On-Peak Off-Peak Super Off-Peak
+  //                        kWh used    355      193        76
+  let onPeak = 0;
+  let offPeak = 0;
+  let superOffPeak = 0;
+  let foundUsage = false;
+  
+  // More flexible regex to handle varying whitespace
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length - 1; i++) {
+    const line = lines[i];
+    const nextLine = lines[i + 1];
+    
+    if (/(SUMMER|WINTER)\s+USAGE/.test(line) && /kWh\s+used/.test(nextLine)) {
+      const season = line.match(/(SUMMER|WINTER)/i)[1].toLowerCase();
+      
+      // Extract numbers from next line
+      const numbers = nextLine.match(/([-−\d]+)/g);
+      if (numbers && numbers.length >= 3) {
+        // Skip the first match if it's just "kWh" related, look for actual numbers
+        const vals = numbers.filter(n => /^[-−]?\d+$/.test(n)).map(n => parseInt(n.replace('−', '-')));
+        if (vals.length >= 3) {
+          onPeak += vals[0];
+          offPeak += vals[1];
+          superOffPeak += vals[2];
+          foundUsage = true;
+          
+          if (!result.usage.season) {
+            result.usage.season = season;
+          }
+        }
+      }
+    }
+  }
+  
+  if (foundUsage) {
+    result.usage.onPeak = onPeak;
+    result.usage.offPeak = offPeak;
+    result.usage.superOffPeak = superOffPeak;
+    result.confidence.usage = 'high';
+  }
+
+  // Gas usage
+  const gasMatch = text.match(/(\d+)\s+Therms/i);
+  if (gasMatch) {
+    const therms = parseInt(gasMatch[1]);
+    // Prefer "Total Gas Service" which includes taxes/fees
+    let gasCostMatch = text.match(/Total Gas Service\s+\$?([\d.]+)/);
+    if (!gasCostMatch) {
+      gasCostMatch = text.match(/Total Gas (?:Charges)\s+\$?([\d.]+)/);
+    }
+    result.gas = {
+      therms,
+      cost: gasCostMatch ? parseFloat(gasCostMatch[1]) : null,
+      rate: 'GR' // default residential gas rate
+    };
+  }
+
+  // Total amount
+  const totalMatch = text.match(/Total Current Charges\s+\$?([\d,]+\.?\d*)/);
+  if (totalMatch) {
+    result.totalAmount = parseFloat(totalMatch[1].replace(/,/g, ''));
+    result.confidence.totalAmount = 'high';
+  }
+
+  // ZIP code (from service address)
+  // Look for 5 digits after common address indicators
+  const addressZipMatch = text.match(/(?:SERVICE FOR|Service Address|Mailing Address|ACCOUNT|Your Address)[\s\S]{0,500}?\b(\d{5})\b/i);
+  if (addressZipMatch) {
+    result.serviceAddress.zip = addressZipMatch[1];
+  } else {
+    // Fallback: first 5-digit number on first page
+    const firstPageText = text.substring(0, 2000);
+    const zipMatch = firstPageText.match(/\b(\d{5})\b/);
+    if (zipMatch) {
+      result.serviceAddress.zip = zipMatch[1];
+    }
+  }
+
+  // **CRITICAL: Parse Net Metering YTD table for full year of usage**
+  result.nemYearToDate = parseNEMYearToDateTable(text);
+  if (result.nemYearToDate.length > 0) {
+    result.confidence.nemYearToDate = 'high';
+  }
+
+  // Validation
+  if (!result.accountNumber) {
+    result.warnings.push('Could not extract account number');
+  }
+  if (!result.totalKwh) {
+    result.warnings.push('Could not extract total kWh');
+  }
+  if (!result.totalAmount) {
+    result.warnings.push('Could not extract total amount');
+  }
+
+  result.extractedAt = new Date().toISOString();
+  result.method = 'deterministic-parser';
+  result._originalText = text; // Store for validation
+  
+  return result;
+}
+
+/**
+ * Parse Net Metering Year-to-Date table
+ * This table shows 10-12 months of TOU usage from a single bill!
+ * @param {string} text - Bill text
+ * @returns {Array<Object>} Array of { date, onPeak, offPeak, superOffPeak, total, nemCharges }
+ */
+function parseNEMYearToDateTable(text) {
+  const months = [];
+  
+  // Find the NEM table section
+  const tableStart = text.indexOf('Net Energy Metering Summary');
+  if (tableStart === -1) return months;
+  
+  const tableSection = text.slice(tableStart, tableStart + 5000);
+  
+  // Pattern for each row: MM/DD/YYYY   onPeak  offPeak  superOffPeak  total  nemCharges
+  // Example: 11/26/2025    83      − 139     28           − 28      28.27
+  // Note: PDF.js renders negatives as '− N' (minus sign, space, digits)
+  const rowPattern = /(\d{1,2}\/\d{1,2}\/\d{4})\s+([-−]?\s*\d+)\s+([-−]?\s*\d+)\s+([-−]?\s*\d+)\s+([-−]?\s*\d+)\s+([\d.]+)/g;
+  
+  let match;
+  while ((match = rowPattern.exec(tableSection)) !== null) {
+    const date = normalizeDate(match[1]);
+    
+    // Skip if date is in the future (malformed)
+    if (new Date(date) > new Date()) continue;
+    
+    months.push({
+      date,
+      onPeak: parseInt(match[2].replace(/\s+/g, '').replace('−', '-')),
+      offPeak: parseInt(match[3].replace(/\s+/g, '').replace('−', '-')),
+      superOffPeak: parseInt(match[4].replace(/\s+/g, '').replace('−', '-')),
+      total: parseInt(match[5].replace(/\s+/g, '').replace('−', '-')),
+      nemCharges: parseFloat(match[6])
+    });
+  }
+  
+  return months;
+}
+
+/**
+ * Normalize date from MM/DD/YYYY or M/D/YY to YYYY-MM-DD
+ */
+function normalizeDate(dateStr) {
+  const parts = dateStr.split('/');
+  if (parts.length !== 3) return null;
+  
+  let [month, day, year] = parts;
+  
+  // Handle 2-digit years
+  if (year.length === 2) {
+    year = parseInt(year) < 50 ? `20${year}` : `19${year}`;
+  }
+  
+  // Pad month and day
+  month = month.padStart(2, '0');
+  day = day.padStart(2, '0');
+  
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Strip personal information before sending to LLM
+ * Per CLAUDE.md: Never send personal details in repo, memory, or chat
+ */
+window.stripPersonalInfo = function(text) {
+  let cleaned = text;
+  
+  // Replace account numbers with placeholder
+  cleaned = cleaned.replace(/ACCOUNT NUMBER\s+[\d\s]+/gi, 'ACCOUNT NUMBER [REDACTED]');
+  cleaned = cleaned.replace(/CCA Account Number:\s*\d+/gi, 'CCA Account Number: [REDACTED]');
+  
+  // Replace names (lines with all caps followed by address)
+  cleaned = cleaned.replace(/([A-Z][\sA-Z]+)\n\s+(\d+\s+[A-Z\s]+)\n\s+([A-Z\s]+,\s*CA\s+\d{5})/g, 
+    '[NAME REDACTED]\n[ADDRESS REDACTED]\n$3');
+  
+  // Replace meter numbers
+  cleaned = cleaned.replace(/Meter Number:\s*\d+/gi, 'Meter Number: [REDACTED]');
+  
+  // Replace specific addresses but keep ZIP
+  cleaned = cleaned.replace(/\d+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:ST|AVE|BLVD|DR|RD|LN|CT)/gi, '[ADDRESS]');
+  
+  return cleaned;
+}
+
+/**
+ * Detect if customer pays NEM charges monthly vs banking credits
+ * @param {Object} parsedData - Parsed bill data with nemPaymentHistory
+ * @returns {Object} { paysMonthly: boolean, confidence: 'high'|'medium'|'low'|'unknown', reasoning: string }
+ */
+window.detectNEMPaymentPattern = function(parsedData) {
+  if (!parsedData.hasSolar || !parsedData.nemPaymentHistory || parsedData.nemPaymentHistory.length === 0) {
+    return {
+      paysMonthly: null,
+      confidence: 'unknown',
+      reasoning: 'No payment history available'
+    };
+  }
+  
+  // If there are recent NEM payments, customer likely pays monthly
+  const payments = parsedData.nemPaymentHistory;
+  
+  if (payments.length >= 1) {
+    // Check if payments are roughly equal to or close to charges
+    // If customer pays monthly, payments should be regular
+    return {
+      paysMonthly: true,
+      confidence: 'high',
+      reasoning: `Found ${payments.length} NEM payment(s) in history. Customer appears to pay monthly rather than banking credits until true-up.`
+    };
+  }
+  
+  return {
+    paysMonthly: null,
+    confidence: 'unknown',
+    reasoning: 'Unable to determine payment pattern'
+  };
+}
+
+/**
+ * Calculate estimated true-up bill amount
+ * @param {Object} parsedData - Parsed bill data
+ * @param {boolean} paysMonthly - Whether customer pays monthly (from detectNEMPaymentPattern or user input)
+ * @returns {Object} { estimatedAmount: number, reasoning: string }
+ */
+window.calculateTrueUpAmount = function(parsedData, paysMonthly) {
+  if (!parsedData.hasSolar || !parsedData.nemBalance) {
+    return {
+      estimatedAmount: null,
+      reasoning: 'Not a solar/NEM account'
+    };
+  }
+  
+  if (paysMonthly === true) {
+    // Customer pays monthly - true-up is only unbilled charges since last bill
+    // Estimate: current month's charges, which is roughly (current balance - sum of recent payments)
+    const currentBalance = parsedData.nemBalance;
+    const recentPayments = parsedData.nemPaymentHistory.reduce((sum, p) => sum + p.amount, 0);
+    const unbilledAmount = currentBalance - recentPayments;
+    
+    return {
+      estimatedAmount: Math.max(0, unbilledAmount),
+      reasoning: `Customer pays monthly. True-up bill is only unbilled charges (~$${Math.round(unbilledAmount)}), not the full printed balance of $${Math.round(currentBalance)}.`
+    };
+  } else if (paysMonthly === false) {
+    // Customer banks credits - true-up is the full balance
+    return {
+      estimatedAmount: parsedData.nemBalance,
+      reasoning: `Customer banks credits. True-up bill is the full printed balance of $${Math.round(parsedData.nemBalance)}.`
+    };
+  } else {
+    // Unknown - show both scenarios
+    return {
+      estimatedAmount: null,
+      reasoning: `Unable to determine payment pattern. True-up bill could be either the full balance ($${Math.round(parsedData.nemBalance)}) if you bank credits, or only the unbilled final period charges (~$${Math.round(parsedData.nemBalance * 0.2)}) if you pay monthly.`
+    };
+  }
+}
+
+/**
+ * Validate billing period is a complete regular cycle
+ * @param {Object} parsedData - Parsed bill data
+ * @returns {Object|null} { valid: false, reason, message } or null if valid
+ */
+window.validateBillingPeriod = function(parsedData) {
+  if (!parsedData.billingPeriod || !parsedData.billingPeriod.start || !parsedData.billingPeriod.end) {
+    return {
+      valid: false,
+      reason: 'missing_dates',
+      message: 'Could not read billing period dates. Please check the bill and try again.'
+    };
+  }
+
+  const start = new Date(parsedData.billingPeriod.start);
+  const end = new Date(parsedData.billingPeriod.end);
+  const days = Math.round((end - start) / (1000 * 60 * 60 * 24));
+
+  // Check for indicators of non-standard bills BEFORE checking days
+  const text = parsedData._originalText || '';
+  
+  // True-up only (no regular usage charges) - check before days since these can be 0-1 days
+  if (parsedData.hasSolar && text.includes('True-Up') && !parsedData.totalKwh) {
+    return {
+      valid: false,
+      reason: 'trueup_only',
+      message: 'This appears to be a true-up-only statement without regular monthly usage. Please upload a regular monthly bill (not just the annual true-up).'
+    };
+  }
+
+  // Move-in/move-out indicators
+  if (/move.?in|move.?out|start.?service|stop.?service|final.?bill/i.test(text)) {
+    return {
+      valid: false,
+      reason: 'move_service_change',
+      message: 'This appears to be a move-in, move-out, or service change bill. These partial bills won\'t give accurate savings. Please upload a regular monthly bill from when you were living at this address.'
+    };
+  }
+
+  // Corrected/rebilled statements
+  if (/corrected\s+bill|rebill|this\s+bill\s+replaces|revised\s+statement/i.test(text)) {
+    return {
+      valid: false,
+      reason: 'corrected_bill',
+      message: 'This appears to be a corrected or rebilled statement. Please upload your regular monthly bill instead.'
+    };
+  }
+
+  // Complete billing period: 25-35 days (normal monthly cycle)
+  if (days < 25 || days > 35) {
+    return {
+      valid: false,
+      reason: days < 25 ? 'partial_bill' : 'extended_bill',
+      message: `This bill covers ${days} days. We need complete monthly bills (about 28-31 days) for accurate savings. Partial bills from move-in, move-out, or service changes won't give reliable results. Please upload a regular monthly bill instead.`
+    };
+  }
+
+  return null; // Valid
+}
+
+/**
+ * Check if parsed data needs manual review
+ */
+window.needsManualReview = function(parsedData) {
+  return !!(
+    !parsedData.accountNumber ||
+    !parsedData.totalKwh ||
+    !parsedData.totalAmount ||
+    !parsedData.billingPeriod.start ||
+    parsedData.warnings.length > 2
+  );
+}
+
+
+// ----- engine.js -----
+/**
+ * Billback Savings Engine
+ * Calculates bill costs under different rate plans and behavioral changes
+ * 
+ * Per CLAUDE.md: Every figure needs a date and source
+ */
+
+
+
+/**
+ * Calculate monthly bill cost for a given rate plan and usage
+ * @param {Object} usage - { onPeak: kWh, offPeak: kWh, superOffPeak: kWh, season: 'summer'|'winter' }
+ * @param {Object} ratePlan - Rate plan from rates.js
+ * @returns {number} Total cost in dollars
+ */
+window.calculateMonthlyCost = function(usage, ratePlan) {
+  const season = ratePlan[usage.season];
+  if (!season) {
+    throw new Error(`Invalid season: ${usage.season}`);
+  }
+
+  const energyCost = 
+    (usage.onPeak || 0) * season.onPeak +
+    (usage.offPeak || 0) * season.offPeak +
+    (usage.superOffPeak || 0) * season.superOffPeak;
+
+  const totalKwh = (usage.onPeak || 0) + (usage.offPeak || 0) + (usage.superOffPeak || 0);
+  const nbcCost = totalKwh * ratePlan.nbcCharge;
+
+  return energyCost + nbcCost + ratePlan.baseFee;
+}
+
+/**
+ * Calculate annual cost from multiple bills or NEM YTD data
+ * @param {Array<Object>} bills - Array of { date, usage, cost } or NEM YTD data
+ * @param {Object} ratePlan - Rate plan from rates.js
+ * @param {Array<Object>} nemYearToDate - Optional: NEM table with 10-12 months of history
+ * @returns {Object} { annualCost, confidence, basis }
+ */
+window.calculateAnnualCost = function(bills, ratePlan, nemYearToDate = null) {
+  if (bills.length === 0 && (!nemYearToDate || nemYearToDate.length === 0)) {
+    throw new Error('No bills provided');
+  }
+
+  // **USE NEM YTD DATA IF AVAILABLE** - much better than extrapolation
+  if (nemYearToDate && nemYearToDate.length >= 10) {
+    let totalCost = 0;
+    let monthsCovered = 0;
+    
+    nemYearToDate.forEach(month => {
+      // Determine season from date
+      const date = new Date(month.date);
+      const monthNum = date.getMonth();
+      const season = (monthNum >= 5 && monthNum <= 9) ? 'summer' : 'winter';
+      
+      // Create usage object (NEM data has negative values for net export)
+      const usage = {
+        onPeak: Math.abs(month.onPeak || 0),
+        offPeak: Math.abs(month.offPeak || 0),
+        superOffPeak: Math.abs(month.superOffPeak || 0),
+        season
+      };
+      
+      const cost = calculateMonthlyCost(usage, ratePlan);
+      totalCost += cost;
+      monthsCovered++;
     });
     
-    // Calculate savings (client-side engine)
-    showProgress('Calculating your savings...');
+    // Extrapolate if we have 10-11 months
+    const annualCost = monthsCovered === 12 
+      ? totalCost 
+      : totalCost * (12 / monthsCovered);
     
-    const household = {
-      size: parseInt(document.getElementById('householdSize').value) || null,
-      income: parseInt(document.getElementById('annualIncome').value) || null,
-      renter: document.getElementById('isRenter').checked,
-      hasSolar: parsedBills.some(b => b.hasSolar)
+    return {
+      annualCost,
+      confidence: monthsCovered >= 11 ? 'high' : 'medium',
+      basis: `${monthsCovered} months from NEM Year-to-Date table${monthsCovered < 12 ? ', extrapolated to 12 months' : ''}`
+    };
+  }
+
+  // Fall back to bill-by-bill calculation
+  const sorted = bills.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+  
+  // If we have 12 months, sum them
+  if (sorted.length >= 12) {
+    const total = sorted.slice(0, 12).reduce((sum, bill) => {
+      return sum + calculateMonthlyCost(bill.usage, ratePlan);
+    }, 0);
+    return {
+      annualCost: total,
+      confidence: 'high',
+      basis: '12 months of actual usage'
+    };
+  }
+
+  // If we have 3+ non-consecutive months, estimate with seasonal weighting
+  if (sorted.length >= 3) {
+    const summerWeight = 5; // Jun-Oct (5 months)
+    const winterWeight = 7; // Nov-May (7 months)
+    
+    let summerAvg = 0;
+    let winterAvg = 0;
+    let summerCount = 0;
+    let winterCount = 0;
+
+    sorted.forEach(bill => {
+      const month = new Date(bill.date).getMonth(); // 0-11
+      const isSummer = month >= 5 && month <= 9; // Jun-Oct
+      
+      const cost = calculateMonthlyCost(bill.usage, ratePlan);
+      if (isSummer) {
+        summerAvg += cost;
+        summerCount++;
+      } else {
+        winterAvg += cost;
+        winterCount++;
+      }
+    });
+
+    summerAvg = summerCount > 0 ? summerAvg / summerCount : 0;
+    winterAvg = winterCount > 0 ? winterAvg / winterCount : 0;
+
+    // If we're missing a season, use the other season's average with a warning
+    if (summerCount === 0) {
+      summerAvg = winterAvg * 1.5; // rough estimate: summer bills are ~50% higher
+    }
+    if (winterCount === 0) {
+      winterAvg = summerAvg / 1.5;
+    }
+
+    const annualCost = summerAvg * summerWeight + winterAvg * winterWeight;
+    const hasFullSeasons = summerCount > 0 && winterCount > 0;
+
+    return {
+      annualCost,
+      confidence: hasFullSeasons ? 'medium' : 'low',
+      basis: `${sorted.length} months (${summerCount} summer, ${winterCount} winter), extrapolated to full year`
+    };
+  }
+
+  // Less than 3 months - just multiply the average
+  const avgCost = sorted.reduce((sum, bill) => {
+    return sum + calculateMonthlyCost(bill.usage, ratePlan);
+  }, 0) / sorted.length;
+
+  return {
+    annualCost: avgCost * 12,
+    confidence: 'low',
+    basis: `${sorted.length} month(s), simple annualization — rough seasonal estimate (actual usage varies by season)`
+  };
+}
+
+/**
+ * Compare costs across different providers
+ * @param {Array<Object>} bills - Array of bill objects
+ * @param {Object} currentPlan - Current rate plan
+ * @param {Array<Object>} nemYearToDate - Optional: NEM YTD data for better estimates
+ * @returns {Array<Object>} Array of { provider, plan, annualCost, savings, confidence }
+ */
+window.compareProviders = function(bills, currentPlan, nemYearToDate = null) {
+  const currentCostData = calculateAnnualCost(bills, currentPlan, nemYearToDate);
+  const alternatives = [];
+
+  // Get customer's CCA territory from current provider
+  // CEA serves: Oceanside, Carlsbad, Vista, Del Mar, San Marcos, Escondido
+  // SDCP serves: San Diego, Chula Vista, La Mesa, National City, Imperial Beach
+  // Only compare providers available in the customer's territory
+  const customerCCA = currentPlan.provider === 'CEA' ? 'CEA' : 
+                      currentPlan.provider === 'SDCP' ? 'SDCP' : null;
+
+  // Get all rate plans except the current one
+  let plans = [
+    rates.SDGE_TOU_DR1,
+    rates.CEA_CLEAN_IMPACT,
+    rates.CEA_CLEAN_IMPACT_PLUS,
+    rates.SDCP_POWER_ON,
+    rates.SDCP_POWER_BASE
+  ].filter(plan => 
+    !(plan.provider === currentPlan.provider && plan.plan === currentPlan.plan)
+  );
+
+  // Territory filtering: only show providers available to this customer
+  if (customerCCA === 'CEA') {
+    // CEA customers can only switch to SDG&E bundled or other CEA tiers
+    plans = plans.filter(plan => plan.provider === 'SDG&E' || plan.provider === 'CEA');
+  } else if (customerCCA === 'SDCP') {
+    // SDCP customers can only switch to SDG&E bundled or other SDCP tiers
+    plans = plans.filter(plan => plan.provider === 'SDG&E' || plan.provider === 'SDCP');
+  }
+  // If customer is on SDG&E bundled, territory is unknown, so show all options
+
+  for (const plan of plans) {
+    const costData = calculateAnnualCost(bills, plan, nemYearToDate);
+    const savings = currentCostData.annualCost - costData.annualCost;
+    
+    alternatives.push({
+      provider: plan.provider,
+      plan: plan.plan,
+      annualCost: costData.annualCost,
+      savings,
+      confidence: costData.confidence,
+      basis: costData.basis,
+      effectiveDate: plan.effectiveDate,
+      source: plan.source
+    });
+  }
+
+  // Sort by highest savings first
+  return alternatives.sort((a, b) => b.savings - a.savings);
+}
+
+/**
+ * Calculate gas savings opportunities
+ * @param {Object} gasUsage - { therms, cost } from parsed bill
+ * @returns {Array<Object>} Array of gas savings actions
+ */
+window.calculateGasSavings = function(gasUsage) {
+  if (!gasUsage || !gasUsage.therms) {
+    return [];
+  }
+
+  const actions = [];
+
+  // Thermostat setback in winter
+  if (gasUsage.therms > 10) { // Only if there's meaningful gas usage
+    actions.push({
+      id: 'gas_thermostat',
+      action: 'Lower thermostat by 2-3°F when sleeping or away',
+      category: 'Heating',
+      effort: 'Low',
+      annualSavingsRange: [50, 120],
+      basis: 'Estimate; ~10-15% heating savings (DOE guidance)',
+      renterOk: true
+    });
+  }
+
+  // Water heater temperature
+  actions.push({
+    id: 'water_heater',
+    action: 'Lower water heater to 120°F',
+    category: 'Water heating',
+    effort: 'Low',
+    annualSavingsRange: [20, 60],
+    basis: 'Estimate; most homes set too high (DOE guidance)',
+    renterOk: false // requires landlord permission
+  });
+
+  // Weather stripping
+  if (gasUsage.therms > 15) {
+    actions.push({
+      id: 'weatherstrip',
+      action: 'Weather strip doors and windows',
+      category: 'Efficiency',
+      effort: 'Medium',
+      upfront: 30,
+      annualSavingsRange: [30, 80],
+      basis: 'Estimate; reduces drafts',
+      renterOk: true
+    });
+  }
+
+  return actions;
+}
+
+/**
+ * Calculate NEM true-up projection
+ * Projects remaining months until true-up using NEM YTD history
+ * @param {Object} nemData - { trueUpDate, balance, systemSize }
+ * @param {Array<Object>} nemYearToDate - Array of monthly NEM data
+ * @param {Object} ratePlan - Current rate plan for pricing
+ * @returns {Object|null} Projection object or null
+ */
+window.calculateNEMTrueUpProjection = function(nemData, nemYearToDate, ratePlan) {
+  if (!nemData || !nemData.trueUpDate || nemData.balance === null) {
+    return null;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to start of day for comparison
+  
+  // Parse true-up date as local date
+  const trueUpDateParts = nemData.trueUpDate.split('-');
+  const trueUpDate = new Date(
+    parseInt(trueUpDateParts[0]),
+    parseInt(trueUpDateParts[1]) - 1,
+    parseInt(trueUpDateParts[2])
+  );
+  
+  // Check if true-up has already passed (not including today)
+  if (trueUpDate < today) {
+    return {
+      trueUpDate: nemData.trueUpDate,
+      isPast: true,
+      currentBalance: nemData.balance,
+      message: `Your solar true-up date (${nemData.trueUpDate}) has passed. Contact SDG&E if you haven't received your true-up bill yet.`
+    };
+  }
+
+  const daysUntil = Math.ceil((trueUpDate - today) / (1000 * 60 * 60 * 24));
+  const isUrgent = daysUntil <= 60;
+  
+  // If we don't have NEM history, can't project
+  if (!nemYearToDate || nemYearToDate.length === 0) {
+    return {
+      trueUpDate: nemData.trueUpDate,
+      daysUntil,
+      currentBalance: nemData.balance,
+      isUrgent,
+      message: isUrgent
+        ? `Your solar true-up is ${daysUntil} days away (${nemData.trueUpDate}). Current balance: $${nemData.balance.toFixed(2)} so far.`
+        : `Your solar true-up is on ${nemData.trueUpDate}. Current balance: $${nemData.balance.toFixed(2)} so far.`,
+      tips: isUrgent ? [
+        'Set aside money now for the true-up bill',
+        'Consider switching providers AFTER true-up to avoid double charges',
+        'Check if you\'re on the best rate plan before your next year starts'
+      ] : []
+    };
+  }
+
+  // Find most recent bill date from NEM history
+  const sortedHistory = nemYearToDate.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  const latestBillDate = new Date(sortedHistory[0].date);
+  
+  // Calculate months remaining from latest bill to true-up
+  const monthsRemaining = Math.ceil((trueUpDate - latestBillDate) / (1000 * 60 * 60 * 24 * 30));
+  
+  if (monthsRemaining <= 0) {
+    // True-up is on or before latest bill date
+    return {
+      trueUpDate: nemData.trueUpDate,
+      daysUntil,
+      currentBalance: nemData.balance,
+      projectedBalance: nemData.balance,
+      isUrgent,
+      isPast: false,
+      message: `Your solar true-up is ${daysUntil} days away (${nemData.trueUpDate}). Expected amount: $${nemData.balance.toFixed(2)}.`,
+      basis: 'Latest bill through true-up date',
+      tips: isUrgent ? [
+        'Set aside money now for the true-up bill',
+        'Consider switching providers AFTER true-up to avoid double charges'
+      ] : []
+    };
+  }
+
+  // Project remaining months using prior-year monthly averages
+  // Group history by month (0-11) to get seasonal patterns
+  const monthlyAverages = {};
+  nemYearToDate.forEach(month => {
+    const monthNum = new Date(month.date).getMonth();
+    if (!monthlyAverages[monthNum]) {
+      monthlyAverages[monthNum] = { total: 0, count: 0 };
+    }
+    monthlyAverages[monthNum].total += month.nemCharges;
+    monthlyAverages[monthNum].count++;
+  });
+
+  // Calculate projected charges for remaining months
+  let projectedMin = nemData.balance;
+  let projectedMax = nemData.balance;
+  const projectionDetails = [];
+
+  for (let i = 0; i < monthsRemaining; i++) {
+    const futureDate = new Date(latestBillDate);
+    futureDate.setMonth(futureDate.getMonth() + i + 1);
+    const monthNum = futureDate.getMonth();
+    
+    if (monthlyAverages[monthNum]) {
+      const avgCharge = monthlyAverages[monthNum].total / monthlyAverages[monthNum].count;
+      projectedMin += avgCharge * 0.9; // ±10% range
+      projectedMax += avgCharge * 1.1;
+      
+      projectionDetails.push({
+        month: futureDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+        estimatedCharge: avgCharge,
+        basis: `Average from ${monthlyAverages[monthNum].count} prior ${futureDate.toLocaleDateString('en-US', { month: 'long' })} bill(s)`
+      });
+    } else {
+      // No history for this month, use overall average
+      const overallAvg = nemYearToDate.reduce((sum, m) => sum + m.nemCharges, 0) / nemYearToDate.length;
+      projectedMin += overallAvg * 0.8; // wider range due to uncertainty
+      projectedMax += overallAvg * 1.2;
+      
+      projectionDetails.push({
+        month: futureDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }),
+        estimatedCharge: overallAvg,
+        basis: 'Overall average (no prior-year data for this month)'
+      });
+    }
+  }
+
+  return {
+    trueUpDate: nemData.trueUpDate,
+    daysUntil,
+    currentBalance: nemData.balance,
+    latestBillDate: sortedHistory[0].date,
+    projectedBalance: [Math.max(0, projectedMin), projectedMax],
+    monthsRemaining,
+    projectionDetails,
+    isUrgent,
+    isPast: false,
+    message: isUrgent
+      ? `Your solar true-up is ${daysUntil} days away (${nemData.trueUpDate}). Projected amount: $${Math.round(projectedMin)}–${Math.round(projectedMax)} (currently $${nemData.balance.toFixed(2)} so far).`
+      : `Your solar true-up is on ${nemData.trueUpDate}. Projected amount: $${Math.round(projectedMin)}–${Math.round(projectedMax)} (currently $${nemData.balance.toFixed(2)} so far).`,
+    basis: `${nemData.balance.toFixed(2)} through ${sortedHistory[0].date} + ${monthsRemaining} month(s) projected from prior-year averages`,
+    tips: isUrgent ? [
+      `Set aside $${Math.round(projectedMax)} for the true-up bill`,
+      'Consider switching providers AFTER true-up to avoid double charges',
+      'Check if you\'re on the best rate plan before your next year starts'
+    ] : []
+  };
+}
+
+/**
+ * Calculate NEM true-up alert (DEPRECATED - use calculateNEMTrueUpProjection)
+ * @param {Object} nemData - { trueUpDate, balance, systemSize }
+ * @returns {Object|null} Alert object or null
+ */
+window.calculateNEMTrueUpAlert = function(nemData) {
+  if (!nemData || !nemData.trueUpDate || nemData.balance === null) {
+    return null;
+  }
+
+  const today = new Date();
+  const trueUpDate = new Date(nemData.trueUpDate);
+  const daysUntil = Math.ceil((trueUpDate - today) / (1000 * 60 * 60 * 24));
+
+  if (daysUntil < 0) {
+    return null; // True-up already passed
+  }
+
+  const isUrgent = daysUntil <= 60;
+  
+  return {
+    trueUpDate: nemData.trueUpDate,
+    daysUntil,
+    expectedBalance: nemData.balance,
+    isUrgent,
+    message: isUrgent
+      ? `Your solar true-up is ${daysUntil} days away (${nemData.trueUpDate}). Expect to pay about $${nemData.balance.toFixed(2)}.`
+      : `Your solar true-up is on ${nemData.trueUpDate}. Current balance: $${nemData.balance.toFixed(2)}.`,
+    tips: isUrgent ? [
+      'Set aside money now for the true-up bill',
+      'Consider switching providers AFTER true-up to avoid double charges',
+      'Check if you\'re on the best rate plan before your next year starts'
+    ] : []
+  };
+}
+
+/**
+ * Calculate behavioral savings (pre-cooling, appliance shifting, etc.)
+ * @param {Array<Object>} bills - Array of bill objects
+ * @param {Object} ratePlan - Rate plan to use for calculations
+ * @returns {Array<Object>} Array of action objects with savings estimates
+ */
+window.calculateBehavioralSavings = function(bills, ratePlan) {
+  // Behavioral savings from data/actions.json
+  // These are estimates based on research, marked as such
+  
+  const actions = [
+    {
+      id: 'thermostat',
+      action: 'Pre-cool, then hold 78-80°F from 4 to 9 pm',
+      category: 'Thermostat',
+      effort: 'Low',
+      monthlySavingsRange: [16, 36], // summer only
+      basis: 'Estimate; LBNL pre-cooling study',
+      renterOk: true
+    },
+    {
+      id: 'dryer',
+      action: 'Run the dryer before 2 pm or after midnight',
+      category: 'Appliance timing',
+      effort: 'Low',
+      monthlySavingsRange: [13, 25], // summer
+      basis: 'Estimate; ~3 kWh/load at summer on-peak prices',
+      renterOk: true
+    },
+    {
+      id: 'dishwasher',
+      action: 'Dishwasher on delay start after midnight',
+      category: 'Appliance timing',
+      effort: 'Low',
+      monthlySavingsRange: [7, 13], // summer
+      basis: 'Estimate; ~1.2 kWh/cycle',
+      renterOk: true
+    },
+    {
+      id: 'fans',
+      action: 'Fans plus closed west blinds, setpoint up 2-4°F',
+      category: 'Cooling',
+      effort: 'Low',
+      upfront: 40,
+      monthlySavingsRange: [8, 20], // summer
+      basis: 'DOE fan guidance',
+      renterOk: true
+    },
+    {
+      id: 'plugs',
+      action: 'Smart plugs off 4-9 pm (dehumidifier, PC standby)',
+      category: 'Appliance timing',
+      effort: 'Low',
+      upfront: 25,
+      monthlySavingsRange: [3, 8], // summer
+      basis: 'Estimate',
+      renterOk: true
+    },
+    {
+      id: 'led',
+      action: 'Swap remaining bulbs to LED',
+      category: 'Efficiency',
+      effort: 'Low',
+      upfront: 20,
+      monthlySavingsRange: [2, 10], // summer
+      basis: 'Estimate; bulbs used 4-9 pm',
+      renterOk: true
+    }
+  ];
+
+  // Calculate annual savings (5 summer months)
+  return actions.map(action => {
+    const summerMonths = 5; // Jun-Oct
+    return {
+      ...action,
+      annualSavingsRange: [
+        action.monthlySavingsRange[0] * summerMonths,
+        action.monthlySavingsRange[1] * summerMonths
+      ],
+      source: action.basis,
+      effectiveDate: ratePlan.effectiveDate
+    };
+  });
+}
+
+/**
+ * Check CARE/FERA eligibility
+ * @param {number} householdSize - Number of people
+ * @param {number} annualIncome - Annual income before tax
+ * @param {boolean} onBenefits - On Medi-Cal, CalFresh, SSI, etc.
+ * @returns {Object|null} { program, discount, baseFee, annualSavings } or null
+ */
+window.checkCareFeraEligibility = function(householdSize, annualIncome, onBenefits = false) {
+  if (onBenefits) {
+    return {
+      program: 'CARE',
+      electricDiscount: rates.CARE_DISCOUNT.electricDiscount,
+      gasDiscount: rates.CARE_DISCOUNT.gasDiscount,
+      baseFee: rates.CARE_DISCOUNT.baseFee,
+      eligibility: 'Likely eligible (on qualifying benefit program)',
+      source: rates.CARE_DISCOUNT.source,
+      effectiveDate: rates.CARE_DISCOUNT.effectiveDate
+    };
+  }
+
+  const size = Math.min(householdSize, 6); // 6+ uses 6 person limit
+  const careLimit = rates.CARE_DISCOUNT.incomeLimits[size];
+  const feraLimit = rates.FERA_DISCOUNT.incomeLimits[size];
+
+  if (annualIncome <= careLimit) {
+    return {
+      program: 'CARE',
+      electricDiscount: rates.CARE_DISCOUNT.electricDiscount,
+      gasDiscount: rates.CARE_DISCOUNT.gasDiscount,
+      baseFee: rates.CARE_DISCOUNT.baseFee,
+      eligibility: `Likely eligible (income $${annualIncome.toLocaleString()} ≤ $${careLimit.toLocaleString()} for ${size} people)`,
+      source: rates.CARE_DISCOUNT.source,
+      effectiveDate: rates.CARE_DISCOUNT.effectiveDate
+    };
+  } else if (annualIncome <= feraLimit) {
+    return {
+      program: 'FERA',
+      electricDiscount: rates.FERA_DISCOUNT.electricDiscount,
+      baseFee: rates.FERA_DISCOUNT.baseFee,
+      eligibility: `Likely eligible (income $${annualIncome.toLocaleString()} ≤ $${feraLimit.toLocaleString()} for ${size} people)`,
+      source: rates.FERA_DISCOUNT.source,
+      effectiveDate: rates.FERA_DISCOUNT.effectiveDate
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Generate complete savings report
+ * @param {Array<Object>} bills - Array of bill objects
+ * @param {Object} currentPlan - Current rate plan
+ * @param {Object} household - { size, income, onBenefits, renter, hasSolar }
+ * @param {Array<Object>} nemYearToDate - Optional: NEM YTD table for better estimates
+ * @param {Object} nemData - Optional: { trueUpDate, balance, systemSize } for alerts
+ * @param {Object} gasUsage - Optional: { therms, cost } for gas savings
+ * @returns {Object} Complete savings report
+ */
+window.generateSavingsReport = function(bills, currentPlan, household = {}, nemYearToDate = null, nemData = null, gasUsage = null) {
+  const providerComparisons = compareProviders(bills, currentPlan, nemYearToDate);
+  const behavioralSavings = calculateBehavioralSavings(bills, currentPlan);
+  const gasSavings = gasUsage ? calculateGasSavings(gasUsage) : [];
+  
+  // Use new true-up projection instead of simple alert
+  const nemTrueUpProjection = (nemData && nemYearToDate) 
+    ? calculateNEMTrueUpProjection(nemData, nemYearToDate, currentPlan)
+    : null;
+  
+  const careFeraEligibility = household.size && household.income
+    ? checkCareFeraEligibility(household.size, household.income, household.onBenefits)
+    : null;
+
+  const currentCost = calculateAnnualCost(bills, currentPlan, nemYearToDate);
+
+  // Filter behavioral savings if renter
+  const applicableElectricActions = household.renter
+    ? behavioralSavings.filter(a => a.renterOk)
+    : behavioralSavings;
+
+  const applicableGasActions = household.renter
+    ? gasSavings.filter(a => a.renterOk)
+    : gasSavings;
+
+  // Calculate total savings range
+  const electricMin = applicableElectricActions.reduce((sum, a) => sum + a.annualSavingsRange[0], 0);
+  const electricMax = applicableElectricActions.reduce((sum, a) => sum + a.annualSavingsRange[1], 0);
+  
+  const gasMin = applicableGasActions.reduce((sum, a) => sum + a.annualSavingsRange[0], 0);
+  const gasMax = applicableGasActions.reduce((sum, a) => sum + a.annualSavingsRange[1], 0);
+  
+  const bestProvider = providerComparisons[0];
+  const providerSavings = bestProvider?.savings > 0 ? bestProvider.savings : 0;
+  
+  const totalMin = providerSavings + electricMin + gasMin;
+  const totalMax = providerSavings + electricMax + gasMax;
+
+  return {
+    currentPlan: {
+      provider: currentPlan.provider,
+      plan: currentPlan.plan,
+      annualCost: currentCost.annualCost,
+      confidence: currentCost.confidence,
+      basis: currentCost.basis
+    },
+    providerAlternatives: providerComparisons,
+    electricActions: applicableElectricActions,
+    gasActions: applicableGasActions,
+    discountPrograms: careFeraEligibility ? [careFeraEligibility] : [],
+    nemTrueUpProjection,
+    totalSavingsRange: [totalMin, totalMax],
+    savingsBreakdown: {
+      provider: providerSavings,
+      electric: [electricMin, electricMax],
+      gas: [gasMin, gasMax]
+    },
+    billsAnalyzed: bills.length,
+    nemMonthsAnalyzed: nemYearToDate ? nemYearToDate.length : 0,
+    generatedAt: new Date().toISOString(),
+    disclaimer: 'Savings are estimates from uploaded bills and published rates. Rates change several times a year. Behavioral savings are estimates based on research.'
+  };
+}
+
+
+// ----- actionPlan.js -----
+/**
+ * Dated Action Plan Generator
+ * Creates timeline of concrete steps with dates, sources, and instructions
+ * Per CLAUDE.md: customer gives final click/signature
+ */
+
+
+
+/**
+ * Generate dated action plan from savings report
+ * @param {Object} report - Savings report from engine
+ * @param {Object} bills - Parsed bill data (for dates, provider info)
+ * @param {Object} household - Household info (for timing calculations)
+ * @returns {Object} { steps: [...], recurringReminders: [...] }
+ */
+window.generateDatedActionPlan = function(report, bills, household = {}) {
+  const steps = [];
+  const recurringReminders = [];
+  const today = new Date();
+  
+  // Get opt-out/switch timing recommendations first (these are time-sensitive)
+  const currentBill = bills && bills.length > 0 ? bills[0] : null;
+  if (currentBill && report) {
+    const currentPlan = {
+      provider: currentBill.provider || report.currentPlan?.provider,
+      plan: currentBill.providerTier || report.currentPlan?.plan
     };
     
-    // Determine current rate plan
-    const firstBill = parsedBills[0];
-    let currentPlan;
+    const timingRules = calculateOptOutTiming(currentPlan, bills, report, household);
     
-    if (firstBill.provider === 'CEA') {
-      if (firstBill.providerTier === 'Clean Impact') {
-        currentPlan = rates.CEA_CLEAN_IMPACT;
-      } else {
-        currentPlan = rates.CEA_CLEAN_IMPACT_PLUS;
+    // Convert timing rules to action steps and add to steps array
+    timingRules.forEach(rule => {
+      const action = formatTimingRuleAsAction(rule);
+      steps.push({
+        id: action.id,
+        title: action.what,
+        description: action.how,
+        doByDate: action.date instanceof Date ? action.date.toISOString().split('T')[0] : null,
+        doByDateSource: action.source,
+        urgency: action.urgency,
+        category: action.category || 'Provider',
+        estimatedSavings: action.estimatedSavings ? `$${action.estimatedSavings}/year` : null,
+        verified: action.verified,
+        howTo: {
+          type: 'action',
+          instructions: [action.how]
+        },
+        completionTime: '5-10 minutes',
+        renterOk: true
+      });
+    });
+  }
+  
+  // Helper to create step object
+  const createStep = (config) => ({
+    id: config.id,
+    title: config.title,
+    description: config.description,
+    doByDate: config.doByDate,
+    doByDateSource: config.doByDateSource,
+    urgency: config.urgency || 'normal', // urgent, high, normal, low
+    category: config.category,
+    estimatedSavings: config.estimatedSavings,
+    howTo: config.howTo, // { type: 'link'|'call'|'form', details, instructions }
+    completionTime: config.completionTime, // e.g., "3 minutes"
+    renterOk: config.renterOk !== false
+  });
+
+  // 1. NEM True-Up (if urgent)
+  if (report.nemTrueUpProjection && !report.nemTrueUpProjection.isPast) {
+    const projection = report.nemTrueUpProjection;
+    if (projection.isUrgent || projection.daysUntil <= 90) {
+      steps.push(createStep({
+        id: 'nem-trueup-prep',
+        title: `Prepare for Solar True-Up: $${Array.isArray(projection.projectedBalance) ? Math.round(projection.projectedBalance[1]) : Math.round(projection.currentBalance)}`,
+        description: projection.message,
+        doByDate: projection.trueUpDate,
+        doByDateSource: `SDG&E NEM billing cycle (${projection.basis})`,
+        urgency: projection.daysUntil <= 30 ? 'urgent' : 'high',
+        category: 'Solar',
+        estimatedSavings: null,
+        howTo: {
+          type: 'action',
+          instructions: [
+            `Set aside $${Array.isArray(projection.projectedBalance) ? Math.round(projection.projectedBalance[1]) : Math.round(projection.currentBalance)}`,
+            'Review if you want to switch providers AFTER this true-up',
+            'Consider changing rate plan before next NEM year starts'
+          ]
+        },
+        completionTime: '15 minutes'
+      }));
+    }
+  }
+
+  // Note: CEA tier changes and CCA opt-out timing now handled by optOutTiming module above
+
+  // 1. CPUC SDG&E Rate Hike Hearings (Nov 10, Dec 9-10, 2026)
+  const nov10 = new Date('2026-11-10');
+  const dec9 = new Date('2026-12-09');
+  
+  if (nov10 > today) {
+    steps.push(createStep({
+      id: 'cpuc-hearing-nov10',
+      title: 'Submit Comment on SDG&E Rate Hike (In-Person Hearing Nov 10)',
+      description: 'CPUC public hearing on SDG&E\'s 2028 rate increase proposal (+8.1% in 2028, ~$14/mo). Submit your comment with your bill\'s numbers. Hearing at Santee City Hall, 6 pm.',
+      doByDate: '2026-11-10',
+      doByDateSource: 'CPUC Notice of Public Participation Hearing, A.26-06-015',
+      urgency: Math.ceil((nov10 - today) / (1000 * 60 * 60 * 24)) <= 7 ? 'high' : 'normal',
+      category: 'Advocacy',
+      estimatedSavings: null,
+      howTo: {
+        type: 'link',
+        url: 'https://apps.cpuc.ca.gov/c/A2606015',
+        instructions: [
+          'Submit online at apps.cpuc.ca.gov/c/A2606015',
+          'Or attend in person: Santee City Hall, 10601 Magnolia Ave, Santee, 6 pm',
+          'Use your bill\'s actual numbers (more weight than generic comments)',
+          'Mention application A.26-06-015'
+        ]
+      },
+      completionTime: '2-5 minutes'
+    }));
+  }
+  
+  if (dec9 > today && dec9 > nov10) {
+    steps.push(createStep({
+      id: 'cpuc-hearing-dec9',
+      title: 'Submit Comment on SDG&E Rate Hike (Virtual Hearing Dec 9-10)',
+      description: 'CPUC virtual public hearing on SDG&E\'s 2028 rate increase. Phone/webcast participation. Submit comment with your bill\'s numbers.',
+      doByDate: '2026-12-10',
+      doByDateSource: 'CPUC Notice of Public Participation Hearing, A.26-06-015',
+      urgency: Math.ceil((dec9 - today) / (1000 * 60 * 60 * 24)) <= 7 ? 'high' : 'normal',
+      category: 'Advocacy',
+      estimatedSavings: null,
+      howTo: {
+        type: 'link',
+        url: 'https://apps.cpuc.ca.gov/c/A2606015',
+        instructions: [
+          'Submit online before or during the hearing',
+          'Virtual participation: check CPUC website for dial-in/webcast info',
+          'Dec 9-10, 2026 (times TBD)',
+          'Use your actual bill numbers for more impact'
+        ]
+      },
+      completionTime: '2-5 minutes'
+    }));
+  }
+
+  // 2. Summer thermostat schedule (before TOU summer season starts Jun 1)
+  const jun1Next = new Date(today.getFullYear(), 5, 1); // June 1
+  if (jun1Next < today) {
+    jun1Next.setFullYear(jun1Next.getFullYear() + 1);
+  }
+  const mayStart = new Date(jun1Next);
+  mayStart.setDate(mayStart.getDate() - 14); // 2 weeks before June 1
+  
+  if (mayStart > today && report.electricActions) {
+    const thermostatAction = report.electricActions.find(a => a.id === 'thermostat');
+    if (thermostatAction) {
+      steps.push(createStep({
+        id: 'summer-thermostat-setup',
+        title: 'Set Summer Pre-Cool Thermostat Schedule',
+        description: `Cool the home while power is cheaper (before 4 pm), then coast through 4-9 pm peak pricing. Saves $${thermostatAction.annualSavingsRange ? Math.round(thermostatAction.annualSavingsRange[0]) + '–' + Math.round(thermostatAction.annualSavingsRange[1]) : '25-55'}/summer.`,
+        doByDate: jun1Next.toISOString().split('T')[0],
+        doByDateSource: 'SDG&E TOU-DR1 summer season starts June 1 (Schedule TOU-DR1)',
+        urgency: Math.ceil((mayStart - today) / (1000 * 60 * 60 * 24)) <= 30 ? 'normal' : 'low',
+        category: 'Seasonal',
+        estimatedSavings: thermostatAction.annualSavingsRange 
+          ? `$${Math.round(thermostatAction.annualSavingsRange[0])}–${Math.round(thermostatAction.annualSavingsRange[1])}/year`
+          : null,
+        howTo: {
+          type: 'action',
+          instructions: [
+            'In your thermostat app, set up a cooling schedule',
+            '12:30 pm: 73°F (start cooling)',
+            '2:00 pm: 72°F (pre-cool)',
+            '4:00 pm: 78°F (peak starts, coast)',
+            '9:00 pm: 76°F (peak ends)',
+            'Close west-facing blinds by 1 pm',
+            'Run fans in evening for comfort'
+          ],
+          links: [
+            { text: 'Full schedule details', url: '/app/index.html#actions' }
+          ]
+        },
+        completionTime: '5 minutes'
+      }));
+    }
+  }
+
+  // Note: CARE/FERA enrollment now handled by optOutTiming module above
+
+  // 3. Electric actions (ongoing/immediate)
+  if (report.electricActions) {
+    report.electricActions.slice(0, 3).forEach((action, i) => {
+      if (action.id !== 'thermostat') { // already handled as seasonal
+        steps.push(createStep({
+          id: action.id,
+          title: action.action,
+          description: action.basis,
+          doByDate: addDays(today, 7 + i * 3), // stagger over next few weeks
+          doByDateSource: 'Start soon for immediate savings',
+          urgency: 'normal',
+          category: 'Electric',
+          estimatedSavings: action.annualSavingsRange 
+            ? `$${Math.round(action.annualSavingsRange[0])}–${Math.round(action.annualSavingsRange[1])}/year`
+            : null,
+          howTo: {
+            type: 'action',
+            instructions: getActionInstructions(action)
+          },
+          completionTime: getActionTime(action)
+        }));
       }
-    } else if (firstBill.provider === 'SDCP') {
-      currentPlan = rates.SDCP_POWER_ON;
-    } else {
-      currentPlan = rates.SDGE_TOU_DR1;
+    });
+  }
+
+  // 4. Gas actions (heating season)
+  if (report.gasActions && report.gasActions.length > 0) {
+    const novStart = new Date(today.getFullYear(), 10, 1); // Nov 1 (winter TOU starts)
+    if (novStart < today) {
+      novStart.setFullYear(novStart.getFullYear() + 1);
     }
     
-    // Transform bills into engine format
-    const engineBills = parsedBills.map(bill => ({
-      date: bill.billingPeriod.start,
-      usage: bill.usage,
-      cost: bill.totalAmount
-    }));
-    
-    // Extract NEM YTD data if available
-    const solarBill = parsedBills.find(b => b.hasSolar && b.nemYearToDate && b.nemYearToDate.length > 0);
-    const nemYearToDate = solarBill?.nemYearToDate || null;
-    
-    // Extract NEM data for true-up alert
-    const nemData = solarBill ? {
-      trueUpDate: solarBill.nemTrueUpDate,
-      balance: solarBill.nemBalance,
-      systemSize: solarBill.systemSize
-    } : null;
-    
-    // Extract gas usage
-    const gasUsage = firstBill.gas || null;
-    
-    // Generate savings report
-    const report = generateSavingsReport(
-      engineBills,
-      currentPlan,
-      household,
-      nemYearToDate,
-      nemData,
-      gasUsage
-    );
-    
-    // Store results in sessionStorage (stays in browser, never sent to server)
-    // Sanitize parsed bills: mask account number, remove full bill text
-    const sanitizedBills = parsedBills.map(bill => {
-      const sanitized = { ...bill };
-      
-      // Mask account number to last 4 digits
-      if (sanitized.accountNumber && sanitized.accountNumber.length > 4) {
-        const last4 = sanitized.accountNumber.slice(-4);
-        sanitized.accountNumber = '****' + last4;
-      }
-      
-      // Remove full bill text (not needed for results display)
-      delete sanitized._originalText;
-      
-      return sanitized;
+    report.gasActions.forEach((action, i) => {
+      steps.push(createStep({
+        id: action.id,
+        title: action.action,
+        description: action.basis,
+        doByDate: i === 0 ? addDays(today, 7) : novStart.toISOString().split('T')[0],
+        doByDateSource: i === 0 ? 'Immediate savings' : 'SDG&E winter season starts Nov 1',
+        urgency: i === 0 ? 'normal' : 'low',
+        category: 'Gas',
+        estimatedSavings: action.annualSavingsRange 
+          ? `$${Math.round(action.annualSavingsRange[0])}–${Math.round(action.annualSavingsRange[1])}/year`
+          : null,
+        howTo: {
+          type: 'action',
+          instructions: getActionInstructions(action)
+        },
+        completionTime: getActionTime(action),
+        renterOk: action.renterOk
+      }));
     });
-    
-    sessionStorage.setItem('savingsReport', JSON.stringify(report));
-    sessionStorage.setItem('household', JSON.stringify(household));
-    sessionStorage.setItem('parsedBills', JSON.stringify(sanitizedBills));
-    
-    // Redirect to results
-    window.location.href = '/app/results.html';
-    
-  } catch (error) {
-    console.error('Error:', error);
-    showStatus('error', `Error: ${error.message}`);
-    analyzeBtn.disabled = false;
-    hideProgress();
   }
-});
+
+  // 5. Recurring reminders
+  recurringReminders.push({
+    id: 'monthly-bill-check',
+    title: 'Review Monthly Bill',
+    description: 'Check for errors, rate changes, or unexpected charges',
+    frequency: 'monthly',
+    estimatedTime: '2 minutes',
+    instructions: [
+      'Compare kWh usage to prior month',
+      'Verify rate plan is correct',
+      'Check for unexpected fees',
+      'Confirm CARE/FERA discount if enrolled'
+    ]
+  });
+
+  if (report.nemTrueUpProjection && !report.nemTrueUpProjection.isPast) {
+    recurringReminders.push({
+      id: 'trueup-balance-check',
+      title: 'Check NEM True-Up Balance',
+      description: 'Track your running balance to avoid surprises',
+      frequency: 'monthly',
+      estimatedTime: '1 minute',
+      instructions: [
+        'Check "Net Metering YTD Balance" on bill',
+        `Next true-up: ${report.nemTrueUpProjection.trueUpDate}`,
+        'Set aside money monthly to spread the cost'
+      ]
+    });
+  }
+
+  // Sort steps by date
+  steps.sort((a, b) => new Date(a.doByDate) - new Date(b.doByDate));
+
+  return {
+    steps,
+    recurringReminders,
+    generatedAt: new Date().toISOString()
+  };
+}
+
+// Helper functions
+function addDays(date, days) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result.toISOString().split('T')[0];
+}
+
+function getActionInstructions(action) {
+  const instructions = {
+    'dryer': [
+      'Run dryer before 2 pm on weekends',
+      'Or after 9 pm on weekdays',
+      'Avoid 4-9 pm (89¢/kWh on CEA, 67¢ on SDG&E)',
+      '~3 kWh per load = $1.50+ savings per load shifted'
+    ],
+    'dishwasher': [
+      'Use delay start feature',
+      'Set to start after midnight',
+      'Use air dry setting',
+      '~1.2 kWh per cycle saved from peak pricing'
+    ],
+    'fans': [
+      'Use ceiling/floor fans 4-9 pm',
+      'Close west-facing blinds by 1 pm',
+      'Raise thermostat 2-4°F with fans running',
+      'Fan uses 30-60W vs AC compressor 3,000W+'
+    ],
+    'plugs': [
+      'Identify devices that run 4-9 pm',
+      'Put on smart plugs or timers',
+      'Auto-off dehumidifiers, chargers, PC monitors',
+      'Schedule to turn off 4 pm, on again 9 pm'
+    ],
+    'led': [
+      'Replace bulbs used 4-9 pm first',
+      'Each bulb saves ~40-60W',
+      'At 67-89¢/kWh peak, that\'s $5-10/mo per bulb'
+    ],
+    'gas_thermostat': [
+      'Lower by 2-3°F when sleeping',
+      'Lower by 5°F+ when away 8+ hours',
+      'Use programmable schedule',
+      'Saves ~10-15% of heating costs'
+    ],
+    'water_heater': [
+      'Lower water heater to 120°F (most set too high)',
+      'Check current temp with thermometer',
+      'Adjust dial on gas water heater',
+      'Saves ~$20-60/year on gas'
+    ],
+    'weatherstrip': [
+      'Apply weatherstripping to doors/windows',
+      'Check for drafts with incense smoke',
+      'Seal gaps with foam tape or door sweeps',
+      'Reduces heating costs by ~5-10%'
+    ]
+  };
+  
+  return instructions[action.id] || [action.basis];
+}
+
+function getActionTime(action) {
+  const times = {
+    'dryer': '1 minute',
+    'dishwasher': '1 minute',
+    'fans': '10 minutes setup',
+    'plugs': '15 minutes',
+    'led': '5 minutes per bulb',
+    'gas_thermostat': '5 minutes',
+    'water_heater': '10 minutes',
+    'weatherstrip': '30-60 minutes'
+  };
+  
+  return times[action.id] || '10 minutes';
+}
+
+
+// ----- calendar.js -----
+/**
+ * Client-Side Calendar Export
+ * Generates .ics files, calendar deep links, and todo exports
+ * All processing happens in the browser - no data sent to servers
+ * 
+ * @module calendar
+ */
+
+/**
+ * Fold a line to 75 octets per RFC 5545
+ * @param {string} line - The line to fold
+ * @returns {string} Folded line with CRLF + space
+ */
+function foldLine(line) {
+  if (line.length <= 75) return line;
+  
+  const result = [];
+  let remaining = line;
+  
+  // First line gets 75 chars
+  result.push(remaining.substring(0, 75));
+  remaining = remaining.substring(75);
+  
+  // Continuation lines get 74 chars (1 space prefix)
+  while (remaining.length > 0) {
+    result.push(' ' + remaining.substring(0, 74));
+    remaining = remaining.substring(74);
+  }
+  
+  return result.join('\r\n');
+}
+
+/**
+ * Generate iCalendar (.ics) file content from action plan
+ * @param {Array} actionPlan - Dated action plan from actionPlan.js
+ * @param {string} title - Calendar title (default: "Billback Savings Plan")
+ * @returns {string} .ics file content
+ */
+window.generateICSContent = function(actionPlan, title = "Billback Savings Plan") {
+  const now = new Date();
+  const timestamp = now.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Billback//Savings Action Plan//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    `X-WR-CALNAME:${title}`,
+    'X-WR-TIMEZONE:America/Los_Angeles',
+    'X-WR-CALDESC:Your personalized energy savings action plan'
+  ];
+
+  actionPlan.forEach((step, index) => {
+    const uid = `billback-${Date.now()}-${index}@billback.com`;
+    
+    // Convert step date to YYYYMMDD format
+    let dtstart;
+    if (step.date) {
+      const d = new Date(step.date);
+      dtstart = d.toISOString().split('T')[0].replace(/-/g, '');
+    } else {
+      // Default to today + index days if no date
+      const d = new Date(now);
+      d.setDate(d.getDate() + index);
+      dtstart = d.toISOString().split('T')[0].replace(/-/g, '');
+    }
+
+    // Build description with sources
+    let description = step.how || step.description || '';
+    if (step.source) {
+      description += `\\n\\nSource: ${step.source}`;
+    }
+    if (step.estimatedSavings) {
+      description += `\\n\\nEstimated savings: $${step.estimatedSavings}`;
+    }
+
+    // Create VEVENT
+    lines.push('BEGIN:VEVENT');
+    lines.push(`UID:${uid}`);
+    lines.push(`DTSTAMP:${timestamp}`);
+    lines.push(`DTSTART;VALUE=DATE:${dtstart}`);
+    lines.push(foldLine(`SUMMARY:${escapeICS(step.what || step.title || step.action)}`));
+    lines.push(foldLine(`DESCRIPTION:${escapeICS(description)}`));
+    lines.push('STATUS:CONFIRMED');
+    lines.push('TRANSP:TRANSPARENT');
+
+    // Add recurring rule if specified
+    if (step.recurring) {
+      const rrule = buildRRule(step.recurring);
+      if (rrule) {
+        lines.push(foldLine(`RRULE:${rrule}`));
+      }
+    }
+
+    // Add reminders (VALARM)
+    // 7 days before
+    lines.push('BEGIN:VALARM');
+    lines.push('TRIGGER:-P7D');
+    lines.push('ACTION:DISPLAY');
+    lines.push(foldLine(`DESCRIPTION:Reminder: ${escapeICS(step.what || step.title || step.action)} in 7 days`));
+    lines.push('END:VALARM');
+
+    // 1 day before
+    lines.push('BEGIN:VALARM');
+    lines.push('TRIGGER:-P1D');
+    lines.push('ACTION:DISPLAY');
+    lines.push(foldLine(`DESCRIPTION:Reminder: ${escapeICS(step.what || step.title || step.action)} tomorrow`));
+    lines.push('END:VALARM');
+
+    lines.push('END:VEVENT');
+  });
+
+  lines.push('END:VCALENDAR');
+  return lines.join('\r\n');
+}
+
+/**
+ * Build RRULE string from recurring config
+ * @param {string|Object} recurring - "monthly", "yearly", or { freq, interval, ... }
+ * @returns {string} RRULE string (without "RRULE:" prefix)
+ */
+function buildRRule(recurring) {
+  if (typeof recurring === 'string') {
+    const freq = recurring.toUpperCase();
+    if (freq === 'MONTHLY') return 'FREQ=MONTHLY';
+    if (freq === 'YEARLY') return 'FREQ=YEARLY';
+    if (freq === 'WEEKLY') return 'FREQ=WEEKLY';
+    if (freq === 'DAILY') return 'FREQ=DAILY';
+    return null;
+  }
+  
+  if (typeof recurring === 'object') {
+    let rrule = `FREQ=${recurring.freq.toUpperCase()}`;
+    if (recurring.interval) rrule += `;INTERVAL=${recurring.interval}`;
+    if (recurring.until) {
+      const until = new Date(recurring.until).toISOString().split('T')[0].replace(/-/g, '');
+      rrule += `;UNTIL=${until}`;
+    }
+    if (recurring.count) rrule += `;COUNT=${recurring.count}`;
+    return rrule;
+  }
+  
+  return null;
+}
+
+/**
+ * Escape special characters for ICS format
+ * @param {string} text
+ * @returns {string}
+ */
+function escapeICS(text) {
+  return String(text)
+    .replace(/\\/g, '\\\\')
+    .replace(/;/g, '\\;')
+    .replace(/,/g, '\\,')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '');
+}
+
+/**
+ * Download .ics file to user's device
+ * @param {string} icsContent - ICS file content
+ * @param {string} filename - Filename (default: "billback-savings-plan.ics")
+ */
+window.downloadICS = function(icsContent, filename = 'billback-savings-plan.ics') {
+  const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Generate Google Calendar deep link for a single event
+ * @param {Object} step - Action plan step
+ * @returns {string} Google Calendar URL
+ */
+window.generateGoogleCalendarLink = function(step) {
+  const baseUrl = 'https://calendar.google.com/calendar/render';
+  
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: step.what || step.title || step.action,
+    details: buildEventDetails(step),
+    dates: formatGoogleCalendarDate(step.date)
+  });
+
+  return `${baseUrl}?${params.toString()}`;
+}
+
+/**
+ * Generate Outlook Calendar deep link for a single event
+ * @param {Object} step - Action plan step
+ * @returns {string} Outlook Calendar URL
+ */
+window.generateOutlookLink = function(step) {
+  const baseUrl = 'https://outlook.live.com/calendar/0/deeplink/compose';
+  
+  const params = new URLSearchParams({
+    path: '/calendar/action/compose',
+    rru: 'addevent',
+    subject: step.what || step.title || step.action,
+    body: buildEventDetails(step),
+    startdt: new Date(step.date).toISOString(),
+    enddt: new Date(step.date).toISOString()
+  });
+
+  return `${baseUrl}?${params.toString()}`;
+}
+
+/**
+ * Build event details text with sources and savings
+ * @param {Object} step
+ * @returns {string}
+ */
+function buildEventDetails(step) {
+  let details = step.how || step.description || '';
+  if (step.source) {
+    details += `\n\nSource: ${step.source}`;
+  }
+  if (step.estimatedSavings) {
+    details += `\n\nEstimated savings: $${step.estimatedSavings}`;
+  }
+  return details;
+}
+
+/**
+ * Format date for Google Calendar (YYYYMMDDTHHMMSSZ/YYYYMMDDTHHMMSSZ)
+ * For all-day events: YYYYMMDD/YYYYMMDD
+ * @param {string|Date} date
+ * @returns {string}
+ */
+function formatGoogleCalendarDate(date) {
+  const d = new Date(date);
+  const start = d.toISOString().split('T')[0].replace(/-/g, '');
+  const end = start; // All-day event
+  return `${start}/${end}`;
+}
+
+/**
+ * Generate Markdown todo list from action plan
+ * @param {Array} actionPlan - Dated action plan
+ * @returns {string} Markdown formatted todo list
+ */
+window.generateMarkdownTodoList = function(actionPlan) {
+  let md = '# Billback Savings Action Plan\n\n';
+  md += '_Your personalized energy bill savings checklist_\n\n';
+  
+  actionPlan.forEach((step, index) => {
+    md += `## ${index + 1}. ${step.what || step.title || step.action}\n\n`;
+    
+    if (step.date) {
+      const d = new Date(step.date);
+      md += `**Due:** ${d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}\n\n`;
+    }
+    
+    if (step.estimatedSavings) {
+      md += `**Savings:** $${step.estimatedSavings}/year\n\n`;
+    }
+    
+    if (step.how) {
+      md += `${step.how}\n\n`;
+    }
+    
+    if (step.source) {
+      md += `_Source: ${step.source}_\n\n`;
+    }
+    
+    if (step.recurring) {
+      md += `🔁 **Recurring:** ${step.recurring}\n\n`;
+    }
+    
+    md += '---\n\n';
+  });
+  
+  md += '\n_Generated by Billback • Your bill never left your device_\n';
+  
+  return md;
+}
+
+/**
+ * Generate plain text todo list from action plan (for Apple Reminders, etc.)
+ * @param {Array} actionPlan - Dated action plan
+ * @returns {string} Plain text todo list
+ */
+window.generatePlainTextTodoList = function(actionPlan) {
+  let text = 'BILLBACK SAVINGS ACTION PLAN\n';
+  text += '================================\n\n';
+  
+  actionPlan.forEach((step, index) => {
+    text += `${index + 1}. ${step.what || step.title || step.action}\n`;
+    
+    if (step.date) {
+      const d = new Date(step.date);
+      text += `   Due: ${d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}\n`;
+    }
+    
+    if (step.estimatedSavings) {
+      text += `   Savings: $${step.estimatedSavings}/year\n`;
+    }
+    
+    if (step.how) {
+      text += `   ${step.how}\n`;
+    }
+    
+    if (step.recurring) {
+      text += `   Recurring: ${step.recurring}\n`;
+    }
+    
+    text += '\n';
+  });
+  
+  text += '\nGenerated by Billback\n';
+  text += 'Your bill never left your device.\n';
+  
+  return text;
+}
+
+/**
+ * Copy text to clipboard
+ * @param {string} text
+ * @returns {Promise<boolean>} Success status
+ */
+window.copyToClipboard = async function(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (err) {
+    // Fallback for older browsers
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const success = document.execCommand('copy');
+    document.body.removeChild(textarea);
+    return success;
+  }
+}
+
+/**
+ * Download text file to user's device
+ * @param {string} content - File content
+ * @param {string} filename - Filename
+ * @param {string} mimeType - MIME type (default: text/plain)
+ */
+window.downloadTextFile = function(content, filename, mimeType = 'text/plain') {
+  const blob = new Blob([content], { type: `${mimeType};charset=utf-8` });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+
+// ===== END BUNDLED MODULES =====
+
+// Analytics tracking function (fails silently if PostHog unavailable)
+const IS_PRODUCTION = false; // Always false for static builds
+function trackEvent(eventName, props = {}) {
+  if (window.posthog) {
+    // Only send anonymous, non-identifying properties
+    // No PII, no exact dollar amounts, no account numbers, no addresses
+    posthog.capture(eventName, {
+      ...props,
+      site: 'billback',
+      llc: 'mindmelding',
+      is_test: !IS_PRODUCTION
+    });
+  }
+}
+
+// Tab navigation
+function showResults() {
+  document.getElementById('upload-tab').classList.remove('active');
+  document.getElementById('results-tab').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showUpload() {
+  document.getElementById('results-tab').classList.remove('active');
+  document.getElementById('upload-tab').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// Make functions global
+window.showResults = showResults;
+window.showUpload = showUpload;
+window.trackEvent = trackEvent;
 </script>
+
+<!-- PostHog Analytics (inline, fails silently if blocked) -->
+<script>
+!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+
+// Initialize PostHog (fails silently if offline)
+try {
+  if (typeof posthog !== 'undefined') {
+    posthog.init('phc_dummy_for_offline', {
+      api_host: 'https://app.posthog.com',
+      autocapture: false,
+      disable_session_recording: true,
+      loaded: function() { /* PostHog loaded */ },
+      request_batching: true
+    });
+  }
+} catch (e) {
+  console.log('PostHog unavailable (offline mode)');
+}
+</script>
+
 </body>
 </html>

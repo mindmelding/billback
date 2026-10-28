@@ -12,16 +12,69 @@
 # Error details
 
 ```
-Error: Should show November deadlines
+Error: expect(locator).toBeEnabled() failed
 
-expect(received).toBeTruthy()
+Locator:  locator('button:has-text("Analyze My Bills")')
+Expected: enabled
+Received: disabled
+Timeout:  5000ms
 
-Received: false
+Call log:
+  - Expect "toBeEnabled" locator('button:has-text("Analyze My Bills")') with timeout 5000ms
+  - waiting for locator('button:has-text("Analyze My Bills")')
+    14 × locator resolved to <button disabled type="button" id="analyzeBtn" class="btn primary">↵    Analyze My Bills↵  </button>
+       - unexpected value "disabled"
+
+```
+
+```yaml
+- button "Analyze My Bills" [disabled]
 ```
 
 # Test source
 
 ```ts
+  28  |     
+  29  |     server = createServer((req, res) => {
+  30  |       let filePath = pathJoin(distPath, req.url === '/' ? 'index.html' : req.url);
+  31  |       
+  32  |       try {
+  33  |         const stat = statSync(filePath);
+  34  |         if (stat.isDirectory()) {
+  35  |           filePath = pathJoin(filePath, 'index.html');
+  36  |         }
+  37  |         
+  38  |         const ext = extname(filePath);
+  39  |         const contentTypes = {
+  40  |           '.html': 'text/html',
+  41  |           '.js': 'application/javascript',
+  42  |           '.css': 'text/css',
+  43  |           '.json': 'application/json',
+  44  |           '.png': 'image/png',
+  45  |           '.jpg': 'image/jpeg',
+  46  |           '.pdf': 'application/pdf',
+  47  |         };
+  48  |         
+  49  |         const content = readFileSync(filePath);
+  50  |         res.writeHead(200, { 'Content-Type': contentTypes[ext] || 'text/plain' });
+  51  |         res.end(content);
+  52  |       } catch (e) {
+  53  |         res.writeHead(404);
+  54  |         res.end('Not found');
+  55  |       }
+  56  |     });
+  57  |     
+  58  |     server.listen(port);
+  59  |     serverUrl = `http://localhost:${port}`;
+  60  |     console.log(`Test server started at ${serverUrl}`);
+  61  |   });
+  62  |   
+  63  |   test.afterAll(async () => {
+  64  |     if (server) {
+  65  |       server.close();
+  66  |       console.log('Test server stopped');
+  67  |     }
+  68  |   });
   69  |   
   70  |   test('should process bill PDF and export calendar with correct dates', async ({ page, context }) => {
   71  |     // Set longer timeout for this test
@@ -81,7 +134,8 @@ Received: false
   125 |     
   126 |     // Wait for the "Analyze My Bills" button to be enabled
   127 |     const analyzeButton = page.locator('button:has-text("Analyze My Bills")');
-  128 |     await expect(analyzeButton).toBeEnabled({ timeout: 5000 });
+> 128 |     await expect(analyzeButton).toBeEnabled({ timeout: 5000 });
+      |                                 ^ Error: expect(locator).toBeEnabled() failed
   129 |     await page.screenshot({ path: join(__dirname, 'screenshots/03-ready-to-analyze.png'), fullPage: true });
   130 |     
   131 |     await analyzeButton.click();
@@ -122,8 +176,7 @@ Received: false
   166 |     console.log('- May 28 (switch date):', hasMay28);
   167 |     
   168 |     // Assert critical dates are present
-> 169 |     expect(hasNov19 || hasNov27, 'Should show November deadlines').toBeTruthy();
-      |                                                                    ^ Error: Should show November deadlines
+  169 |     expect(hasNov19 || hasNov27, 'Should show November deadlines').toBeTruthy();
   170 |     
   171 |     // Look for calendar export button
   172 |     const calendarButton = page.locator('button, a', { 
@@ -183,29 +236,4 @@ Received: false
   226 |       if (startDate.includes('2027-05-28')) foundMay28 = true;
   227 |       
   228 |       // Check for alarms
-  229 |       const valarms = vevent.getAllSubcomponents('valarm');
-  230 |       if (valarms.length > 0) {
-  231 |         hasAlarms = true;
-  232 |         console.log(`  Alarms: ${valarms.length}`);
-  233 |       }
-  234 |     });
-  235 |     
-  236 |     console.log(`\nDate coverage:`);
-  237 |     console.log(`- Nov 19, 2026: ${foundNov19}`);
-  238 |     console.log(`- Nov 27, 2026: ${foundNov27}`);
-  239 |     console.log(`- May 28, 2027: ${foundMay28}`);
-  240 |     console.log(`- Has alarms: ${hasAlarms}`);
-  241 |     
-  242 |     // Assert we found expected dates
-  243 |     expect(foundNov19 || foundNov27, 'Calendar should include November 2026 deadlines').toBeTruthy();
-  244 |     expect(hasAlarms, 'Calendar events should have reminder alarms').toBeTruthy();
-  245 |     
-  246 |     // Take final screenshot
-  247 |     await page.screenshot({ path: join(__dirname, 'screenshots/06-final-state.png'), fullPage: true });
-  248 |     
-  249 |     console.log('\n✅ E2E test passed!');
-  250 |     console.log('Screenshots saved to test/e2e/screenshots/');
-  251 |   });
-  252 | });
-  253 | 
 ```

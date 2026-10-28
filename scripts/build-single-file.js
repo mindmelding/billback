@@ -41,6 +41,8 @@ function convertExports(code) {
     .replace(/import\s*\{[\s\S]*?\}\s*from\s*['"][^'"]+['"]\s*;?/g, '')
     // Remove single-line imports
     .replace(/import\s+.+\s+from\s+['"][^'"]+['"]\s*;?/g, '')
+    // Handle async function exports: export async function name(...) { -> window.name = async function(...) {
+    .replace(/export\s+async\s+function\s+(\w+)\s*\(/g, 'window.$1 = async function(')
     // Handle function exports: export function name(...) { -> window.name = function(...) {
     .replace(/export\s+function\s+(\w+)\s*\(/g, 'window.$1 = function(')
     // Handle const exports: export const name = -> window.name =
