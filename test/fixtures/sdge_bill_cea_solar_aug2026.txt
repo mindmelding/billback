@@ -17,12 +17,13 @@ Current Charges                                                      - 16.28
 Total Amount Due                                                       $.00
 
 Net Metering Account Summary
-Previous NEM YTD Balance $354.22 Payment Received 8/21/26 THANK YOU - 354.22 (Continued on next page)
+Previous NEM YTD Balance $354.22
+Payment Received 8/21/26 THANK YOU - 354.22 (Continued on next page)
 
 --- Page 2 ---
 
-Excess Credit Transfer                                               -16.28
-Current Charges                                                   + 461.99
+Excess Credit Transfer                                               −$16.28
+Current Charges                                                   +$461.99
 Current Account Balance                                           $445.71
 
 Summary of Current Charges

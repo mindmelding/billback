@@ -13,7 +13,7 @@ import {
 
 describe('NEM Payment Detection', () => {
   describe('detectNEMPaymentPattern', () => {
-    it('should detect monthly payment pattern from fixture', () => {
+    it('should detect monthly payer when payment equals previous NEM YTD', () => {
       const billText = readFileSync('./test/fixtures/sdge_bill_cea_solar_aug2026.txt', 'utf-8');
       const parsed = parseSDGEBillText(billText);
       
@@ -21,7 +21,7 @@ describe('NEM Payment Detection', () => {
       
       assert.strictEqual(result.paysMonthly, true, 'Fixture shows monthly payments');
       assert.strictEqual(result.confidence, 'high');
-      assert.ok(result.reasoning.includes('payment'), 'Should explain reasoning');
+      assert.ok(result.reasoning.includes('previous NEM YTD'), 'Should explain previous-balance match');
     });
 
     it('should return unknown for bill without payment history', () => {
@@ -51,10 +51,13 @@ describe('NEM Payment Detection', () => {
   });
 
   describe('calculateTrueUpAmount', () => {
-    it('should calculate reduced true-up for monthly payers', () => {
+    it('should use last cycle charges for monthly payers, not balance minus payment', () => {
       const parsed = {
         hasSolar: true,
         nemBalance: 445.71,
+        previousNemYtd: 354.22,
+        currentNemCharges: 461.99,
+        excessCreditTransfer: 16.28,
         nemPaymentHistory: [
           { date: '2026-08-21', amount: 354.22 }
         ]
@@ -62,11 +65,13 @@ describe('NEM Payment Detection', () => {
       
       const result = calculateTrueUpAmount(parsed, true);
       
-      // True-up should be unbilled amount: 445.71 - 354.22 = ~91.49
-      assert.ok(result.estimatedAmount < 100, 'Should be only unbilled final period');
-      assert.ok(result.estimatedAmount > 85, 'Should be around $91');
-      assert.ok(result.reasoning.includes('monthly'), 'Should explain monthly pattern');
-      assert.ok(result.reasoning.includes('unbilled'), 'Should mention unbilled charges');
+      assert.ok(Math.abs(result.estimatedAmount - 461.99) < 0.01, `Expected $461.99, got ${result.estimatedAmount}`);
+      assert.ok(result.estimatedAmount > 400, 'Must not be the $91 balance-minus-payment figure');
+      assert.ok(!String(result.reasoning).includes('unbilled'), 'Old unbilled wording is misleading');
+      assert.ok(result.reasoning.includes('last cycle'));
+      assert.ok(result.reasoning.includes('461.99') || result.reasoning.includes('$462'));
+      assert.ok(result.reasoning.includes('Previous balance $354.22 paid 8/21'));
+      assert.ok(result.reasoning.includes("this cycle's charges"));
     });
 
     it('should calculate full balance for credit bankers', () => {
@@ -116,20 +121,20 @@ describe('NEM Payment Detection', () => {
       const billText = readFileSync('./test/fixtures/sdge_bill_cea_solar_aug2026.txt', 'utf-8');
       const parsed = parseSDGEBillText(billText);
       
-      // Check parsing
       assert.strictEqual(parsed.nemBalance, 445.71, 'Should parse balance');
+      assert.strictEqual(parsed.previousNemYtd, 354.22);
+      assert.strictEqual(parsed.currentNemCharges, 461.99);
+      assert.strictEqual(parsed.excessCreditTransfer, 16.28);
       assert.strictEqual(parsed.nemPaymentHistory.length, 1, 'Should parse payment');
       assert.strictEqual(parsed.nemPaymentHistory[0].amount, 354.22, 'Should parse amount');
       
-      // Detect pattern
       const detection = detectNEMPaymentPattern(parsed);
       assert.strictEqual(detection.paysMonthly, true, 'Should detect monthly pattern');
+      assert.ok(Math.abs(parsed.nemPaymentHistory[0].amount - parsed.previousNemYtd) < 0.01);
       
-      // Calculate true-up
       const trueUp = calculateTrueUpAmount(parsed, detection.paysMonthly);
-      assert.ok(trueUp.estimatedAmount < 100, 'True-up should be small (~$91)');
-      assert.ok(trueUp.estimatedAmount >= 0, 'True-up should be non-negative');
-      assert.ok(Math.abs(trueUp.estimatedAmount - 91.49) < 0.01, `Expected $91.49, got ${trueUp.estimatedAmount}`);
+      assert.ok(Math.abs(trueUp.estimatedAmount - 461.99) < 0.01, `Expected $461.99, got ${trueUp.estimatedAmount}`);
+      assert.ok(trueUp.estimatedAmount > 400, 'Must not be ~$91');
     });
   });
 });
