@@ -105,7 +105,7 @@ export function generateDatedActionPlan(report, bills, household = {}) {
     steps.push(createStep({
       id: 'cpuc-hearing-nov10',
       title: 'Submit Comment on SDG&E Rate Hike (In-Person Hearing Nov 10)',
-      description: 'CPUC public hearing on SDG&E\\'s 2028 rate increase proposal (+8.1% in 2028, ~$14/mo). Submit your comment with your bill\\'s numbers. Hearing at Santee City Hall, 6 pm.',
+      description: 'CPUC public hearing on SDG&E\'s 2028 rate increase proposal (+8.1% in 2028, ~$14/mo). Submit your comment with your bill\'s numbers. Hearing at Santee City Hall, 6 pm.',
       doByDate: '2026-11-10',
       doByDateSource: 'CPUC Notice of Public Participation Hearing, A.26-06-015',
       urgency: Math.ceil((nov10 - today) / (1000 * 60 * 60 * 24)) <= 7 ? 'high' : 'normal',
@@ -117,7 +117,7 @@ export function generateDatedActionPlan(report, bills, household = {}) {
         instructions: [
           'Submit online at apps.cpuc.ca.gov/c/A2606015',
           'Or attend in person: Santee City Hall, 10601 Magnolia Ave, Santee, 6 pm',
-          'Use your bill\\'s actual numbers (more weight than generic comments)',
+          'Use your bill\'s actual numbers (more weight than generic comments)',
           'Mention application A.26-06-015'
         ]
       },
@@ -129,7 +129,7 @@ export function generateDatedActionPlan(report, bills, household = {}) {
     steps.push(createStep({
       id: 'cpuc-hearing-dec9',
       title: 'Submit Comment on SDG&E Rate Hike (Virtual Hearing Dec 9-10)',
-      description: 'CPUC virtual public hearing on SDG&E\\'s 2028 rate increase. Phone/webcast participation. Submit comment with your bill\\'s numbers.',
+      description: 'CPUC virtual public hearing on SDG&E\'s 2028 rate increase. Phone/webcast participation. Submit comment with your bill\'s numbers.',
       doByDate: '2026-12-10',
       doByDateSource: 'CPUC Notice of Public Participation Hearing, A.26-06-015',
       urgency: Math.ceil((dec9 - today) / (1000 * 60 * 60 * 24)) <= 7 ? 'high' : 'normal',

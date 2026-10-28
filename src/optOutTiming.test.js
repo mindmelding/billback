@@ -76,47 +76,50 @@ function testFixtureHouseholdOptOutTiming() {
   }
   console.log('✓ Tier opt-down savings correctly estimated as ~$6 (one cycle before Dec 31 expiration)');
   
-  // Test 2: CCA opt-out to SDG&E notice deadline
-  const optOutRule = rules.find(r => r.action.includes('Opt out of CEA and return to SDG&E'));
-  if (!optOutRule) {
+  // Test 2: CCA opt-out to SDG&E - check for the separate action steps
+  const submitRule = rules.find(r => r.action.includes('Submit CCA opt-out'));
+  const noticeDeadlineRule = rules.find(r => r.action.includes('SDG&E must receive'));
+  const switchRule = rules.find(r => r.action.includes('You switch back to SDG&E'));
+  
+  if (!submitRule || !noticeDeadlineRule || !switchRule) {
     console.error('❌ FAIL: No CCA opt-out rule found');
     return false;
   }
-  console.log('✓ Found CCA opt-out rule');
+  console.log('✓ Found CCA opt-out rules (submit, notice deadline, switch date)');
   
-  // Check deadline is Fri Nov 27, 2026
+  // Check notice deadline is Fri Nov 27, 2026
   const expectedOptOutDeadline = new Date('2026-11-27');
-  if (optOutRule.deadline.toDateString() !== expectedOptOutDeadline.toDateString()) {
-    console.error(`❌ FAIL: Expected opt-out deadline Nov 27, 2026, got ${optOutRule.deadline.toLocaleDateString()}`);
+  if (noticeDeadlineRule.deadline.toDateString() !== expectedOptOutDeadline.toDateString()) {
+    console.error(`❌ FAIL: Expected opt-out deadline Nov 27, 2026, got ${noticeDeadlineRule.deadline.toLocaleDateString()}`);
     return false;
   }
   console.log('✓ CCA opt-out notice deadline is Fri Nov 27, 2026 (SDG&E must receive)');
   
-  // Check that reasoning mentions May 28, 2027 switch date
+  // Check that switch rule mentions May 28, 2027
   // toLocaleDateString() will format as "5/28/2027" in US locale
-  if (!optOutRule.reason.includes('5/28') && !optOutRule.reason.includes('May')) {
+  if (!switchRule.reason.includes('5/28') && !switchRule.reason.includes('May')) {
     console.error('❌ FAIL: Reasoning should mention May 28, 2027 switch date');
-    console.error(`   Actual reason: ${optOutRule.reason.substring(0, 200)}`);
+    console.error(`   Actual reason: ${switchRule.reason.substring(0, 200)}`);
     return false;
   }
   console.log('✓ Reasoning correctly mentions May 28, 2027 switch date');
   
-  // Check that credit forfeiture is mentioned
-  if (!optOutRule.reason.includes('forfeited') && !optOutRule.reason.includes('forfeit')) {
+  // Check that submit rule mentions credit forfeiture
+  if (!submitRule.reason.includes('forfeited') && !submitRule.reason.includes('forfeit')) {
     console.error('❌ FAIL: Should mention credit forfeiture from interim true-up');
     return false;
   }
   console.log('✓ Credit forfeiture from interim true-up mentioned');
   
   // Check verified status
-  if (!optOutRule.verified) {
+  if (!noticeDeadlineRule.verified) {
     console.error('❌ FAIL: Opt-out rule should be verified (based on SDG&E Rule 27)');
     return false;
   }
   console.log('✓ Opt-out rule is marked as verified');
   
   // Check source references SDG&E Rule 27
-  if (!optOutRule.source.includes('Rule 27')) {
+  if (!noticeDeadlineRule.source.includes('Rule 27')) {
     console.error('❌ FAIL: Source should reference SDG&E Rule 27');
     return false;
   }

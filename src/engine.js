@@ -146,7 +146,7 @@ export function calculateAnnualCost(bills, ratePlan, nemYearToDate = null) {
   return {
     annualCost: avgCost * 12,
     confidence: 'low',
-    basis: `${sorted.length} month(s), simple annualization (seasonal variation not accounted for)`
+    basis: `${sorted.length} month(s), simple annualization — rough seasonal estimate (actual usage varies by season)`
   };
 }
 
@@ -161,8 +161,15 @@ export function compareProviders(bills, currentPlan, nemYearToDate = null) {
   const currentCostData = calculateAnnualCost(bills, currentPlan, nemYearToDate);
   const alternatives = [];
 
+  // Get customer's CCA territory from current provider
+  // CEA serves: Oceanside, Carlsbad, Vista, Del Mar, San Marcos, Escondido
+  // SDCP serves: San Diego, Chula Vista, La Mesa, National City, Imperial Beach
+  // Only compare providers available in the customer's territory
+  const customerCCA = currentPlan.provider === 'CEA' ? 'CEA' : 
+                      currentPlan.provider === 'SDCP' ? 'SDCP' : null;
+
   // Get all rate plans except the current one
-  const plans = [
+  let plans = [
     rates.SDGE_TOU_DR1,
     rates.CEA_CLEAN_IMPACT,
     rates.CEA_CLEAN_IMPACT_PLUS,
@@ -171,6 +178,16 @@ export function compareProviders(bills, currentPlan, nemYearToDate = null) {
   ].filter(plan => 
     !(plan.provider === currentPlan.provider && plan.plan === currentPlan.plan)
   );
+
+  // Territory filtering: only show providers available to this customer
+  if (customerCCA === 'CEA') {
+    // CEA customers can only switch to SDG&E bundled or other CEA tiers
+    plans = plans.filter(plan => plan.provider === 'SDG&E' || plan.provider === 'CEA');
+  } else if (customerCCA === 'SDCP') {
+    // SDCP customers can only switch to SDG&E bundled or other SDCP tiers
+    plans = plans.filter(plan => plan.provider === 'SDG&E' || plan.provider === 'SDCP');
+  }
+  // If customer is on SDG&E bundled, territory is unknown, so show all options
 
   for (const plan of plans) {
     const costData = calculateAnnualCost(bills, plan, nemYearToDate);

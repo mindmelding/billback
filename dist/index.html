@@ -298,6 +298,9 @@ function trackEvent(eventName, props = {}) {
     });
   }
 }
+
+// Make trackEvent available globally for other script modules
+window.trackEvent = trackEvent;
 </script>
 
 <div class="container">

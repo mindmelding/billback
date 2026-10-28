@@ -12,41 +12,16 @@
 # Error details
 
 ```
-Error: Navigation timeout: page.waitForURL: Timeout 60000ms exceeded.
-=========================== logs ===========================
-waiting for navigation to "**/results.html" until "load"
-============================================================
+Error: Should show November deadlines
+
+expect(received).toBeTruthy()
+
+Received: false
 ```
 
 # Test source
 
 ```ts
-  43  |           '.json': 'application/json',
-  44  |           '.png': 'image/png',
-  45  |           '.jpg': 'image/jpeg',
-  46  |           '.pdf': 'application/pdf',
-  47  |         };
-  48  |         
-  49  |         const content = readFileSync(filePath);
-  50  |         res.writeHead(200, { 'Content-Type': contentTypes[ext] || 'text/plain' });
-  51  |         res.end(content);
-  52  |       } catch (e) {
-  53  |         res.writeHead(404);
-  54  |         res.end('Not found');
-  55  |       }
-  56  |     });
-  57  |     
-  58  |     server.listen(port);
-  59  |     serverUrl = `http://localhost:${port}`;
-  60  |     console.log(`Test server started at ${serverUrl}`);
-  61  |   });
-  62  |   
-  63  |   test.afterAll(async () => {
-  64  |     if (server) {
-  65  |       server.close();
-  66  |       console.log('Test server stopped');
-  67  |     }
-  68  |   });
   69  |   
   70  |   test('should process bill PDF and export calendar with correct dates', async ({ page, context }) => {
   71  |     // Set longer timeout for this test
@@ -121,8 +96,7 @@ waiting for navigation to "**/results.html" until "load"
   140 |       console.log('Failed to navigate, checking console logs:');
   141 |       consoleLogs.forEach(log => console.log('  -', log));
   142 |       await page.screenshot({ path: join(__dirname, 'screenshots/04-timeout.png'), fullPage: true });
-> 143 |       throw new Error(`Navigation timeout: ${e.message}`);
-      |             ^ Error: Navigation timeout: page.waitForURL: Timeout 60000ms exceeded.
+  143 |       throw new Error(`Navigation timeout: ${e.message}`);
   144 |     }
   145 |     
   146 |     // Take screenshot of results page
@@ -148,7 +122,8 @@ waiting for navigation to "**/results.html" until "load"
   166 |     console.log('- May 28 (switch date):', hasMay28);
   167 |     
   168 |     // Assert critical dates are present
-  169 |     expect(hasNov19 || hasNov27, 'Should show November deadlines').toBeTruthy();
+> 169 |     expect(hasNov19 || hasNov27, 'Should show November deadlines').toBeTruthy();
+      |                                                                    ^ Error: Should show November deadlines
   170 |     
   171 |     // Look for calendar export button
   172 |     const calendarButton = page.locator('button, a', { 
@@ -223,4 +198,14 @@ waiting for navigation to "**/results.html" until "load"
   241 |     
   242 |     // Assert we found expected dates
   243 |     expect(foundNov19 || foundNov27, 'Calendar should include November 2026 deadlines').toBeTruthy();
+  244 |     expect(hasAlarms, 'Calendar events should have reminder alarms').toBeTruthy();
+  245 |     
+  246 |     // Take final screenshot
+  247 |     await page.screenshot({ path: join(__dirname, 'screenshots/06-final-state.png'), fullPage: true });
+  248 |     
+  249 |     console.log('\n✅ E2E test passed!');
+  250 |     console.log('Screenshots saved to test/e2e/screenshots/');
+  251 |   });
+  252 | });
+  253 | 
 ```

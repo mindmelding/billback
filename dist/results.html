@@ -385,6 +385,9 @@ function trackEvent(eventName, props = {}) {
   }
 }
 
+// Make trackEvent available globally
+window.trackEvent = trackEvent;
+
 // Import client-side modules
 import { generateDatedActionPlan } from '../src/actionPlan.js';
 import { 

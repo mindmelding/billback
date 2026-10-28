@@ -161,6 +161,21 @@ if (typeof pdfjsLib !== 'undefined') {
 <script>
 ${bundledJS}
 
+// Analytics tracking function (fails silently if PostHog unavailable)
+const IS_PRODUCTION = false; // Always false for static builds
+function trackEvent(eventName, props = {}) {
+  if (window.posthog) {
+    // Only send anonymous, non-identifying properties
+    // No PII, no exact dollar amounts, no account numbers, no addresses
+    posthog.capture(eventName, {
+      ...props,
+      site: 'billback',
+      llc: 'mindmelding',
+      is_test: !IS_PRODUCTION
+    });
+  }
+}
+
 // Tab navigation
 function showResults() {
   document.getElementById('upload-tab').classList.remove('active');
@@ -177,6 +192,7 @@ function showUpload() {
 // Make functions global
 window.showResults = showResults;
 window.showUpload = showUpload;
+window.trackEvent = trackEvent;
 </script>
 
 <!-- PostHog Analytics (inline, fails silently if blocked) -->
