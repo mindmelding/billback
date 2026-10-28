@@ -34,4 +34,4 @@ Use the mark alone at 32px and below. Keep clear space equal to the arrow's heig
 <body class="bb">…</body>
 ```
 
-`app/upload.html` and `app/results.html` still use their own inline variables (same colors). Moving them onto `tokens.css` and the `bb-` classes is a follow-up.
+`app/upload.html` and `app/results.html` import `tokens.css` and `components.css` and use the `bb-` classes. `npm run build` copies the needed CSS and brand assets into `dist/brand/` with relative paths.

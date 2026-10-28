@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 /**
- * Build dist/ from app/ + src/.
+ * Build dist/ from app/ + src/ + brand assets.
  * One script, no hand-edits of dist/, no single-file bundle.
  *
  * Output:
  *   dist/index.html   <- app/upload.html with paths rewritten
  *   dist/results.html <- app/results.html with paths rewritten
+ *   dist/app.css
  *   dist/src/*.js     <- runtime modules (not tests)
+ *   dist/brand/       <- style-kit CSS, lockup/mark, sized PNG favicons, social card
+ * Paths are relative so dist/ works from any URL root.
  */
 
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync, readdirSync } from 'fs';
@@ -42,6 +45,7 @@ for (const name of runtimeModules) {
 function rewriteForDist(html) {
   return html
     .replaceAll('../src/', './src/')
+    .replaceAll('../brand/', './brand/')
     .replaceAll('/app/results.html', 'results.html')
     .replaceAll('/app/upload.html', 'index.html')
     .replaceAll('href="upload.html"', 'href="index.html"')
@@ -49,6 +53,38 @@ function rewriteForDist(html) {
     .replaceAll("location.href = 'upload.html'", "location.href = 'index.html'")
     .replaceAll('location.href = "upload.html"', 'location.href = "index.html"');
 }
+
+function copyBrandAssets() {
+  const brandSrc = join(rootDir, 'brand');
+  const brandDest = join(distDir, 'brand');
+  mkdirSync(join(brandDest, 'style-kit'), { recursive: true });
+  mkdirSync(join(brandDest, 'png'), { recursive: true });
+
+  const files = [
+    ['style-kit/tokens.css', 'style-kit/tokens.css'],
+    ['style-kit/components.css', 'style-kit/components.css'],
+    ['billback-lockup.svg', 'billback-lockup.svg'],
+    ['billback-mark.svg', 'billback-mark.svg'],
+    ['png/billback-mark-16.png', 'png/billback-mark-16.png'],
+    ['png/billback-mark-32.png', 'png/billback-mark-32.png'],
+    ['png/billback-mark-64.png', 'png/billback-mark-64.png'],
+    ['png/billback-mark-180.png', 'png/billback-mark-180.png'],
+    ['png/billback-mark-192.png', 'png/billback-mark-192.png'],
+    ['png/billback-mark-512.png', 'png/billback-mark-512.png'],
+    ['png/billback-lockup@2x.png', 'png/billback-lockup@2x.png'],
+    ['png/billback-social-card.png', 'png/billback-social-card.png']
+  ];
+
+  for (const [from, to] of files) {
+    cpSync(join(brandSrc, from), join(brandDest, to));
+    console.log(`  brand/${to}`);
+  }
+}
+
+cpSync(join(rootDir, 'app/app.css'), join(distDir, 'app.css'));
+console.log('  app.css');
+
+copyBrandAssets();
 
 const uploadHtml = readFileSync(join(rootDir, 'app/upload.html'), 'utf-8');
 const resultsHtml = readFileSync(join(rootDir, 'app/results.html'), 'utf-8');
@@ -69,6 +105,8 @@ python3 -m http.server 8000
 
 - \`index.html\` — upload page
 - \`results.html\` — action timeline and calendar export
+- \`app.css\` — page shell
+- \`brand/\` — style-kit CSS, lockup, favicons, social card (relative paths)
 - \`src/\` — parser, engine, rates, timing, calendar
 
 Your bill never leaves the device. No dummy PostHog key is loaded.

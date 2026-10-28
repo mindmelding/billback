@@ -1,0 +1,91 @@
+/* Billback design tokens, v1 (2026-10-28).
+   One light theme. Import this first, then components.css.
+   Contrast is checked against white (#ffffff) and panel (#fbfbfc); "text" tokens pass WCAG AA (4.5:1) for body text. */
+:root {
+  /* Surfaces */
+  --bb-bg: #ffffff;
+  --bb-panel: #fbfbfc;        /* sidebars, table heads, form groups */
+  --bb-sunken: #f4f4f7;       /* tracks, skeletons, hover on panel */
+  --bb-line: #e9e9ee;         /* default hairline */
+  --bb-line-strong: #dcdce3;  /* inputs, chips */
+
+  /* Text */
+  --bb-fg: #1b1b22;           /* 17.1:1 */
+  --bb-fg-2: #5d5d6c;         /* 6.5:1, secondary copy */
+  --bb-fg-3: #737382;         /* 4.7:1, meta, labels, ids */
+  --bb-fg-4: #8b8b99;         /* 3.4:1, icons, disabled, never body text */
+
+  /* Brand: indigo. Used for "we did this for you" (prefilled, ready, primary button). */
+  --bb-accent: #5e6ad2;       /* 4.7:1; white text on it is 4.7:1 */
+  --bb-accent-strong: #4f5bc4;/* hover, pressed, small accent text */
+  --bb-accent-soft: #eef0fb;
+  --bb-accent-line: #cdd1f3;
+
+  /* Money back: green. Only for money the customer gets back or keeps. */
+  --bb-save: #2f8a4f;         /* fills, bars, big numbers (20px+) */
+  --bb-save-text: #277a43;    /* small text */
+  --bb-save-soft: #e9f6ee;
+  --bb-save-line: #c4e5cf;
+  --bb-save-ink: #1f5e36;     /* text on save-soft */
+
+  /* Needs you: amber. A call, a signature, a tick only the customer can give. */
+  --bb-you: #b26a00;          /* fills, icons */
+  --bb-you-text: #9a5b00;     /* small text */
+  --bb-you-soft: #fdf3e2;
+  --bb-you-line: #f1d9ad;
+  --bb-you-ink: #6d4300;
+
+  /* Overpaid: red. Money going out that doesn't have to (today's bill, CCA premium, fees). */
+  --bb-over: #c2413a;
+  --bb-over-soft: #fcecea;
+  --bb-over-line: #f2c9c5;
+
+  /* Charts: series order. Today > provider switch > habits > after. */
+  --bb-chart-today: var(--bb-over);
+  --bb-chart-switch: var(--bb-accent);
+  --bb-chart-habit: var(--bb-save);
+  --bb-chart-grid: var(--bb-line);
+  --bb-chart-range: repeating-linear-gradient(135deg, var(--bb-save) 0 2px, transparent 2px 6px);
+  /* Time-of-use bands (SDG&E TOU-DR1 windows) */
+  --bb-tou-off: #9fd3b0;      /* super off-peak / off-peak */
+  --bb-tou-mid: #f2c46d;
+  --bb-tou-on: #e07a72;       /* on-peak 4-9pm */
+
+  /* Type */
+  --bb-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --bb-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --bb-text-xs: 11.5px;   /* meta, ids, chips */
+  --bb-text-sm: 12.5px;   /* controls, table cells */
+  --bb-text-md: 13px;     /* app body */
+  --bb-text-lg: 16px;     /* panel titles; marketing body */
+  --bb-text-xl: 20px;     /* page title, metric value */
+  --bb-text-2xl: 28px;    /* hero number */
+  --bb-text-3xl: 40px;    /* marketing headline, "You get back" number */
+  --bb-tracking-tight: -0.01em;
+  --bb-tracking-display: -0.025em;
+  --bb-leading: 1.5;
+
+  /* Space (4px grid) */
+  --bb-s1: 4px; --bb-s2: 8px; --bb-s3: 12px; --bb-s4: 16px;
+  --bb-s5: 20px; --bb-s6: 24px; --bb-s8: 32px; --bb-s10: 40px; --bb-s16: 64px;
+
+  /* Shape */
+  --bb-r-sm: 5px;   /* chips, small buttons, inputs */
+  --bb-r: 6px;      /* cards, panels, buttons */
+  --bb-r-lg: 12px;  /* marketing cards, upload zone, sheets */
+  --bb-r-pill: 999px;
+
+  /* Elevation: hairlines first; shadows only for things that float */
+  --bb-shadow-pop: 0 1px 2px rgba(20, 20, 40, .06), 0 8px 24px rgba(20, 20, 40, .08);
+  --bb-focus: 0 0 0 2px var(--bb-bg), 0 0 0 4px var(--bb-accent);
+
+  /* Motion */
+  --bb-ease: cubic-bezier(.2, .7, .2, 1);
+  --bb-fast: 120ms;
+  --bb-slow: 240ms;
+
+  color-scheme: light;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --bb-fast: 0ms; --bb-slow: 0ms; }
+}
