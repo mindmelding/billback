@@ -82,9 +82,17 @@ export function generateTestPdf(outputPath) {
 
     y += 10;
     line('Net Metering Account Summary');
-    line('Previous NEM YTD Balance                     $354.22');
-    line('Payment Received   8/21/26    THANK YOU    - 354.22');
-    line('NEM Year-to-Date Balance                     $445.71');
+    // Real PDF.js y-reconstructed line — no "NEM Year-to-Date Balance"
+    writeSameY(doc, y, [
+      [50, 'Previous NEM YTD Balance'],
+      [220, '$354.22'],
+      [280, 'Payment Received'],
+      [390, '8/21/26'],
+      [450, 'THANK YOU'],
+      [530, '- 354.22'],
+    ]);
+    y += 14;
+    line('(Continued on next page)');
 
     y += 10;
     line('Net Energy Metering');

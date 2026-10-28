@@ -210,5 +210,21 @@ describe('Savings Engine', () => {
       assert.ok(!String(projection.message).includes('563'));
       assert.ok(!String(projection.message).includes('615'));
     });
+
+    it('should not project months that fall after the true-up date', () => {
+      const nemData = {
+        trueUpDate: '2026-10-28',
+        balance: 445.71,
+        systemSize: 3.44,
+        paymentHistory: []
+      };
+      const nemYearToDate = [
+        { date: '2026-08-27', onPeak: 355, offPeak: 193, superOffPeak: 76, total: 624, nemCharges: 177.17 }
+      ];
+      const projection = calculateNEMTrueUpProjection(nemData, nemYearToDate, rates.CEA_CLEAN_IMPACT_PLUS);
+      assert.ok(projection);
+      const months = (projection.projectionDetails || []).map((d) => d.month);
+      assert.ok(!months.some((m) => /Nov/i.test(m)), `November is after Oct 28 true-up: ${months.join(', ')}`);
+    });
   });
 });

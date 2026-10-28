@@ -129,6 +129,7 @@ describe('NEM Payment Detection', () => {
       const trueUp = calculateTrueUpAmount(parsed, detection.paysMonthly);
       assert.ok(trueUp.estimatedAmount < 100, 'True-up should be small (~$91)');
       assert.ok(trueUp.estimatedAmount >= 0, 'True-up should be non-negative');
+      assert.ok(Math.abs(trueUp.estimatedAmount - 91.49) < 0.01, `Expected $91.49, got ${trueUp.estimatedAmount}`);
     });
   });
 });

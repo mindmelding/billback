@@ -105,6 +105,9 @@ test.describe('Billback E2E Flow', () => {
     expect(pageContent).not.toContain('May 27, 2027');
 
     expect(pageContent.toLowerCase()).toMatch(/true-up projection/);
+    expect(pageContent).toMatch(/\$91/);
+    expect(pageContent).not.toMatch(/\$563/);
+    expect(pageContent).not.toMatch(/\$615/);
     expect(pageContent).not.toMatch(/SDCP/i);
 
     const calendarButton = page.locator('button, a', {

@@ -142,27 +142,17 @@ export function parseSDGEBillText(text) {
       result.nemTrueUpDate = normalizeDate(trueUpMatch[1]);
     }
     
-    // Current NEM balance
-    const balanceMatch = text.match(/(?:NEM Year-to-Date Balance|Current Account Balance)\s+\$?([\d,]+\.?\d*)/);
+    // Current NEM balance (printed YTD). Real bills often omit "NEM Year-to-Date Balance"
+    // and print "Current Account Balance $    445.71" with spaces after $.
+    const balanceMatch = text.match(/(?:NEM Year-to-Date Balance|Current Account Balance)\s+\$?\s*([\d,]+\.?\d*)/);
     if (balanceMatch) {
       result.nemBalance = parseFloat(balanceMatch[1].replace(/,/g, ''));
     }
     
-    // Parse NEM payment history
-    // Pattern: "Payment Received   8/21/26    THANK YOU    - 354.22"
-    // Look in Net Metering Account Summary section
-    const nemSectionMatch = text.match(/Net Metering Account Summary[\s\S]{0,500}NEM Year-to-Date Balance/);
-    if (nemSectionMatch) {
-      const nemSection = nemSectionMatch[0];
-      const paymentRegex = /Payment Received\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\s+[A-Z\s]+\s+-?\s*\$?\s*([\d,]+\.?\d*)/g;
-      let paymentMatch;
-      while ((paymentMatch = paymentRegex.exec(nemSection)) !== null) {
-        result.nemPaymentHistory.push({
-          date: normalizeDate(paymentMatch[1]),
-          amount: parseFloat(paymentMatch[2].replace(/,/g, ''))
-        });
-      }
-    }
+    // Parse NEM payment history from the account-summary window.
+    // Real PDF.js layout (one reconstructed line, no "NEM Year-to-Date Balance"):
+    //   "Previous NEM YTD Balance $354.22 Payment Received 8/21/26 THANK YOU - 354.22 (Continued on next page)"
+    result.nemPaymentHistory = parseNemPaymentHistory(text);
   }
 
   // Total kWh (from usage history or summary)
@@ -289,6 +279,36 @@ export function parseSDGEBillText(text) {
   result._originalText = text; // Store for validation
   
   return result;
+}
+
+/**
+ * Extract NEM "Payment Received" rows from the account-summary window.
+ * Real bills do not contain "NEM Year-to-Date Balance"; they continue onto the
+ * next page. Bound the window by "Continued", "Gas Usage", or "Current Account Balance".
+ * @param {string} text
+ * @returns {Array<{date: string, amount: number}>}
+ */
+function parseNemPaymentHistory(text) {
+  const payments = [];
+  const startMatch = text.match(/Net Metering Account Summary|Previous NEM YTD Balance/i);
+  if (!startMatch) return payments;
+
+  const startIdx = startMatch.index;
+  let window = text.slice(startIdx, startIdx + 300);
+  const endMatch = window.match(/Continued|Gas Usage|Current Account Balance/i);
+  if (endMatch && endMatch.index > 0) {
+    window = window.slice(0, endMatch.index);
+  }
+
+  const paymentRegex = /Payment Received\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\s+[A-Z\s]+\s+[-−]?\s*\$?\s*([\d,]+\.?\d*)/g;
+  let paymentMatch;
+  while ((paymentMatch = paymentRegex.exec(window)) !== null) {
+    payments.push({
+      date: normalizeDate(paymentMatch[1]),
+      amount: parseFloat(paymentMatch[2].replace(/,/g, ''))
+    });
+  }
+  return payments;
 }
 
 /**
