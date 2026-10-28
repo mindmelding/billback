@@ -8,6 +8,7 @@ import {
   calculateOptOutTiming, 
   formatTimingRuleAsAction 
 } from './optOutTiming.js';
+import { formatLocalDate, parseLocalDate } from './meterReadSchedule.js';
 
 /**
  * Generate dated action plan from savings report
@@ -38,7 +39,7 @@ export function generateDatedActionPlan(report, bills, household = {}) {
         id: action.id,
         title: action.what,
         description: action.how,
-        doByDate: action.date instanceof Date ? action.date.toISOString().split('T')[0] : null,
+        doByDate: action.date ? formatLocalDate(action.date) : null,
         doByDateSource: action.source,
         urgency: action.urgency,
         category: action.category || 'Provider',
@@ -98,8 +99,8 @@ export function generateDatedActionPlan(report, bills, household = {}) {
   // Note: CEA tier changes and CCA opt-out timing now handled by optOutTiming module above
 
   // 1. CPUC SDG&E Rate Hike Hearings (Nov 10, Dec 9-10, 2026)
-  const nov10 = new Date('2026-11-10');
-  const dec9 = new Date('2026-12-09');
+  const nov10 = parseLocalDate('2026-11-10');
+  const dec9 = parseLocalDate('2026-12-09');
   
   if (nov10 > today) {
     steps.push(createStep({
@@ -164,7 +165,7 @@ export function generateDatedActionPlan(report, bills, household = {}) {
         id: 'summer-thermostat-setup',
         title: 'Set Summer Pre-Cool Thermostat Schedule',
         description: `Cool the home while power is cheaper (before 4 pm), then coast through 4-9 pm peak pricing. Saves $${thermostatAction.annualSavingsRange ? Math.round(thermostatAction.annualSavingsRange[0]) + '–' + Math.round(thermostatAction.annualSavingsRange[1]) : '25-55'}/summer.`,
-        doByDate: jun1Next.toISOString().split('T')[0],
+        doByDate: formatLocalDate(jun1Next),
         doByDateSource: 'SDG&E TOU-DR1 summer season starts June 1 (Schedule TOU-DR1)',
         urgency: Math.ceil((mayStart - today) / (1000 * 60 * 60 * 24)) <= 30 ? 'normal' : 'low',
         category: 'Seasonal',
@@ -230,7 +231,7 @@ export function generateDatedActionPlan(report, bills, household = {}) {
         id: action.id,
         title: action.action,
         description: action.basis,
-        doByDate: i === 0 ? addDays(today, 7) : novStart.toISOString().split('T')[0],
+        doByDate: i === 0 ? addDays(today, 7) : formatLocalDate(novStart),
         doByDateSource: i === 0 ? 'Immediate savings' : 'SDG&E winter season starts Nov 1',
         urgency: i === 0 ? 'normal' : 'low',
         category: 'Gas',
@@ -278,7 +279,7 @@ export function generateDatedActionPlan(report, bills, household = {}) {
   }
 
   // Sort steps by date
-  steps.sort((a, b) => new Date(a.doByDate) - new Date(b.doByDate));
+  steps.sort((a, b) => String(a.doByDate || '').localeCompare(String(b.doByDate || '')));
 
   return {
     steps,
@@ -289,9 +290,9 @@ export function generateDatedActionPlan(report, bills, household = {}) {
 
 // Helper functions
 function addDays(date, days) {
-  const result = new Date(date);
+  const result = parseLocalDate(date);
   result.setDate(result.getDate() + days);
-  return result.toISOString().split('T')[0];
+  return formatLocalDate(result);
 }
 
 function getActionInstructions(action) {

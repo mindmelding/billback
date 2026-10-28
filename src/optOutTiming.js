@@ -12,18 +12,9 @@
 import {
   calculateCCAOptOutDeadline,
   calculateCEATierChangeDeadline,
-  getNextMeterRead
+  getNextMeterRead,
+  parseLocalDate
 } from './meterReadSchedule.js';
-
-/**
- * Parse a date string as local date (not UTC)
- * @param {string} dateStr - Date string in 'YYYY-MM-DD' format
- * @returns {Date} Local date object
- */
-function parseLocalDate(dateStr) {
-  const [year, month, day] = dateStr.split('-').map(Number);
-  return new Date(year, month - 1, day);
-}
 
 /**
  * Timing rule with verification status

@@ -11,6 +11,7 @@ export default defineConfig({
   use: {
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    timezoneId: 'America/Los_Angeles',
   },
 
   projects: [

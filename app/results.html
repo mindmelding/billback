@@ -357,34 +357,39 @@ h1 {
   </div>
 </div>
 
-<script type="module">
-// PostHog initialization with privacy-first configuration
-const POSTHOG_KEY = 'YOUR_POSTHOG_KEY';
-const IS_PRODUCTION = window.location.hostname !== 'localhost' && !window.location.hostname.includes('127.0.0.1');
+<script>
+// Define trackEvent once on window before any page script uses it.
+// No-op unless a real PostHog key is configured — never load a dummy key.
+(function () {
+  window.trackEvent = function (eventName, props) {
+    if (!window.posthog || typeof window.posthog.capture !== 'function') return;
+    var host = window.location.hostname;
+    var isProd = host !== 'localhost' && host.indexOf('127.0.0.1') === -1;
+    window.posthog.capture(eventName, Object.assign({}, props || {}, {
+      site: 'billback',
+      llc: 'mindmelding',
+      is_test: !isProd
+    }));
+  };
 
-if (POSTHOG_KEY && POSTHOG_KEY !== 'YOUR_POSTHOG_KEY') {
+  var POSTHOG_KEY = ''; // Set a real phc_ key to enable analytics
+  var isRealKey = typeof POSTHOG_KEY === 'string'
+    && /^phc_[A-Za-z0-9]+$/.test(POSTHOG_KEY)
+    && POSTHOG_KEY.length > 24
+    && !/dummy|placeholder|test_key|your_posthog/i.test(POSTHOG_KEY);
+  if (!isRealKey) return;
+
   !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-  posthog.init(POSTHOG_KEY, {
+  window.posthog.init(POSTHOG_KEY, {
     api_host: 'https://app.posthog.com',
     autocapture: false,
     disable_session_recording: true,
     disable_persistence: false,
     respect_dnt: true
   });
-}
-
-function trackEvent(eventName, props = {}) {
-  if (window.posthog) {
-    // Only anonymous, non-identifying properties
-    posthog.capture(eventName, {
-      ...props,
-      site: 'billback',
-      llc: 'mindmelding',
-      is_test: !IS_PRODUCTION
-    });
-  }
-}
-
+})();
+</script>
+<script type="module">
 // Import client-side modules
 import { generateDatedActionPlan } from '../src/actionPlan.js';
 import { 
@@ -394,6 +399,7 @@ import {
   copyToClipboard,
   downloadTextFile
 } from '../src/calendar.js';
+import { parseLocalDate } from '../src/meterReadSchedule.js';
 
 // Load data from sessionStorage
 const reportData = sessionStorage.getItem('savingsReport');
@@ -401,7 +407,7 @@ const householdData = sessionStorage.getItem('household');
 const parsedBillsData = sessionStorage.getItem('parsedBills');
 
 if (!reportData) {
-  document.getElementById('loading').innerHTML = '<p style="color: var(--bad);">No savings report found. Please <a href="index.html">upload your bills</a> first.</p>';
+  document.getElementById('loading').innerHTML = '<p style="color: var(--bad);">No savings report found. Please <a href="upload.html">upload your bills</a> first.</p>';
 } else {
   const report = JSON.parse(reportData);
   const household = householdData ? JSON.parse(householdData) : {};
@@ -411,7 +417,7 @@ if (!reportData) {
   const actionPlan = generateDatedActionPlan(report, bills, household);
   
   // Track results viewed (anonymous aggregates only)
-  trackEvent('plan_viewed', {
+  window.trackEvent('plan_viewed', {
     action_count: actionPlan.steps.length,
     has_solar: household.hasSolar || false,
     is_renter: household.renter || false,
@@ -433,14 +439,15 @@ function renderResults(report, household, actionPlan) {
       Based on ${report.billsAnalyzed} bill(s)${report.nemMonthsAnalyzed ? ` with ${report.nemMonthsAnalyzed} months of solar history` : ''}.
       ${report.currentPlan.provider} ${report.currentPlan.plan} → alternatives and actions below.
     </p>
+    <p><a href="upload.html">Upload another bill</a></p>
   `;
 
-  // True-up alert
-  if (report.nemTrueUpAlert) {
-    const alert = report.nemTrueUpAlert;
+  // True-up projection (engine emits nemTrueUpProjection, not nemTrueUpAlert)
+  if (report.nemTrueUpProjection && !report.nemTrueUpProjection.isPast) {
+    const projection = report.nemTrueUpProjection;
     html += `
-      <div class="alert ${alert.isUrgent ? 'urgent' : ''}">
-        <strong>${alert.isUrgent ? '⚠️ ' : ''}Solar True-Up Alert:</strong> ${alert.message}
+      <div class="alert ${projection.isUrgent ? 'urgent' : ''}">
+        <strong>${projection.isUrgent ? '⚠️ ' : ''}Solar true-up projection:</strong> ${projection.message}
       </div>
     `;
   }
@@ -489,8 +496,8 @@ function renderResults(report, household, actionPlan) {
     
     html += '<div class="timeline">';
     actionPlan.steps.forEach((step, i) => {
-      const date = step.doByDate ? new Date(step.doByDate) : new Date();
-      const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const date = step.doByDate ? parseLocalDate(step.doByDate) : new Date();
+      const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       const urgencyClass = step.urgency === 'urgent' ? 'urgent' : step.urgency === 'high' ? 'high' : '';
       
       html += `
@@ -528,6 +535,7 @@ function renderResults(report, household, actionPlan) {
     <div class="delete-section">
       <h3>🔒 Your Data</h3>
       <p>Your bill data and results are stored only in your browser. Nothing was sent to any server. You can delete everything right now:</p>
+      <p><a href="upload.html">Upload another bill</a></p>
       <button class="btn danger" onclick="deleteAllData()">Delete My Data</button>
     </div>
   `;
@@ -579,7 +587,7 @@ window.showStepDetails = function(index) {
   document.getElementById('stepModal').classList.add('show');
   
   // Track step viewed (anonymous)
-  trackEvent('step_viewed', {
+  window.trackEvent('step_viewed', {
     step_category: step.category,
     step_urgency: step.urgency
   });
@@ -616,7 +624,7 @@ window.exportToCalendar = async function() {
   downloadICS(icsContent, 'billback-action-plan.ics');
   
   // Track export (anonymous)
-  trackEvent('calendar_exported', {
+  window.trackEvent('calendar_exported', {
     step_count: calendarSteps.length
   });
 };
@@ -654,7 +662,7 @@ window.exportToMarkdown = async function() {
   }
   
   // Track export (anonymous)
-  trackEvent('checklist_exported', {
+  window.trackEvent('checklist_exported', {
     step_count: mdSteps.length
   });
 };
@@ -666,10 +674,10 @@ window.deleteAllData = function() {
     sessionStorage.removeItem('parsedBills');
     
     // Track deletion (anonymous)
-    trackEvent('data_deleted', {});
+    window.trackEvent('data_deleted', {});
     
     alert('✓ All your data has been deleted from this browser.');
-    window.location.href = 'index.html';
+    window.location.href = 'upload.html';
   }
 };
 

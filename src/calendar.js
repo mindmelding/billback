@@ -6,28 +6,63 @@
  * @module calendar
  */
 
+import { parseLocalDate, formatLocalDate } from './meterReadSchedule.js';
+
 /**
- * Fold a line to 75 octets per RFC 5545
+ * Fold a line to 75 UTF-8 octets per RFC 5545 §3.1.
+ * Continuation lines are a single SPACE plus content; each physical line
+ * (excluding CRLF) is at most 75 octets and never splits a UTF-8 character.
  * @param {string} line - The line to fold
  * @returns {string} Folded line with CRLF + space
  */
-function foldLine(line) {
-  if (line.length <= 75) return line;
-  
+export function foldLine(line) {
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+  const bytes = encoder.encode(line);
+  if (bytes.length <= 75) return line;
+
   const result = [];
-  let remaining = line;
-  
-  // First line gets 75 chars
-  result.push(remaining.substring(0, 75));
-  remaining = remaining.substring(75);
-  
-  // Continuation lines get 74 chars (1 space prefix)
-  while (remaining.length > 0) {
-    result.push(' ' + remaining.substring(0, 74));
-    remaining = remaining.substring(74);
+  let offset = 0;
+  let first = true;
+
+  while (offset < bytes.length) {
+    const max = first ? 75 : 74; // continuation lines include the leading SPACE
+    let end = Math.min(offset + max, bytes.length);
+    // Do not split a multi-byte UTF-8 sequence
+    while (end > offset && (bytes[end] & 0xC0) === 0x80) {
+      end--;
+    }
+    if (end === offset) {
+      end = Math.min(offset + 1, bytes.length);
+    }
+    const chunk = decoder.decode(bytes.slice(offset, end));
+    result.push(first ? chunk : ' ' + chunk);
+    offset = end;
+    first = false;
   }
-  
+
   return result.join('\r\n');
+}
+
+/**
+ * Strip live countdown suffixes from calendar text.
+ * Page UI may show "(in 16 days)"; .ics files should not.
+ */
+function stripCountdown(text) {
+  return String(text || '')
+    .replace(/\s*\(in \d+ days\)/gi, '')
+    .replace(/\s*\(NOW\)/g, '')
+    .trim();
+}
+
+/**
+ * Format a step date as ICS VALUE=DATE (YYYYMMDD) in local time.
+ */
+function toICSDateValue(date) {
+  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}/.test(date)) {
+    return date.slice(0, 10).replace(/-/g, '');
+  }
+  return formatLocalDate(date).replace(/-/g, '');
 }
 
 /**
@@ -54,20 +89,20 @@ export function generateICSContent(actionPlan, title = "Billback Savings Plan") 
   actionPlan.forEach((step, index) => {
     const uid = `billback-${Date.now()}-${index}@billback.com`;
     
-    // Convert step date to YYYYMMDD format
+    // Convert step date to YYYYMMDD format (local calendar date, not UTC)
     let dtstart;
     if (step.date) {
-      const d = new Date(step.date);
-      dtstart = d.toISOString().split('T')[0].replace(/-/g, '');
+      dtstart = toICSDateValue(step.date);
     } else {
-      // Default to today + index days if no date
-      const d = new Date(now);
+      const d = parseLocalDate(now);
       d.setDate(d.getDate() + index);
-      dtstart = d.toISOString().split('T')[0].replace(/-/g, '');
+      dtstart = toICSDateValue(d);
     }
 
-    // Build description with sources
-    let description = step.how || step.description || '';
+    const summaryText = stripCountdown(step.what || step.title || step.action);
+
+    // Build description with sources — no live "(in N days)" countdown
+    let description = stripCountdown(step.how || step.description || '');
     if (step.source) {
       description += `\\n\\nSource: ${step.source}`;
     }
@@ -80,7 +115,7 @@ export function generateICSContent(actionPlan, title = "Billback Savings Plan") 
     lines.push(`UID:${uid}`);
     lines.push(`DTSTAMP:${timestamp}`);
     lines.push(`DTSTART;VALUE=DATE:${dtstart}`);
-    lines.push(foldLine(`SUMMARY:${escapeICS(step.what || step.title || step.action)}`));
+    lines.push(foldLine(`SUMMARY:${escapeICS(summaryText)}`));
     lines.push(foldLine(`DESCRIPTION:${escapeICS(description)}`));
     lines.push('STATUS:CONFIRMED');
     lines.push('TRANSP:TRANSPARENT');
@@ -98,14 +133,14 @@ export function generateICSContent(actionPlan, title = "Billback Savings Plan") 
     lines.push('BEGIN:VALARM');
     lines.push('TRIGGER:-P7D');
     lines.push('ACTION:DISPLAY');
-    lines.push(foldLine(`DESCRIPTION:Reminder: ${escapeICS(step.what || step.title || step.action)} in 7 days`));
+    lines.push(foldLine(`DESCRIPTION:Reminder: ${escapeICS(summaryText)} in 7 days`));
     lines.push('END:VALARM');
 
     // 1 day before
     lines.push('BEGIN:VALARM');
     lines.push('TRIGGER:-P1D');
     lines.push('ACTION:DISPLAY');
-    lines.push(foldLine(`DESCRIPTION:Reminder: ${escapeICS(step.what || step.title || step.action)} tomorrow`));
+    lines.push(foldLine(`DESCRIPTION:Reminder: ${escapeICS(summaryText)} tomorrow`));
     lines.push('END:VALARM');
 
     lines.push('END:VEVENT');

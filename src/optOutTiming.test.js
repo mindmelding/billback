@@ -3,6 +3,8 @@
  * Updated with verified rules from independent research against official tariffs
  */
 
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
 import { 
   calculateOptOutTiming, 
   formatTimingRuleAsAction,
@@ -62,7 +64,7 @@ function testFixtureHouseholdOptOutTiming() {
   console.log('✓ Found CEA tier downgrade rule');
   
   // Check deadline is Thu Nov 19, 2026 (5 business days before Nov 27 read, accounting for Thanksgiving)
-  const expectedTierDeadline = new Date('2026-11-19');
+  const expectedTierDeadline = new Date(2026, 10, 19);
   if (tierRule.deadline.toDateString() !== expectedTierDeadline.toDateString()) {
     console.error(`❌ FAIL: Expected tier deadline Nov 19, 2026, got ${tierRule.deadline.toLocaleDateString()}`);
     return false;
@@ -88,7 +90,7 @@ function testFixtureHouseholdOptOutTiming() {
   console.log('✓ Found CCA opt-out rules (submit, notice deadline, switch date)');
   
   // Check notice deadline is Fri Nov 27, 2026
-  const expectedOptOutDeadline = new Date('2026-11-27');
+  const expectedOptOutDeadline = new Date(2026, 10, 27);
   if (noticeDeadlineRule.deadline.toDateString() !== expectedOptOutDeadline.toDateString()) {
     console.error(`❌ FAIL: Expected opt-out deadline Nov 27, 2026, got ${noticeDeadlineRule.deadline.toLocaleDateString()}`);
     return false;
@@ -340,8 +342,8 @@ function testFormatTimingRuleAsAction() {
   
   const rule = {
     action: 'Switch from CEA Clean Impact Plus to Clean Impact',
-    recommendedDate: new Date('2026-11-01'),
-    deadline: new Date('2026-11-19'),
+    recommendedDate: new Date(2026, 10, 1),
+    deadline: new Date(2026, 10, 19),
     avoidWindow: null,
     reason: 'Relief credit ends Dec 31, 2026',
     costOfEarly: 'None',
@@ -520,33 +522,29 @@ function testRuleSorting() {
   return true;
 }
 
-// Run all tests
-console.log('╔══════════════════════════════════════════════════════╗');
-console.log('║   Opt-Out Timing Module Tests (CORRECTED)            ║');
-console.log('╚══════════════════════════════════════════════════════╝');
-
-const results = [
-  testFixtureHouseholdOptOutTiming(),
-  testCEACleanImpactPlusDowngrade(),
-  testNonSolarCCAOptOut(),
-  testCAREEnrollmentTiming(),
-  testFormatTimingRuleAsAction(),
-  testCountdownText(),
-  testTimeSensitiveDetection(),
-  testRuleSorting()
-];
-
-const passed = results.filter(r => r).length;
-const total = results.length;
-
-console.log('\n╔══════════════════════════════════════════════════════╗');
-console.log(`║   Test Results: ${passed}/${total} passed                          ║`);
-console.log('╚══════════════════════════════════════════════════════╝');
-
-if (passed === total) {
-  console.log('\n✅ All tests passed!\n');
-  process.exit(0);
-} else {
-  console.log(`\n❌ ${total - passed} test(s) failed\n`);
-  process.exit(1);
-}
+describe('Opt-Out Timing', () => {
+  it('fixture household opt-out timing', () => {
+    assert.ok(testFixtureHouseholdOptOutTiming());
+  });
+  it('CEA Clean Impact Plus downgrade', () => {
+    assert.ok(testCEACleanImpactPlusDowngrade());
+  });
+  it('non-solar CCA opt-out', () => {
+    assert.ok(testNonSolarCCAOptOut());
+  });
+  it('CARE enrollment timing', () => {
+    assert.ok(testCAREEnrollmentTiming());
+  });
+  it('format timing rule as action', () => {
+    assert.ok(testFormatTimingRuleAsAction());
+  });
+  it('countdown text', () => {
+    assert.ok(testCountdownText());
+  });
+  it('time-sensitive detection', () => {
+    assert.ok(testTimeSensitiveDetection());
+  });
+  it('rule sorting', () => {
+    assert.ok(testRuleSorting());
+  });
+});

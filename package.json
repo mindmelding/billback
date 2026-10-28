@@ -7,7 +7,7 @@
   "scripts": {
     "test": "node --test src/**/*.test.js",
     "test:e2e": "playwright test",
-    "build": "node scripts/build-single-file.js",
+    "build": "node scripts/build-dist.js",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit"
