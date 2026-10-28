@@ -1,7 +1,7 @@
 # Opt-Out and Switch Timing Rules
 
 **Last Updated:** 2026-10-28  
-**Researched by:** Sean (GitHub mindmelding)  
+**Researched by:** the owner  
 **Sources:** SDG&E tariffs, SDG&E meter-read calendars, CEA board packets, CPUC notices (see bottom for links)
 
 This document tracks the specific timing requirements, deadlines, and cost implications for switching providers, plans, and programs in San Diego County.
@@ -161,7 +161,7 @@ This document tracks the specific timing requirements, deadlines, and cost impli
 - Best plan on CEA (e.g., DR-SES has lower CEA generation rates in summer than TOU-DR1) can differ from best plan on SDG&E bundled service
 - Changing now locks you in for 12 months
 - Save the one allowed change per year for just before returning to SDG&E
-- **Source:** Sean's analysis; SDG&E Rule 12 §D
+- **Source:** internal analysis; SDG&E Rule 12 §D
 
 ---
 
@@ -220,7 +220,7 @@ This document tracks the specific timing requirements, deadlines, and cost impli
 - **IMPORTANT:** If customer pays monthly (not banking credits), the true-up bill is only the unbilled final period charges, NOT the cumulative balance shown on the bill
 - **Example (Cycle 19 fixture):** Bill shows NEM YTD balance $445.71, but customer paid $354.22 on 8/21/26. True-up bill will be approximately the unpaid Sep 28–Oct 28 charges (~$90), not the full $445.71
 - The printed "NEM Year-to-Date Balance" is cumulative; paid amounts reduce what's actually owed
-- **Source:** Sean's bill analysis; SDG&E billing practices
+- **Source:** a sample customer bill; SDG&E billing practices
 
 **Detection Method:**
 - Check bill history for payments
@@ -239,7 +239,7 @@ This document tracks the specific timing requirements, deadlines, and cost impli
 - Rate tables in `src/rates.js` must be dated by **bill period**, not just effective date
 - Note discrepancies between published schedules and actual billed rates
 - Source rates from actual bills when available
-- **Source:** Sean's bill comparison; CEA 10/29/2026 board packet noting adjustments
+- **Source:** a sample customer bill comparison; CEA 10/29/2026 board packet noting adjustments
 
 ---
 

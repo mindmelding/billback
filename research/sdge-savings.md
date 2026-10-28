@@ -1,6 +1,6 @@
 # "Get back at SDG&E" bill-savings angle (2026-10-27)
 
-Question (Sean): is there an angle for San Diegans who really dislike SDG&E to "get back" at them by finding discounts, cheaper plans and other ways to cut their bill?
+Question: is there an angle for San Diegans who really dislike SDG&E to "get back" at them by finding discounts, cheaper plans and other ways to cut their bill?
 
 Status: research only. Nothing posted, signed up for or spent. Revenue numbers are **guesses**, marked as such.
 
@@ -12,8 +12,8 @@ Status: research only. Nothing posted, signed up for or spent. Revenue numbers a
 - The gap nobody fills well: **one page that runs through every discount a household is leaving on the table** (CARE, FERA, Medical Baseline, Community Power's cheaper tier, the right plan for EVs and heat pumps, payment plans) framed as "make them pay you back," plus a ready-made hearing comment. The FERA number is the hook: in SDG&E's territory only about 28% of eligible households were enrolled (12,035 of 42,980, end of 2022), so roughly 31,000 families were missing an 18% discount and a half-price base charge.
 - Money is thin on its own. People who qualify for discounts have little to buy. The earning path is the subset who own homes and ask "should I get solar or a battery?", sold as installer leads, plus a few thermostat or energy-monitor affiliate links. Best as a second page type on the factory sites, not a new business.
 
-## Update 2026-10-27: first real bill (Sean's household)
-Running the check on one real bill found a lever the competitors don't cover: **for a solar home, the local community power provider can cost more than SDG&E.** Clean Energy Alliance (Oceanside, Carlsbad, Vista, etc.) prices summer on-peak at $0.554/kWh vs SDG&E's $0.359, so a solar home on NEM pays roughly $400/yr extra (one month: $260 vs $156, read straight off the bill's own "what SDG&E would have charged" line). Every CCA bill prints that line, so a tool can do the comparison from one uploaded bill with no login. That makes "upload your bill, see if your CCA is costing you" a sharper hook than a discount checklist, aimed at North County solar homes. Details: bill-reviews/2026-10-sean-household.md.
+## Update 2026-10-27: first real bill (a sample customer bill)
+Running the check on one real bill found a lever the competitors don't cover: **for a solar home, the local community power provider can cost more than SDG&E.** Clean Energy Alliance (Oceanside, Carlsbad, Vista, etc.) prices summer on-peak at $0.554/kWh vs SDG&E's $0.359, so a solar home on NEM pays roughly $400/yr extra (one month: $260 vs $156, read straight off the bill's own "what SDG&E would have charged" line). Every CCA bill prints that line, so a tool can do the comparison from one uploaded bill with no login. That makes "upload your bill, see if your CCA is costing you" a sharper hook than a discount checklist, aimed at North County solar homes.
 
 ## Demand (checked 2026-10-27)
 - r/sandiego "The Fight For Public Power in San Diego Begins November 12th": 532 points in under a day. Top comment (66): "It would be pretty nice to not have the most expensive power in the nation."
@@ -61,7 +61,7 @@ One free page, no login, no data stored: **"Make SDG&E pay you back: the 2-minut
 - A "comment that counts" section for the Nov 10 and Dec 9-10 hearings: a short template with the docket number and how to submit.
 - Optional homeowner question: "Want to know if solar or a battery pays here?" leading to an email capture only (no lead sale until there is a buyer).
 - PostHog: `savings_check_completed` (props: levers_found count, est_annual_savings band, homeowner yes/no), `hearing_comment_copied`, `solar_interest_submitted`. Success number: completed checks per week.
-- Build: ~1 day on Cloudflare free tier, either a path on an existing factory site or its own cheap domain. **Needs Sean's OK** for any domain, and for posting it to r/sandiego (the obvious launch, timed to the Nov 10 hearing).
+- Build: ~1 day on Cloudflare free tier, either a path on an existing factory site or its own cheap domain. **Needs owner approval** for any domain, and for posting it to r/sandiego (the obvious launch, timed to the Nov 10 hearing).
 - Kill rule: under ~100 completed checks in the two weeks around the hearings means the anger doesn't convert to action; park it.
 
 ## What it depends on
@@ -77,7 +77,7 @@ One free page, no login, no data stored: **"Make SDG&E pay you back: the 2-minut
 - Leads: [ActiveProspect](https://activeprospect.com/blog/how-much-do-solar-leads-cost/), [SolarReviews](https://www.solarreviews.com/pros/how-much-do-solar-leads-cost-in-each-state)
 
 ## Done-for-you: what a service can do for people (checked 2026-10-27)
-Sean asked whether a service could do the savings for people, or let them write in. Short answer: the service can do all the finding and paperwork, but for the provider switch, CARE/FERA and plan changes the customer has to give the final click or signature themselves. The law (PU Code 366.5) and the CARE income self-attestation require it. So the right shape is "we do everything, you tap approve."
+The owner asked whether a service could do the savings for people, or let them write in. Short answer: the service can do all the finding and paperwork, but for the provider switch, CARE/FERA and plan changes the customer has to give the final click or signature themselves. The law (PU Code 366.5) and the CARE income self-attestation require it. So the right shape is "we do everything, you tap approve."
 
 | Lever | Can a service do it for them? | How | What the person still does | Friction today |
 |---|---|---|---|---|
