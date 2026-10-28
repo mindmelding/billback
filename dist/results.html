@@ -28,7 +28,10 @@
 <body class="bb">
 <div class="bb-shell bb-shell--wide">
   <header class="bb-top">
-    <img class="bb-lockup" src="./brand/billback-lockup.svg" alt="Billback. Get your power bill back.">
+    <div class="bb-brand" role="img" aria-label="Billback. Get your power bill back.">
+      <img class="bb-brand__mark" src="./brand/billback-mark.svg" width="28" height="28" alt="">
+      <span class="bb-brand__name">Billback</span>
+    </div>
     <span class="bb-chip bb-chip--round">San Diego</span>
   </header>
 
@@ -125,6 +128,12 @@ function money(n) {
   return Math.round(n).toLocaleString('en-US');
 }
 
+function withPeriod(text) {
+  const t = String(text || '').trim();
+  if (!t) return '';
+  return /[.!?]$/.test(t) ? t : `${t}.`;
+}
+
 function splitCountdown(title) {
   const raw = String(title || '');
   const match = raw.match(/^(.*?)\s*\((in \d+ days|NOW)\)\s*$/i);
@@ -152,9 +161,32 @@ function renderResults(report, household, actionPlan, bills) {
   const annualNow = Math.round(report.currentPlan.annualCost || 0);
   const afterMin = Math.max(0, annualNow - saveMax);
   const afterMax = Math.max(0, annualNow - saveMin);
-  const billAmount = bills[0] && bills[0].totalAmount != null ? bills[0].totalAmount : null;
+  const bill = bills[0] || {};
+  const billAmount = bill.totalAmount != null ? bill.totalAmount : null;
   const planLabel = `${report.currentPlan.provider || ''} ${report.currentPlan.plan || ''}`.trim();
-  const usage = bills[0] && bills[0].usage ? bills[0].usage : null;
+  const usage = bill.usage || null;
+  const projection = report.nemTrueUpProjection;
+  const paysMonthlyNem = !!(projection && projection.paysMonthly);
+  const nemYtd = bill.nemBalance != null ? bill.nemBalance : (projection && projection.currentBalance);
+  const nemPaid = (bill.nemPaymentHistory || []).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+  const trueUpRemainder = paysMonthlyNem && projection.unpaidRemainder != null
+    ? projection.unpaidRemainder
+    : null;
+
+  let billChips = '';
+  if (paysMonthlyNem && nemYtd != null) {
+    if (trueUpRemainder != null) {
+      billChips += `<span class="bb-chip bb-chip--you">True-up remainder about $${Math.round(trueUpRemainder)}</span>`;
+    }
+    const paidBit = nemPaid > 0 ? `, $${nemPaid.toFixed(2)} already paid` : '';
+    billChips += `<span class="bb-chip">NEM year-to-date charges $${Number(nemYtd).toFixed(2)}${paidBit}</span>`;
+  } else if (billAmount != null) {
+    billChips += `<span class="bb-chip">This bill $${Number(billAmount).toFixed(2)}</span>`;
+  }
+
+  const payingTodayDetail = paysMonthlyNem && nemYtd != null
+    ? `NEM year-to-date charges $${Number(nemYtd).toFixed(2)}${nemPaid > 0 ? `, $${nemPaid.toFixed(2)} already paid` : ''}${trueUpRemainder != null ? ` · true-up about $${Math.round(trueUpRemainder)}` : ''}`
+    : (billAmount != null ? `This bill $${Number(billAmount).toFixed(2)}` : '');
 
   html += `
     <div class="bb-page-h">
@@ -166,7 +198,7 @@ function renderResults(report, household, actionPlan, bills) {
       </p>
       <div class="bb-row">
         ${planLabel ? `<span class="bb-chip bb-chip--round">${planLabel}</span>` : ''}
-        ${billAmount != null ? `<span class="bb-chip bb-chip--over">This bill $${Number(billAmount).toFixed(2)}</span>` : ''}
+        ${billChips}
         <a class="bb-link" href="index.html">Upload another bill</a>
       </div>
     </div>
@@ -185,7 +217,7 @@ function renderResults(report, household, actionPlan, bills) {
     <div class="bb-receipt">
       <div class="bb-receipt__row">
         <span class="bb-receipt__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span>
-        <div class="bb-receipt__l"><b>Paying today</b><span>${planLabel || 'Current plan'}${billAmount != null ? ` · this bill $${Number(billAmount).toFixed(2)}` : ''}</span></div>
+        <div class="bb-receipt__l"><b>Paying today</b><span>${planLabel || 'Current plan'}${payingTodayDetail ? ` · ${payingTodayDetail}` : ''}</span></div>
         <span class="bb-receipt__v num">$${money(annualNow)}/yr</span>
       </div>
       <div class="bb-receipt__row">
@@ -198,7 +230,7 @@ function renderResults(report, household, actionPlan, bills) {
         <div class="bb-receipt__l"><b>You get back</b><span>Estimated annual range</span></div>
         <span class="bb-receipt__v num">${savingsRange}</span>
       </div>
-      <p class="bb-receipt__foot">${report.currentPlan.basis || 'From the uploaded bill and published 2026 rates.'} Last checked Oct 28, 2026.</p>
+      <p class="bb-receipt__foot">${withPeriod(report.currentPlan.basis || 'From the uploaded bill and published 2026 rates')}<br>Last checked Oct 28, 2026.</p>
     </div>
   `;
 

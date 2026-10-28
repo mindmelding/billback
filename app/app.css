@@ -16,7 +16,15 @@ body.bb { margin: 0; }
   gap: var(--bb-s3);
   flex-wrap: wrap;
 }
-.bb-lockup { height: 28px; width: auto; display: block; }
+.bb-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; }
+.bb-brand__mark { width: 28px; height: 28px; display: block; flex: none; }
+.bb-brand__name {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: var(--bb-tracking-tight);
+  color: var(--bb-fg);
+  line-height: 1;
+}
 .bb-page-h { display: flex; flex-direction: column; gap: var(--bb-s2); }
 .bb-stack { display: flex; flex-direction: column; gap: var(--bb-s3); }
 .bb-row { display: flex; gap: var(--bb-s2); flex-wrap: wrap; align-items: center; }
@@ -86,7 +94,8 @@ body.bb { margin: 0; }
 .privacy-banner { display: flex; align-items: flex-start; gap: 10px; }
 @media (max-width: 560px) {
   .bb-shell { padding: 16px 14px 48px; gap: 16px; }
-  .bb-lockup { height: 22px; }
+  .bb-brand__mark { width: 22px; height: 22px; }
+  .bb-brand__name { font-size: 14px; }
   .bb-step { grid-template-columns: 24px minmax(0, 1fr); }
   .bb-step > .bb-step__chips { grid-column: 2; justify-content: flex-start; }
   .bb-metrics { grid-template-columns: 1fr; }

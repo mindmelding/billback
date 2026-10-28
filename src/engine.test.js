@@ -6,6 +6,7 @@
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
+import { readFileSync } from 'node:fs';
 import {
   calculateMonthlyCost,
   calculateAnnualCost,
@@ -15,6 +16,7 @@ import {
   generateSavingsReport,
   calculateNEMTrueUpProjection
 } from './engine.js';
+import { parseSDGEBillText } from './parser.js';
 import * as rates from './rates.js';
 
 describe('Savings Engine', () => {
@@ -93,6 +95,37 @@ describe('Savings Engine', () => {
       const result = calculateAnnualCost(bills, rates.SDGE_TOU_DR1);
       
       assert.strictEqual(result.confidence, 'medium', 'Should have medium confidence with both seasons');
+    });
+
+    it('should use NEM YTD net charges for a solar home, not abs(kWh) × rates', () => {
+      const billText = readFileSync('./test/fixtures/sdge_bill_cea_solar_aug2026.txt', 'utf-8');
+      const parsed = parseSDGEBillText(billText);
+      assert.ok(parsed.nemYearToDate.length >= 10);
+
+      const bills = [{
+        date: parsed.billingPeriod.start,
+        usage: parsed.usage,
+        cost: parsed.totalAmount
+      }];
+
+      const result = calculateAnnualCost(
+        bills,
+        rates.CEA_CLEAN_IMPACT_PLUS,
+        parsed.nemYearToDate,
+        { gasCost: parsed.gas.cost }
+      );
+
+      // Fixture NEM table: $575.24 net charges over 10 months → $690.29/yr,
+      // plus $24.12 × 12 base ($289.44) plus $33.08 × 12 gas ($396.96) ≈ $1,377.
+      // The old abs(kWh)×rates path treated exports as consumption and printed ~$2,637.
+      const expected = 575.24 * (12 / 10) + 24.12 * 12 + 33.08 * 12;
+      assert.ok(Math.abs(result.annualCost - expected) < 1, `Expected ~$${expected.toFixed(2)}, got ${result.annualCost}`);
+      assert.ok(result.annualCost > 1000 && result.annualCost < 1700, `Plausible NEM annual, got ${result.annualCost}`);
+      assert.ok(result.annualCost < 2000, 'Must not be the gross abs(kWh) figure (~$2,637)');
+      assert.ok(result.basis.includes('NEM YTD net charges'), result.basis);
+      assert.ok(result.basis.includes('base services'), result.basis);
+      assert.ok(result.basis.includes('gas'), result.basis);
+      assert.ok(result.basis.includes('extrapolated to 12 months'), result.basis);
     });
   });
 

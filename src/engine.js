@@ -33,50 +33,75 @@ export function calculateMonthlyCost(usage, ratePlan) {
 }
 
 /**
+ * One NEM-month cost at a rate plan, keeping export kWh negative (NEM 2.0 credit)
+ * and charging NBC only on imported kWh.
+ * @param {Object} month - NEM YTD row
+ * @param {Object} ratePlan
+ * @returns {number}
+ */
+function nemMonthCostFromRates(month, ratePlan) {
+  const date = parseLocalDate(month.date);
+  const monthNum = date.getMonth();
+  const seasonName = (monthNum >= 5 && monthNum <= 9) ? 'summer' : 'winter';
+  const season = ratePlan[seasonName];
+  if (!season) {
+    throw new Error(`Invalid season for NEM month ${month.date}`);
+  }
+  const on = month.onPeak || 0;
+  const off = month.offPeak || 0;
+  const sop = month.superOffPeak || 0;
+  const energyCost = on * season.onPeak + off * season.offPeak + sop * season.superOffPeak;
+  const importedKwh = Math.max(on, 0) + Math.max(off, 0) + Math.max(sop, 0);
+  const nbcCost = importedKwh * (ratePlan.nbcCharge || 0);
+  return energyCost + nbcCost + (ratePlan.baseFee || 0);
+}
+
+/**
  * Calculate annual cost from multiple bills or NEM YTD data
  * @param {Array<Object>} bills - Array of { date, usage, cost } or NEM YTD data
  * @param {Object} ratePlan - Rate plan from rates.js
  * @param {Array<Object>} nemYearToDate - Optional: NEM table with 10-12 months of history
+ * @param {Object} [options]
+ * @param {boolean} [options.modelFromKwh] - Price signed NEM kWh at this plan (for provider compare)
+ * @param {number} [options.gasCost] - One month of gas $ to annualize
  * @returns {Object} { annualCost, confidence, basis }
  */
-export function calculateAnnualCost(bills, ratePlan, nemYearToDate = null) {
+export function calculateAnnualCost(bills, ratePlan, nemYearToDate = null, options = {}) {
   if (bills.length === 0 && (!nemYearToDate || nemYearToDate.length === 0)) {
     throw new Error('No bills provided');
   }
 
-  // **USE NEM YTD DATA IF AVAILABLE** - much better than extrapolation
+  const gasAnnual = options.gasCost ? options.gasCost * 12 : 0;
+
+  // NEM YTD: use printed net charges, not abs(kWh) × retail (that treats exports as consumption).
   if (nemYearToDate && nemYearToDate.length >= 10) {
-    let totalCost = 0;
-    let monthsCovered = 0;
-    
-    nemYearToDate.forEach(month => {
-      // Determine season from date
-      const date = parseLocalDate(month.date);
-      const monthNum = date.getMonth();
-      const season = (monthNum >= 5 && monthNum <= 9) ? 'summer' : 'winter';
-      
-      // Create usage object (NEM data has negative values for net export)
-      const usage = {
-        onPeak: Math.abs(month.onPeak || 0),
-        offPeak: Math.abs(month.offPeak || 0),
-        superOffPeak: Math.abs(month.superOffPeak || 0),
-        season
+    const monthsCovered = nemYearToDate.length;
+    const scale = monthsCovered === 12 ? 1 : 12 / monthsCovered;
+    const confidence = monthsCovered >= 11 ? 'high' : 'medium';
+
+    if (options.modelFromKwh) {
+      const modeled = nemYearToDate.reduce((sum, month) => sum + nemMonthCostFromRates(month, ratePlan), 0);
+      return {
+        annualCost: modeled * scale + gasAnnual,
+        confidence,
+        basis: `${monthsCovered} months of NEM YTD usage modeled at ${ratePlan.provider} ${ratePlan.plan} rates (exports credited),${monthsCovered < 12 ? ' extrapolated to 12 months' : ''}${gasAnnual ? ', plus gas' : ''}`
       };
-      
-      const cost = calculateMonthlyCost(usage, ratePlan);
-      totalCost += cost;
-      monthsCovered++;
-    });
-    
-    // Extrapolate if we have 10-11 months
-    const annualCost = monthsCovered === 12 
-      ? totalCost 
-      : totalCost * (12 / monthsCovered);
-    
+    }
+
+    const netCharges = nemYearToDate.reduce((sum, month) => sum + (Number(month.nemCharges) || 0), 0);
+    const annualNet = netCharges * scale;
+    const annualBase = (ratePlan.baseFee || 0) * 12;
+    const parts = [
+      `${monthsCovered} months of NEM YTD net charges ($${netCharges.toFixed(2)})`,
+      'plus monthly base services charges'
+    ];
+    if (gasAnnual) parts.push('plus gas');
+    if (monthsCovered < 12) parts.push('extrapolated to 12 months');
+
     return {
-      annualCost,
-      confidence: monthsCovered >= 11 ? 'high' : 'medium',
-      basis: `${monthsCovered} months from NEM Year-to-Date table${monthsCovered < 12 ? ', extrapolated to 12 months' : ''}`
+      annualCost: annualNet + annualBase + gasAnnual,
+      confidence,
+      basis: parts.join(', ')
     };
   }
 
@@ -160,7 +185,8 @@ export function calculateAnnualCost(bills, ratePlan, nemYearToDate = null) {
  * @returns {Array<Object>} Array of { provider, plan, annualCost, savings, confidence }
  */
 export function compareProviders(bills, currentPlan, nemYearToDate = null) {
-  const currentCostData = calculateAnnualCost(bills, currentPlan, nemYearToDate);
+  const modelOpts = { modelFromKwh: true };
+  const currentCostData = calculateAnnualCost(bills, currentPlan, nemYearToDate, modelOpts);
   const alternatives = [];
 
   // Get customer's CCA territory from current provider
@@ -192,7 +218,7 @@ export function compareProviders(bills, currentPlan, nemYearToDate = null) {
   // If customer is on SDG&E bundled, territory is unknown, so show all options
 
   for (const plan of plans) {
-    const costData = calculateAnnualCost(bills, plan, nemYearToDate);
+    const costData = calculateAnnualCost(bills, plan, nemYearToDate, modelOpts);
     const savings = currentCostData.annualCost - costData.annualCost;
     
     alternatives.push({
@@ -640,7 +666,9 @@ export function generateSavingsReport(bills, currentPlan, household = {}, nemYea
     ? checkCareFeraEligibility(household.size, household.income, household.onBenefits)
     : null;
 
-  const currentCost = calculateAnnualCost(bills, currentPlan, nemYearToDate);
+  const currentCost = calculateAnnualCost(bills, currentPlan, nemYearToDate, {
+    gasCost: gasUsage && gasUsage.cost != null ? gasUsage.cost : 0
+  });
 
   // Filter behavioral savings if renter
   const applicableElectricActions = household.renter
