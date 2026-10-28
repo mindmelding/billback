@@ -205,4 +205,33 @@ describe('Deterministic Parser', () => {
       assert.strictEqual(needsManualReview(complete), false);
     });
   });
+
+  describe('NEM Payment History Parsing', () => {
+    it('should parse NEM payment history from fixture', () => {
+      const billText = readFileSync('./test/fixtures/sdge_bill_cea_solar_aug2026.txt', 'utf-8');
+      const parsed = parseSDGEBillText(billText);
+
+      // Should find payment in Net Metering Account Summary
+      assert.ok(Array.isArray(parsed.nemPaymentHistory));
+      assert.strictEqual(parsed.nemPaymentHistory.length, 1, 'Should find 1 NEM payment');
+      
+      const payment = parsed.nemPaymentHistory[0];
+      assert.strictEqual(payment.date, '2026-08-21', 'Should parse payment date');
+      assert.strictEqual(payment.amount, 354.22, 'Should parse payment amount');
+    });
+  });
+
+  describe('Billed CEA Rates Extraction', () => {
+    it('should extract CEA generation rates from bill', () => {
+      const billText = readFileSync('./test/fixtures/sdge_bill_cea_solar_aug2026.txt', 'utf-8');
+      const parsed = parseSDGEBillText(billText);
+
+      // Should extract CEA rates from CCA section
+      assert.ok(parsed.billedRates, 'Should extract billed rates');
+      assert.strictEqual(parsed.billedRates.season, 'summer');
+      assert.strictEqual(parsed.billedRates.onPeak, 0.55397, 'Should parse on-peak rate');
+      assert.strictEqual(parsed.billedRates.offPeak, 0.22298, 'Should parse off-peak rate');
+      assert.ok(parsed.billedRates.superOffPeak !== null, 'Should parse super off-peak rate');
+    });
+  });
 });

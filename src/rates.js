@@ -28,17 +28,35 @@ export const SDGE_TOU_DR1 = {
   nbcCharge: 0.04587 // Non-bypassable charges ($/kWh), all hours
 };
 
-// Clean Energy Alliance (CEA) rates
-// Source: CEA Rate Schedule, effective 2026-06-01
-// https://thecleanenergyalliance.org/rates/
-export const CEA_CLEAN_IMPACT_PLUS = {
+// Clean Energy Alliance (CEA) rates - VERSIONED
+// CEA rates changed mid-2026; version by effective date and bill period
+// When bill's printed rates differ from table, prefer bill rates and flag table as stale
+
+// CEA rates effective Feb 1, 2026 (from published rate schedule)
+// Source: CEA Rate Schedule effective 2026-02-01
+// https://thecleanenergyalliance.org/wp-content/uploads/2026/03/CEA-Adopted-Rate-Schedule-Effective-2026_02_01-Residential.pdf
+export const CEA_CLEAN_IMPACT_PLUS_FEB_2026 = {
   provider: 'CEA',
   plan: 'Clean Impact Plus',
-  effectiveDate: '2026-06-01',
-  source: 'CEA Rate Schedule',
-  baseFee: 24.12, // same as SDG&E
+  effectiveDate: '2026-02-01',
+  validThrough: '2026-07-31', // Approximate - actual change date mid-year
+  source: 'CEA Rate Schedule effective 2026-02-01',
+  baseFee: 24.12,
+  generation: {
+    summer: {
+      onPeak: 0.55922, // From Feb 1, 2026 schedule
+      offPeak: 0.22619,
+      superOffPeak: 0.03324
+    },
+    winter: {
+      onPeak: 0.20291,
+      offPeak: 0.10855,
+      superOffPeak: 0.07628
+    }
+  },
+  // Total rates (SDG&E delivery + CEA generation + NBC)
   summer: {
-    onPeak: 0.891, // 4-9 pm daily (includes SDG&E delivery + CEA generation)
+    onPeak: 0.891,
     offPeak: 0.56,
     superOffPeak: 0.386
   },
@@ -47,29 +65,171 @@ export const CEA_CLEAN_IMPACT_PLUS = {
     offPeak: 0.422,
     superOffPeak: 0.389
   },
-  nbcCharge: 0.04587
+  nbcCharge: 0.04587,
+  plusPremium: 0.001
 };
 
-export const CEA_CLEAN_IMPACT = {
+// CEA rates as shown on Aug 2026 bill (actual billed rates differ from published schedule)
+// Source: Actual SDG&E bill dated Sept 2, 2026 for billing period Jul 30 - Aug 27, 2026
+export const CEA_CLEAN_IMPACT_PLUS_AUG_2026 = {
+  provider: 'CEA',
+  plan: 'Clean Impact Plus',
+  effectiveDate: '2026-07-30', // Start of bill period showing these rates
+  validThrough: null, // Unknown when next change occurs
+  source: 'Actual Aug 2026 bill dated Sept 2, 2026 (billing period Jul 30 - Aug 27, 2026)',
+  baseFee: 24.12,
+  generation: {
+    summer: {
+      onPeak: 0.55397, // Actual rate on Aug 2026 bill (differs from Feb schedule: 0.55922)
+      offPeak: 0.22298,
+      superOffPeak: 0.03224
+    },
+    winter: { // Use Feb 2026 schedule for winter (not shown on summer bill)
+      onPeak: 0.20291,
+      offPeak: 0.10855,
+      superOffPeak: 0.07628
+    }
+  },
+  // Total rates (calculated from bill: SDG&E delivery + CEA generation + NBC)
+  summer: {
+    onPeak: 0.891, // Approximate total
+    offPeak: 0.56,
+    superOffPeak: 0.386
+  },
+  winter: { // Use Feb 2026 schedule totals for winter
+    onPeak: 0.537,
+    offPeak: 0.422,
+    superOffPeak: 0.389
+  },
+  nbcCharge: 0.04587,
+  plusPremium: 0.001,
+  note: 'Rates from actual bill differ from published Feb 1, 2026 schedule. CEA adjusted rates mid-year per board memo.'
+};
+
+// CEA Clean Impact Plus - current best estimate
+// Use Aug 2026 actual rates when available
+export const CEA_CLEAN_IMPACT_PLUS = CEA_CLEAN_IMPACT_PLUS_AUG_2026;
+
+export const CEA_CLEAN_IMPACT_FEB_2026 = {
   provider: 'CEA',
   plan: 'Clean Impact',
-  effectiveDate: '2026-06-01',
-  source: 'CEA Rate Schedule',
-  reliefCredit: 0.0387, // $/kWh, through 2026-12-31
+  effectiveDate: '2026-02-01',
+  validThrough: '2026-12-31', // Relief credit expires
+  source: 'CEA Rate Schedule effective 2026-02-01 + relief credit',
+  reliefCredit: 0.03871, // $/kWh residential, through 2026-12-31
   reliefCreditExpires: '2026-12-31',
   baseFee: 24.12,
+  generation: {
+    summer: {
+      onPeak: 0.55922 - 0.03871,
+      offPeak: 0.22619 - 0.03871,
+      superOffPeak: 0.03324 - 0.03871 // Negative after credit
+    },
+    winter: {
+      onPeak: 0.20291 - 0.03871,
+      offPeak: 0.10855 - 0.03871,
+      superOffPeak: 0.07628 - 0.03871
+    }
+  },
   summer: {
-    onPeak: 0.891 - 0.0387, // with relief credit
-    offPeak: 0.56 - 0.0387,
-    superOffPeak: 0.386 - 0.0387
+    onPeak: 0.891 - 0.03871,
+    offPeak: 0.56 - 0.03871,
+    superOffPeak: 0.386 - 0.03871
   },
   winter: {
-    onPeak: 0.537 - 0.0387,
-    offPeak: 0.422 - 0.0387,
-    superOffPeak: 0.389 - 0.0387
+    onPeak: 0.537 - 0.03871,
+    offPeak: 0.422 - 0.03871,
+    superOffPeak: 0.389 - 0.03871
   },
-  nbcCharge: 0.04587
+  nbcCharge: 0.04587,
+  note: 'Relief credit ends Dec 31, 2026. CEA board says credit "has been adjusted for specific rate classes" since Feb.'
 };
+
+export const CEA_CLEAN_IMPACT = CEA_CLEAN_IMPACT_FEB_2026;
+
+/**
+ * Get CEA rates for a specific bill period
+ * @param {string} plan - 'Clean Impact Plus' or 'Clean Impact'
+ * @param {string} billPeriodStart - Start date of bill period (YYYY-MM-DD)
+ * @returns {Object} Rate table + metadata { rates, source, possiblyStale }
+ */
+export function getCEARatesForPeriod(plan, billPeriodStart) {
+  const periodDate = new Date(billPeriodStart);
+  
+  if (plan === 'Clean Impact Plus') {
+    // If bill period is Aug 2026 or later, use Aug 2026 rates
+    if (periodDate >= new Date('2026-07-30')) {
+      return {
+        rates: CEA_CLEAN_IMPACT_PLUS_AUG_2026,
+        source: CEA_CLEAN_IMPACT_PLUS_AUG_2026.source,
+        possiblyStale: false
+      };
+    } else {
+      // Earlier bills use Feb 2026 schedule
+      return {
+        rates: CEA_CLEAN_IMPACT_PLUS_FEB_2026,
+        source: CEA_CLEAN_IMPACT_PLUS_FEB_2026.source,
+        possiblyStale: periodDate >= new Date('2026-06-01') // May be stale if mid-year
+      };
+    }
+  } else if (plan === 'Clean Impact') {
+    return {
+      rates: CEA_CLEAN_IMPACT_FEB_2026,
+      source: CEA_CLEAN_IMPACT_FEB_2026.source,
+      possiblyStale: periodDate >= new Date('2026-06-01') // May have adjusted like Plus
+    };
+  }
+  
+  return null;
+}
+
+/**
+ * Check if bill's printed CEA rates differ from rate table
+ * @param {Object} billRates - Rates extracted from bill { onPeak, offPeak, superOffPeak }
+ * @param {Object} tableRates - Rates from rate table
+ * @returns {Object} { matches: boolean, differences: [], recommendation: string }
+ */
+export function compareCEARates(billRates, tableRates) {
+  const differences = [];
+  const tolerance = 0.001; // Allow small rounding differences
+  
+  if (billRates.onPeak && tableRates.generation?.summer?.onPeak) {
+    const diff = Math.abs(billRates.onPeak - tableRates.generation.summer.onPeak);
+    if (diff > tolerance) {
+      differences.push({
+        type: 'onPeak',
+        bill: billRates.onPeak,
+        table: tableRates.generation.summer.onPeak,
+        difference: diff
+      });
+    }
+  }
+  
+  if (billRates.offPeak && tableRates.generation?.summer?.offPeak) {
+    const diff = Math.abs(billRates.offPeak - tableRates.generation.summer.offPeak);
+    if (diff > tolerance) {
+      differences.push({
+        type: 'offPeak',
+        bill: billRates.offPeak,
+        table: tableRates.generation.summer.offPeak,
+        difference: diff
+      });
+    }
+  }
+  
+  const matches = differences.length === 0;
+  
+  let recommendation = '';
+  if (!matches) {
+    recommendation = `Bill's printed rates differ from rate table. Use bill rates for this period. Rate table may be stale (CEA adjusted rates mid-2026 per board memo).`;
+  }
+  
+  return {
+    matches,
+    differences,
+    recommendation
+  };
+}
 
 // San Diego Community Power (SDCP) rates
 // Source: SDCP Rate Schedule, effective 2026-01-01

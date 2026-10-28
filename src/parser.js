@@ -21,6 +21,7 @@ export function parseSDGEBillText(text) {
     nemStatus: null,
     nemTrueUpDate: null,
     nemBalance: null,
+    nemPaymentHistory: [], // Array of { date, amount } for NEM payments
     systemSize: null,
     totalKwh: null,
     climateZone: null,
@@ -31,6 +32,7 @@ export function parseSDGEBillText(text) {
       season: null
     },
     gas: null,
+    billedRates: null, // CEA/CCA generation rates printed on bill
     charges: [],
     totalAmount: null,
     serviceAddress: { zip: null },
@@ -81,6 +83,25 @@ export function parseSDGEBillText(text) {
     if (tierMatch) {
       result.providerTier = tierMatch[1] ? 'Clean Impact Plus' : 'Clean Impact';
     }
+    
+    // Extract CEA generation rates from bill
+    // Pattern: "Generation On-Peak Summer 355 kWh X $0.55397"
+    const ceaRateSection = text.match(/Community Choice Aggregation[\s\S]{0,800}(?:Total CCA|Tax|NBC)/);
+    if (ceaRateSection) {
+      const section = ceaRateSection[0];
+      const onPeakMatch = section.match(/Generation On-Peak Summer\s+\d+\s*kWh\s+X\s+\$?([\d.]+)/i);
+      const offPeakMatch = section.match(/Generation Off-Peak Summer\s+\d+\s*kWh\s+X\s+\$?([\d.]+)/i);
+      const superOffPeakMatch = section.match(/Generation Super Off-Peak Summer\s+\d+\s*kWh\s+X\s+\$?([\d.]+)/i);
+      
+      if (onPeakMatch || offPeakMatch || superOffPeakMatch) {
+        result.billedRates = {
+          season: 'summer',
+          onPeak: onPeakMatch ? parseFloat(onPeakMatch[1]) : null,
+          offPeak: offPeakMatch ? parseFloat(offPeakMatch[1]) : null,
+          superOffPeak: superOffPeakMatch ? parseFloat(superOffPeakMatch[1]) : null
+        };
+      }
+    }
   } else if (text.match(/San Diego Community Power|SDCP/i)) {
     result.provider = 'SDCP';
     result.confidence.provider = 'high';
@@ -125,6 +146,22 @@ export function parseSDGEBillText(text) {
     const balanceMatch = text.match(/(?:NEM Year-to-Date Balance|Current Account Balance)\s+\$?([\d,]+\.?\d*)/);
     if (balanceMatch) {
       result.nemBalance = parseFloat(balanceMatch[1].replace(/,/g, ''));
+    }
+    
+    // Parse NEM payment history
+    // Pattern: "Payment Received   8/21/26    THANK YOU    - 354.22"
+    // Look in Net Metering Account Summary section
+    const nemSectionMatch = text.match(/Net Metering Account Summary[\s\S]{0,500}NEM Year-to-Date Balance/);
+    if (nemSectionMatch) {
+      const nemSection = nemSectionMatch[0];
+      const paymentRegex = /Payment Received\s+(\d{1,2}\/\d{1,2}\/\d{2,4})\s+[A-Z\s]+\s+-?\s*\$?\s*([\d,]+\.?\d*)/g;
+      let paymentMatch;
+      while ((paymentMatch = paymentRegex.exec(nemSection)) !== null) {
+        result.nemPaymentHistory.push({
+          date: normalizeDate(paymentMatch[1]),
+          amount: parseFloat(paymentMatch[2].replace(/,/g, ''))
+        });
+      }
     }
   }
 
@@ -313,6 +350,80 @@ export function stripPersonalInfo(text) {
   cleaned = cleaned.replace(/\d+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:ST|AVE|BLVD|DR|RD|LN|CT)/gi, '[ADDRESS]');
   
   return cleaned;
+}
+
+/**
+ * Detect if customer pays NEM charges monthly vs banking credits
+ * @param {Object} parsedData - Parsed bill data with nemPaymentHistory
+ * @returns {Object} { paysMonthly: boolean, confidence: 'high'|'medium'|'low'|'unknown', reasoning: string }
+ */
+export function detectNEMPaymentPattern(parsedData) {
+  if (!parsedData.hasSolar || !parsedData.nemPaymentHistory || parsedData.nemPaymentHistory.length === 0) {
+    return {
+      paysMonthly: null,
+      confidence: 'unknown',
+      reasoning: 'No payment history available'
+    };
+  }
+  
+  // If there are recent NEM payments, customer likely pays monthly
+  const payments = parsedData.nemPaymentHistory;
+  
+  if (payments.length >= 1) {
+    // Check if payments are roughly equal to or close to charges
+    // If customer pays monthly, payments should be regular
+    return {
+      paysMonthly: true,
+      confidence: 'high',
+      reasoning: `Found ${payments.length} NEM payment(s) in history. Customer appears to pay monthly rather than banking credits until true-up.`
+    };
+  }
+  
+  return {
+    paysMonthly: null,
+    confidence: 'unknown',
+    reasoning: 'Unable to determine payment pattern'
+  };
+}
+
+/**
+ * Calculate estimated true-up bill amount
+ * @param {Object} parsedData - Parsed bill data
+ * @param {boolean} paysMonthly - Whether customer pays monthly (from detectNEMPaymentPattern or user input)
+ * @returns {Object} { estimatedAmount: number, reasoning: string }
+ */
+export function calculateTrueUpAmount(parsedData, paysMonthly) {
+  if (!parsedData.hasSolar || !parsedData.nemBalance) {
+    return {
+      estimatedAmount: null,
+      reasoning: 'Not a solar/NEM account'
+    };
+  }
+  
+  if (paysMonthly === true) {
+    // Customer pays monthly - true-up is only unbilled charges since last bill
+    // Estimate: current month's charges, which is roughly (current balance - sum of recent payments)
+    const currentBalance = parsedData.nemBalance;
+    const recentPayments = parsedData.nemPaymentHistory.reduce((sum, p) => sum + p.amount, 0);
+    const unbilledAmount = currentBalance - recentPayments;
+    
+    return {
+      estimatedAmount: Math.max(0, unbilledAmount),
+      reasoning: `Customer pays monthly. True-up bill is only unbilled charges (~$${Math.round(unbilledAmount)}), not the full printed balance of $${Math.round(currentBalance)}.`
+    };
+  } else if (paysMonthly === false) {
+    // Customer banks credits - true-up is the full balance
+    return {
+      estimatedAmount: parsedData.nemBalance,
+      reasoning: `Customer banks credits. True-up bill is the full printed balance of $${Math.round(parsedData.nemBalance)}.`
+    };
+  } else {
+    // Unknown - show both scenarios
+    return {
+      estimatedAmount: null,
+      reasoning: `Unable to determine payment pattern. True-up bill could be either the full balance ($${Math.round(parsedData.nemBalance)}) if you bank credits, or only the unbilled final period charges (~$${Math.round(parsedData.nemBalance * 0.2)}) if you pay monthly.`
+    };
+  }
 }
 
 /**
